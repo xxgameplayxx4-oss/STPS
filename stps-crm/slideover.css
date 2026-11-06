@@ -1,0 +1,33 @@
+/* Verhalten des Seitenpanels (js/slideover.js). Grösse, Kopf, Hauptbereich und Fuss definiert app.css (dialog.drawer, 520 px,
+   «wide» 720 px); hier steht nur, was dazukommt: gestapelte Panels, Blatt auf dem Handy, Scrollsperre der Seite. */
+dialog.drawer { transition: transform var(--t-base) var(--ease); }
+
+/* gestapelt (z. B. Kontakt-Formular im Kunden-Formular): das untere Panel rückt nach links und wird abgedunkelt */
+dialog.drawer.so-under { transform: translateX(-28px); box-shadow: none; }
+dialog.drawer.so-under::after { content: ""; position: absolute; inset: 0; background: var(--scrim); pointer-events: none; }
+dialog.drawer.so-under::backdrop { background: transparent; }
+dialog.drawer.so-under[data-depth="2"] { transform: translateX(-52px); }
+dialog.drawer.so-under[data-depth="3"] { transform: translateX(-72px); }
+
+body:has(dialog.drawer[open]) { overflow: hidden; }
+
+/* Handy: Vollbild-Blatt, das von unten einfährt; Speichern steht zuoberst im Fuss */
+@keyframes sheet-in { from { transform: translateY(32px); opacity: 0; } }
+@media (max-width: 720px) {
+  dialog.drawer, dialog.drawer.wide { inset: 0; width: 100vw; border-left: 0; animation-name: sheet-in; }
+  dialog.drawer.so-under { transform: none; visibility: hidden; }
+  dialog.drawer .dlg-head { padding-top: max(14px, env(safe-area-inset-top)); }
+  dialog.drawer .dlg-body { padding: var(--s-4); }
+  dialog.drawer .dlg-foot { padding: var(--s-3) var(--s-4) max(var(--s-3), env(safe-area-inset-bottom)); }
+  dialog.drawer .dlg-foot .spacer { display: none; }
+  dialog.drawer .dlg-foot .foot-main { order: -1; flex: 1 1 100%; margin-left: 0; }
+  dialog.drawer .dlg-foot .foot-main .btn { flex: 1 1 0; }
+  dialog.drawer .dlg-foot .foot-main .btn-primary { flex: 2 1 0; }
+  dialog.drawer .dlg-foot .foot-extra { flex: 1 1 100%; }
+  dialog.drawer .dlg-foot .foot-extra .btn { flex: 1 1 calc(50% - 5px); }
+  dialog.drawer .dlg-foot .btn-primary { order: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  dialog.drawer { transition: none; }
+}
