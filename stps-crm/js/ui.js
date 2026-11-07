@@ -11,6 +11,11 @@ const P = {
   users: "M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75",
   file: "M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9zM14 3v6h6M8 13h8M8 17h5",
   factory: "M3 21V10l6 4v-4l6 4V4h3a1 1 0 0 1 1 1v16zM3 21h18",
+  ship: "M2 20c1.5 1.2 3 1.2 4.5 0s3-1.2 4.5 0 3 1.2 4.5 0 3-1.2 4.5 0M4 17l-1-5h18l-2 5M6 12V8h9v4M10 8V5h3v3",
+  send: "M22 2 11 13M22 2l-7 20-4-9-9-4z",
+  truck: "M1 4h13v12H1zM14 8h4l4 4v4h-8zM5.5 20a2 2 0 1 0 0-4 2 2 0 0 0 0 4zM17.5 20a2 2 0 1 0 0-4 2 2 0 0 0 0 4z",
+  train: "M7 3h10a3 3 0 0 1 3 3v9a3 3 0 0 1-3 3H7a3 3 0 0 1-3-3V6a3 3 0 0 1 3-3zM4 11h16M8 21l2-3M16 21l-2-3M8.5 15h.01M15.5 15h.01",
+  map: "M12 21s7-6.2 7-11a7 7 0 0 0-14 0c0 4.8 7 11 7 11zM12 12a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5z",
   link: "M10 13a5 5 0 0 0 7.07 0l3-3a5 5 0 0 0-7.07-7.07l-1.5 1.5M14 11a5 5 0 0 0-7.07 0l-3 3a5 5 0 0 0 7.07 7.07l1.5-1.5",
   chat: "M21 12a8 8 0 0 1-11.6 7.1L3 21l1.9-5.4A8 8 0 1 1 21 12z",
   chatlines: "M21 12a8 8 0 0 1-11.6 7.1L3 21l1.9-5.4A8 8 0 1 1 21 12zM8.5 10h7M8.5 14h4.5",
@@ -109,7 +114,7 @@ const closeHooks = new Set();
 export const anyDialogOpen = () => document.querySelector("dialog[open]") !== null;
 export const onDialogsClosed = (fn) => { closeHooks.add(fn); return () => closeHooks.delete(fn); };
 
-function makeDialog(cls) {
+export function makeDialog(cls) {
   const d = document.createElement("dialog");
   d.className = cls;
   document.body.appendChild(d);

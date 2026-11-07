@@ -11,6 +11,7 @@ import { invoiceKpis } from "./invoices.js";
 import { t, tv } from "../i18n.js";
 import * as TL from "../tasklog.js";
 import { certDashboardCard } from "./certs.js";
+import { shipmentKpis, hasShipment } from "../logistics.js";
 import { gauge } from "./common.js";
 
 // Anzeige der Geldbeträge: "cur" = nach Währung (je Währung eine Zeile, nie summiert), "conv" = umgerechnet in CHF/EUR/USD (3 Zeilen, ≈, Kurse aus den Einstellungen)
@@ -102,6 +103,7 @@ function weekCard(o, me) {
 export function render(root, route) {
   const k = computeKpis();
   const today = todayISO();
+  const sk = shipmentKpis(all("rfqs").filter(hasShipment), today);
   const wk = isoWeek(today);
   const me = getUser();
   const owners = [...getList("owners")].sort((a, b) => (a.name === me ? -1 : b.name === me ? 1 : 0));
@@ -139,6 +141,11 @@ export function render(root, route) {
         kpi(t("kpi.supplierOffersReceived"), k.lieferantenangeboteErhalten, `#/zuordnung${q({ phase: "Angebot erhalten" })}`, "", t("kpi.def.assignPhase", { phase: ph("Angebot erhalten") })),
         kpi(t("kpi.supplierWins"), k.supplierWins, `#/zuordnung${q({ phase: "Abschluss Ja" })}`, "", t("kpi.def.assignPhase", { phase: ph("Abschluss Ja") })),
       ], t("stream.upTip"))}
+      ${group("shipments", t("nav.sendungen"), [
+        kpi(t("shp.kpi.transit"), sk.inTransit, `#/sendungen${q({ status: "__transit" })}`, "", t("shp.kpi.transit.def")),
+        kpi(t("shp.kpi.arriving"), sk.arriving7, `#/sendungen${q({ status: "__arriving" })}`, "", t("shp.kpi.arriving.def")),
+        kpi(t("shp.kpi.delayed"), sk.delayed, `#/sendungen${q({ status: "Verzögert" })}`, sk.delayed ? t("shp.kpi.delayedHint") : "", t("shp.kpi.delayed.def"), sk.delayed > 0),
+      ])}
     </div>
     <section class="card" aria-labelledby="h-cp">
       <div class="card-head"><h2 id="h-cp" title="${t("stream.downTip")}">${t("stream.down")} <span class="muted">· ${t("stream.downOwners")}</span></h2><a class="btn btn-sm btn-ghost" href="#/kunden">${t("dash.allCustomers")}</a></div>

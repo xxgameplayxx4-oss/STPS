@@ -159,6 +159,7 @@ export const NAV = [
   { route: "board", icon: "kanban" }, // Board: Angebote/Rechnungen als Spalten In Bearbeitung | Gesendet | Freigegeben
   { route: "lieferanten", icon: "factory" },
   { route: "zuordnung", icon: "link" },
+  { route: "sendungen", icon: "ship" },
   { route: TASKLOG_ROUTE, icon: "check" }, // Aufgaben & Aktivitäten (früher «aktivitaeten» und «aufgaben», siehe LEGACY_ROUTES)
   { route: "team", icon: "team", server: true },
   { route: "einstellungen", icon: "gear" },

@@ -1149,7 +1149,42 @@
       "naechsterSchritt": "Verspätung beim Spediteur nachfragen",
       "kommentar": "Beispieldaten: Bestellung ausgelöst, Lieferung 2 hängt beim Zoll.",
       "createdAt": "2026-11-02T08:00:00.000Z",
-      "updatedAt": "2026-11-02T08:00:00.000Z"
+      "updatedAt": "2026-11-02T08:00:00.000Z",
+      "transport": "Strasse",
+      "originPort": "Kempten",
+      "destPort": "Zürich",
+      "vessel": "LKW-Sammelverkehr",
+      "currentLocation": "Zollamt Basel-Weil",
+      "events": [
+        {
+          "id": "8703190e-2017-5cae-8305-dd313357c83a",
+          "date": "2026-10-20",
+          "status": "Gebucht",
+          "location": "Kempten",
+          "note": ""
+        },
+        {
+          "id": "1374ed6c-8d8c-5161-9d03-957806644f5a",
+          "date": "2026-10-21",
+          "status": "Abgeholt",
+          "location": "Kempten",
+          "note": "Ladung 1 Palette"
+        },
+        {
+          "id": "75491f7b-6987-5a78-8fda-83259ed7da33",
+          "date": "2026-10-23",
+          "status": "Unterwegs",
+          "location": "Memmingen",
+          "note": ""
+        },
+        {
+          "id": "c076e94d-f274-5494-8b44-870c7aef38f2",
+          "date": "2026-10-28",
+          "status": "Zollabfertigung",
+          "location": "Zollamt Basel-Weil",
+          "note": "Papiere unvollständig, Nachreichung angefordert"
+        }
+      ]
     },
     {
       "id": "35438c41-016a-4258-af79-d0b7227f8548",
@@ -1166,15 +1201,66 @@
       "moq": "100 Stk",
       "leadTime": "6 Wochen",
       "versandStatus": "Zugestellt",
-      "versandAm": "2026-08-28",
-      "lieferungErwartet": "2026-09-04",
-      "spediteur": "UPS",
-      "trackingNr": "1Z0000000000000001",
+      "versandAm": "2026-10-30",
+      "lieferungErwartet": "2026-11-03",
+      "spediteur": "DHL Global Forwarding",
+      "trackingNr": "",
       "trackingLink": "",
       "naechsterSchritt": "",
       "kommentar": "Beispieldaten: Pilotserie geliefert.",
       "createdAt": "2026-11-02T08:00:00.000Z",
-      "updatedAt": "2026-11-02T08:00:00.000Z"
+      "updatedAt": "2026-11-02T08:00:00.000Z",
+      "transport": "Luftfracht",
+      "blAwbNr": "176-48201935",
+      "containerNr": "",
+      "originPort": "Ho-Chi-Minh-Stadt (SGN)",
+      "destPort": "Basel (BSL)",
+      "vessel": "Flug QR 8123",
+      "currentLocation": "Winterthur, Wareneingang",
+      "events": [
+        {
+          "id": "6677c1d8-8bf1-52d3-b64d-74514f46eb30",
+          "date": "2026-10-27",
+          "status": "Gebucht",
+          "location": "Ho-Chi-Minh-Stadt",
+          "note": "Luftfrachtbuchung bestätigt"
+        },
+        {
+          "id": "700036d2-ee0a-5305-b77a-86a5fe8fe695",
+          "date": "2026-10-29",
+          "status": "Abgeholt",
+          "location": "Werk Viet Precision",
+          "note": "Palette 2 Stk, 240 kg"
+        },
+        {
+          "id": "167cdab4-497b-5475-9e24-8fb501c7ba4b",
+          "date": "2026-10-30",
+          "status": "Abgefahren",
+          "location": "Ho-Chi-Minh-Stadt (SGN)",
+          "note": ""
+        },
+        {
+          "id": "ed5dc6ae-0658-506c-9b2f-4619e65c51d1",
+          "date": "2026-11-01",
+          "status": "Angekommen",
+          "location": "Basel (BSL)",
+          "note": "Umladung in Doha"
+        },
+        {
+          "id": "41bfc560-cf70-593d-9281-d62b74d8aae7",
+          "date": "2026-11-02",
+          "status": "Zollabfertigung",
+          "location": "Basel",
+          "note": "Zollfreigabe erteilt"
+        },
+        {
+          "id": "6e8a1ccd-35f9-590a-88b1-7e31601b65f4",
+          "date": "2026-11-03",
+          "status": "Zugestellt",
+          "location": "Winterthur",
+          "note": "Übernahme durch Wareneingang"
+        }
+      ]
     },
     {
       "id": "f4bc64ef-447f-4a17-a3a3-e881f75fa503",
@@ -1199,7 +1285,35 @@
       "naechsterSchritt": "Wareneingang beim Kunden bestätigen",
       "kommentar": "Beispieldaten: Direktlieferung Österreich nach Stuttgart.",
       "createdAt": "2026-11-02T08:00:00.000Z",
-      "updatedAt": "2026-11-02T08:00:00.000Z"
+      "updatedAt": "2026-11-02T08:00:00.000Z",
+      "transport": "Strasse",
+      "originPort": "Wels",
+      "destPort": "Stuttgart",
+      "vessel": "",
+      "currentLocation": "Passau",
+      "events": [
+        {
+          "id": "91119048-2614-516f-83a9-894b60b73c14",
+          "date": "2026-10-30",
+          "status": "Gebucht",
+          "location": "Wels",
+          "note": ""
+        },
+        {
+          "id": "9a0496ad-0bab-5d51-a1f6-af45d04f7278",
+          "date": "2026-10-31",
+          "status": "Abgeholt",
+          "location": "Wels",
+          "note": ""
+        },
+        {
+          "id": "ee9e044c-3402-5099-ac8d-f8ff5829f82a",
+          "date": "2026-11-05",
+          "status": "Unterwegs",
+          "location": "Passau",
+          "note": "Umschlag im Verteilzentrum"
+        }
+      ]
     },
     {
       "id": "73866149-5e36-43d0-a65a-8881128b15e8",
@@ -1248,6 +1362,306 @@
       "kommentar": "Beispieldaten: Kunde hat abgelehnt.",
       "createdAt": "2026-11-02T08:00:00.000Z",
       "updatedAt": "2026-11-02T08:00:00.000Z"
+    },
+    {
+      "id": "b60de361-6fd4-57b7-82f4-b74c76930133",
+      "customerId": "560bbf7e-aa46-4a50-a5cd-de44971ad5c3",
+      "supplierId": "46b26776-a148-4008-a99d-318dbfdc127b",
+      "contactId": "83796345-e132-4e32-a4de-97a462e91b8c",
+      "dealId": "",
+      "produkt": "Blechteile Serie 3 (Seecontainer)",
+      "waehrung": "USD",
+      "phase": "Abschluss Ja",
+      "gesendetAm": "2026-09-10",
+      "erhaltenAm": "2026-09-17",
+      "angebot": 21400,
+      "moq": "",
+      "leadTime": "",
+      "naechsterSchritt": "",
+      "kommentar": "Beispieldaten: Sendungsbeispiel.",
+      "createdAt": "2026-11-02T08:00:00.000Z",
+      "updatedAt": "2026-11-02T08:00:00.000Z",
+      "transport": "Seefracht",
+      "spediteur": "Hapag-Lloyd",
+      "containerNr": "HLXU4821905",
+      "blAwbNr": "HLCUHPH2610013",
+      "trackingNr": "",
+      "originPort": "Hai Phong",
+      "destPort": "Hamburg",
+      "vessel": "MV Nordlicht Express V.112E",
+      "versandAm": "2026-10-12",
+      "lieferungErwartet": "2026-11-12",
+      "versandStatus": "Unterwegs",
+      "currentLocation": "Rotes Meer / Suezkanal",
+      "events": [
+        {
+          "id": "36519676-30e0-5030-ad4a-a871423057b9",
+          "date": "2026-10-05",
+          "status": "Gebucht",
+          "location": "Hanoi",
+          "note": "Buchung 40' HC bestätigt"
+        },
+        {
+          "id": "b924bf8e-6874-5fd3-8836-6c8a74611894",
+          "date": "2026-10-10",
+          "status": "Abgeholt",
+          "location": "Werk Hanoi",
+          "note": "Container beladen und verplombt"
+        },
+        {
+          "id": "ad0d56cb-e7c8-5132-9a66-86885c935f2b",
+          "date": "2026-10-12",
+          "status": "Abgefahren",
+          "location": "Hai Phong",
+          "note": ""
+        },
+        {
+          "id": "b3d5ac3a-c7fe-59d8-b73d-84ac3432ec5a",
+          "date": "2026-10-27",
+          "status": "Unterwegs",
+          "location": "Singapur",
+          "note": "Umladung abgeschlossen"
+        },
+        {
+          "id": "40a88ae9-1356-5e8b-968f-0b02a31bd667",
+          "date": "2026-11-04",
+          "status": "Unterwegs",
+          "location": "Rotes Meer / Suezkanal",
+          "note": ""
+        }
+      ]
+    },
+    {
+      "id": "2250bcbe-d3ff-5aaa-b64a-acb56a77400a",
+      "customerId": "93d51012-0909-42df-a328-4d3ec1df6be2",
+      "supplierId": "3adb0aec-acea-4822-ad8c-3e8b2a6ebab0",
+      "contactId": "f81d53ce-e452-4045-a13c-56a1fa976c7f",
+      "dealId": "",
+      "produkt": "Montagewinkel, Los 2 (Seecontainer)",
+      "waehrung": "USD",
+      "phase": "Abschluss Ja",
+      "gesendetAm": "2026-09-10",
+      "erhaltenAm": "2026-09-17",
+      "angebot": 18900,
+      "moq": "",
+      "leadTime": "",
+      "naechsterSchritt": "",
+      "kommentar": "Beispieldaten: Sendungsbeispiel.",
+      "createdAt": "2026-11-02T08:00:00.000Z",
+      "updatedAt": "2026-11-02T08:00:00.000Z",
+      "transport": "Seefracht",
+      "spediteur": "MSC",
+      "containerNr": "MSCU7412358",
+      "blAwbNr": "MEDUXH604411",
+      "originPort": "Ho-Chi-Minh-Stadt (Cat Lai)",
+      "destPort": "Rotterdam",
+      "vessel": "MSC Aurora Beispiel V.044W",
+      "versandAm": "2026-10-30",
+      "lieferungErwartet": "2026-12-05",
+      "versandStatus": "Unterwegs",
+      "currentLocation": "Indischer Ozean",
+      "events": [
+        {
+          "id": "917b72fd-3140-588e-9231-585b37845489",
+          "date": "2026-10-24",
+          "status": "Gebucht",
+          "location": "Ho-Chi-Minh-Stadt",
+          "note": ""
+        },
+        {
+          "id": "a65c7d3d-a26f-5bed-846b-c22e556c84fb",
+          "date": "2026-10-28",
+          "status": "Abgeholt",
+          "location": "Werk Viet Precision",
+          "note": ""
+        },
+        {
+          "id": "84dc03b5-3e7b-58dd-a1d1-35589c3d2af6",
+          "date": "2026-10-30",
+          "status": "Abgefahren",
+          "location": "Ho-Chi-Minh-Stadt (Cat Lai)",
+          "note": ""
+        },
+        {
+          "id": "b764d9f6-4ac5-5bc5-80e7-e915e26b90a6",
+          "date": "2026-11-05",
+          "status": "Unterwegs",
+          "location": "Indischer Ozean",
+          "note": ""
+        }
+      ]
+    },
+    {
+      "id": "bfbe8b3d-0a4e-5314-bf04-5f233ab9e68a",
+      "customerId": "307fe6de-b604-46d4-afb5-09089b54e2ec",
+      "supplierId": "3adb0aec-acea-4822-ad8c-3e8b2a6ebab0",
+      "contactId": "f81d53ce-e452-4045-a13c-56a1fa976c7f",
+      "dealId": "",
+      "produkt": "Distanzhülsen Serie 2027 (Seecontainer)",
+      "waehrung": "USD",
+      "phase": "Abschluss Ja",
+      "gesendetAm": "2026-09-10",
+      "erhaltenAm": "2026-09-17",
+      "angebot": 15200,
+      "moq": "",
+      "leadTime": "",
+      "naechsterSchritt": "",
+      "kommentar": "Beispieldaten: Sendungsbeispiel.",
+      "createdAt": "2026-11-02T08:00:00.000Z",
+      "updatedAt": "2026-11-02T08:00:00.000Z",
+      "transport": "Seefracht",
+      "spediteur": "Maersk",
+      "containerNr": "MRKU3359821",
+      "blAwbNr": "MAEU265800417",
+      "originPort": "Hai Phong",
+      "destPort": "Rotterdam",
+      "vessel": "Maersk Beispiel Bay V.201E",
+      "versandAm": "2026-11-12",
+      "lieferungErwartet": "2026-12-20",
+      "versandStatus": "Offen",
+      "currentLocation": "Hanoi",
+      "events": [
+        {
+          "id": "f75887f2-6a4b-5c0c-96cf-8f69440746ce",
+          "date": "2026-11-03",
+          "status": "Gebucht",
+          "location": "Hanoi",
+          "note": "Abfahrt voraussichtlich 12.11."
+        }
+      ]
+    },
+    {
+      "id": "8bd9347b-742d-5e1b-9953-bebb94d5745b",
+      "customerId": "f1e2d082-0d4d-44d2-aff5-32f877ee26bc",
+      "supplierId": "46b26776-a148-4008-a99d-318dbfdc127b",
+      "contactId": "83796345-e132-4e32-a4de-97a462e91b8c",
+      "dealId": "",
+      "produkt": "Schaltschrankteile aus Blech (Seecontainer)",
+      "waehrung": "USD",
+      "phase": "Abschluss Ja",
+      "gesendetAm": "2026-09-10",
+      "erhaltenAm": "2026-09-17",
+      "angebot": 12800,
+      "moq": "",
+      "leadTime": "",
+      "naechsterSchritt": "",
+      "kommentar": "Beispieldaten: Sendungsbeispiel.",
+      "createdAt": "2026-11-02T08:00:00.000Z",
+      "updatedAt": "2026-11-02T08:00:00.000Z",
+      "transport": "Seefracht",
+      "spediteur": "CMA CGM",
+      "containerNr": "CMAU6120473",
+      "blAwbNr": "CMDUHPH0345521",
+      "originPort": "Ho-Chi-Minh-Stadt (Cat Lai)",
+      "destPort": "Basel (Rheinhafen)",
+      "vessel": "CMA CGM Beispiel Alpina V.087E",
+      "versandAm": "2026-10-01",
+      "lieferungErwartet": "2026-11-09",
+      "versandStatus": "Unterwegs",
+      "currentLocation": "Rotterdam, Zolllager",
+      "events": [
+        {
+          "id": "5f10dce8-5f8f-5c29-8543-4c78e038293f",
+          "date": "2026-09-26",
+          "status": "Gebucht",
+          "location": "Ho-Chi-Minh-Stadt",
+          "note": ""
+        },
+        {
+          "id": "74842989-dc60-5351-bcc5-808b821a762b",
+          "date": "2026-09-29",
+          "status": "Abgeholt",
+          "location": "Werk Hanoi",
+          "note": ""
+        },
+        {
+          "id": "5b9ab231-3bc6-5bd9-932e-4f1da63fa249",
+          "date": "2026-10-01",
+          "status": "Abgefahren",
+          "location": "Ho-Chi-Minh-Stadt (Cat Lai)",
+          "note": ""
+        },
+        {
+          "id": "b93d883d-fb02-5e7f-b3ed-3ff1e7507f00",
+          "date": "2026-10-18",
+          "status": "Unterwegs",
+          "location": "Mittelmeer",
+          "note": ""
+        },
+        {
+          "id": "db2cb3b4-8c08-52f0-a177-f692b5312b8b",
+          "date": "2026-11-04",
+          "status": "Angekommen",
+          "location": "Rotterdam",
+          "note": "Weiterfahrt per Rheinschiff nach Basel"
+        },
+        {
+          "id": "b59fff84-7116-5b8a-b6ec-03658266f8a3",
+          "date": "2026-11-06",
+          "status": "Zollabfertigung",
+          "location": "Rotterdam, Zolllager",
+          "note": "Verzollung läuft"
+        }
+      ]
+    },
+    {
+      "id": "31fc8548-c394-59c6-b672-56e0dbab423a",
+      "customerId": "ea497566-48b6-4aa0-a000-185a542d6c14",
+      "supplierId": "46b26776-a148-4008-a99d-318dbfdc127b",
+      "contactId": "83796345-e132-4e32-a4de-97a462e91b8c",
+      "dealId": "",
+      "produkt": "Frontbleche Prototypen (Luftfracht)",
+      "waehrung": "USD",
+      "phase": "Abschluss Ja",
+      "gesendetAm": "2026-09-10",
+      "erhaltenAm": "2026-09-17",
+      "angebot": 6400,
+      "moq": "",
+      "leadTime": "",
+      "naechsterSchritt": "",
+      "kommentar": "Beispieldaten: Sendungsbeispiel.",
+      "createdAt": "2026-11-02T08:00:00.000Z",
+      "updatedAt": "2026-11-02T08:00:00.000Z",
+      "transport": "Luftfracht",
+      "spediteur": "Swiss WorldCargo",
+      "blAwbNr": "724-55512340",
+      "originPort": "Hanoi (HAN)",
+      "destPort": "Zürich (ZRH)",
+      "vessel": "Flug LX 9143",
+      "versandAm": "2026-11-04",
+      "lieferungErwartet": "2026-11-08",
+      "versandStatus": "Unterwegs",
+      "currentLocation": "Zürich (ZRH), Fracht-Terminal",
+      "events": [
+        {
+          "id": "05ad1e7a-c5c8-5895-841a-b520348a4f38",
+          "date": "2026-11-02",
+          "status": "Gebucht",
+          "location": "Hanoi",
+          "note": ""
+        },
+        {
+          "id": "47d749cc-fce3-50d2-8633-fc92db2d0ec8",
+          "date": "2026-11-03",
+          "status": "Abgeholt",
+          "location": "Werk Hanoi",
+          "note": ""
+        },
+        {
+          "id": "791f5e21-060b-5026-87bc-cdd8425e25b5",
+          "date": "2026-11-04",
+          "status": "Abgefahren",
+          "location": "Hanoi (HAN)",
+          "note": ""
+        },
+        {
+          "id": "d0585c37-9e3e-5f6e-99ae-dd2838056874",
+          "date": "2026-11-06",
+          "status": "Angekommen",
+          "location": "Zürich (ZRH)",
+          "note": "Fracht-Terminal, Zoll in Vorbereitung"
+        }
+      ]
     }
   ],
   "deals": [

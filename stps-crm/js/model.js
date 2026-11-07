@@ -6,7 +6,7 @@ import { FX_CURS, convert, roundFx } from "./fx.js";
 import { html, chf, money, fmtDate, fmtPct, fmtNum, price, todayISO } from "./util.js";
 import { t, tv, tvAny, getLang } from "./i18n.js";
 import { COUNTRIES, countryName, countryCode } from "./countries.js";
-import { SHIP_STATUS, CARRIERS, safeUrl } from "./logistics.js";
+import { SHIP_STATUS, CARRIERS, TRANSPORT_MODES, MILESTONES, safeUrl } from "./logistics.js";
 import { INVOICE_STATUS, fmtArtNr, nextArtNr, margin, dueDate, DEFAULT_MWST_SATZ, INVOICE_CURRENCIES } from "./billing.js";
 
 // ------------------------------------------------------------ Listen als Funktionen (dynamisch editierbar)
@@ -30,6 +30,8 @@ export const L = {
   jaNein: () => opts("yesNo", C.JA_NEIN),
   versandstatus: () => opts("shipStatus", SHIP_STATUS),
   spediteure: () => opts("carrier", CARRIERS),
+  transport: () => opts("transport", TRANSPORT_MODES),
+  meilensteine: () => opts("milestone", MILESTONES),
   rechnungsstatus: () => opts("invStatus", INVOICE_STATUS),
   // Länder (Pflichtfeld Land): value = Ländercode, label = «CH · Schweiz»
   laender: () => COUNTRIES.map((c) => ({ value: c.code, label: `${c.code} · ${countryName(c.code, getLang())}` })),
@@ -365,6 +367,14 @@ export const ENT = {
       fld("rfqs", "spediteur", "select", { options: L.spediteure, blank: "log.noCarrier" }),
       fld("rfqs", "trackingNr", "text"),
       fld("rfqs", "trackingLink", "text", { full: true, placeholder: true, validate: (v) => (v && !safeUrl(v) ? t("log.err.link") : "") }),
+      // Sendung (Seefracht/Luftfracht/…, siehe logistics.js und views/shipments.js); die Statusereignisse pflegt das Seitenpanel «Sendungen»
+      fld("rfqs", "transport", "select", { options: L.transport, blank: "log.noTransport" }),
+      fld("rfqs", "containerNr", "text", { placeholder: true }),
+      fld("rfqs", "blAwbNr", "text"),
+      fld("rfqs", "originPort", "text", { placeholder: true }),
+      fld("rfqs", "destPort", "text", { placeholder: true }),
+      fld("rfqs", "vessel", "text"),
+      fld("rfqs", "currentLocation", "text"),
       fld("rfqs", "naechsterSchritt", "text", { full: true }),
       fld("rfqs", "kommentar", "textarea", { rows: 3, full: true }),
     ],

@@ -16,6 +16,7 @@ import * as deals from "./views/deals.js";
 import * as articles from "./views/articles.js";
 import * as suppliers from "./views/suppliers.js";
 import * as rfqs from "./views/rfqs.js";
+import * as shipments from "./views/shipments.js";
 import * as tasklogView from "./views/tasklog.js";
 import * as TL from "./tasklog.js";
 import * as settings from "./views/settings.js";
@@ -41,6 +42,7 @@ const VIEWS = {
   druck: print, // Druckansicht ohne Menü: #/druck/offerte/<id> bzw. #/druck/rechnung/<id>
   lieferanten: suppliers,
   zuordnung: rfqs,
+  sendungen: shipments, // Sendungen: #/sendungen?status=…&mode=…, Detail #/sendungen/<id>
   [TL.ROUTE]: tasklogView, // Aufgaben & Aktivitäten: #/aufgaben-aktivitaeten?tab=open|done|history&typ=…
   kalender: calendarView, // Team-Kalender: #/kalender, Link aus Erinnerungen: #/kalender/<id>?o=<Beginn>
   chat: chatView,
