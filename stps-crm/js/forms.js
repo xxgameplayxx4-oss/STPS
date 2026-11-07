@@ -119,6 +119,8 @@ const dealExtras = (rec) => {
     { label: t("match.btn"), onClick: (c) => { if (rec.customerId) openMatch(rec.customerId, { dealId: rec.id }); } },
     { label: t("print.offerBtn"), onClick: async (c) => { if (await leave(c)) location.hash = `#/druck/offerte/${rec.id}`; } },
     { label: t("print.abBtn"), onClick: async (c) => { if (await leave(c)) location.hash = `#/druck/auftragsbestaetigung/${rec.id}`; } },
+    { label: t("print.pfBtn"), onClick: async (c) => { if (await leave(c)) location.hash = `#/druck/proforma/${rec.id}`; } },
+    { label: t("print.lsBtn"), onClick: async (c) => { if (await leave(c)) location.hash = `#/druck/lieferschein/${rec.id}`; } },
     { label: t("inv.createFromDeal"), onClick: async (c) => { if (await leave(c)) invoiceFromDeal(rec.id); } },
   ];
 };

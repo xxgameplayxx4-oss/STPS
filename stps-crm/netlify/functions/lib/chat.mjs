@@ -9,13 +9,15 @@
 // Ältere Segmente als KEEP_SEGS werden gelöscht (Obergrenze). Nachrichten sind reiner Text (der Browser escaped beim Anzeigen).
 //
 //  GET  /api/chat?[channel=team|mgmt&]since=<id>|before=<id>&limit=<n>[&peek=1]   neueste Nachrichten / neuere als <id> / ältere als <id>; peek: nur Zähler
-//  POST /api/chat {text, cid?, channel?}                                 senden (danach Push/E-Mail an die anderen Mitglieder, siehe push.mjs)
+//  POST /api/chat {text, cid?, channel?, file?}                          senden (file = ID einer Datei aus POST /api/files mit passendem Bereich, siehe files.mjs) (danach Push/E-Mail an die anderen Mitglieder, siehe push.mjs)
 //  POST /api/chat/read {upTo, channel?}                                  als gelesen markieren
 //  GET  /api/push/config · POST /api/push/subscribe · POST /api/push/unsubscribe   siehe push.mjs
 import { mutateDoc } from "./kv.mjs";
 import { ApiFail, json, fail, queryOf, parseBody } from "./http.mjs";
 import * as PUSH from "./push.mjs";
 import { scrubChat } from "./hide-super.mjs";
+import { canManage } from "./roles.mjs";
+import * as FILES from "./files.mjs";
 
 export const META_KEY = "chat/meta";
 export const CHANNELS = ["team", "mgmt"];
@@ -29,8 +31,8 @@ export const MAX_LIMIT = 100;
 export const RATE_PER_MIN = 20;
 const CID_RE = /^[A-Za-z0-9_-]{1,40}$/;
 
-/** Darf dieses Konto den Kanal «Geschäftsleitung» sehen? Team-Admin, Management-Kennzeichen, Superadmin (Support im Team-Kontext). */
-export const canManage = (user, isSuper = false) => Boolean(isSuper || user?.role === "admin" || user?.role === "superadmin" || user?.management === true);
+// canManage: Team-Admin, Management-Kennzeichen, Superadmin (Support im Team-Kontext) – gemeinsam mit den Dateien, siehe roles.mjs
+export { canManage };
 
 /** Kanäle, die dieses Konto sehen darf */
 export const channelsFor = (user, isSuper = false) => (canManage(user, isSuper) ? ["team", "mgmt"] : ["team"]);
@@ -52,7 +54,7 @@ const keys = (ch) => {
 // ---------------------------------------------------------------- Eingaben
 
 /** Text bereinigen: nur Text (Steuerzeichen raus, Zeilenumbrüche bleiben), gekürzt auf MAX_TEXT. Wirft bei leer/zu lang. */
-export function cleanMessage(v) {
+export function cleanMessage(v, { optional = false } = {}) {
   const s = String(v ?? "")
     .replace(/\r\n?/g, "\n")
     .replace(/\t/g, " ")
@@ -60,6 +62,7 @@ export function cleanMessage(v) {
     .replace(/[ \u00a0]+\n/g, "\n")
     .replace(/\n{3,}/g, "\n\n")
     .trim();
+  if (!s && optional) return ""; // Nachricht nur mit Anhang
   if (!s) throw fail(400, "chat_empty", "Bitte eine Nachricht eingeben");
   if (s.length > MAX_TEXT) throw fail(400, "chat_too_long", `Die Nachricht ist zu lang (höchstens ${MAX_TEXT} Zeichen)`, { max: MAX_TEXT });
   return s;
@@ -100,7 +103,7 @@ async function collect(store, K, head, { after = 0, upTo = Infinity, limit, maxS
 }
 
 /** Öffentliche Form einer Nachricht (ohne interne Felder wie cid) */
-const view = (m) => ({ id: m.id, uid: m.uid, name: m.name, ...(m.sa ? { sa: true } : {}), at: m.at, text: m.text });
+const view = (m) => ({ id: m.id, uid: m.uid, name: m.name, ...(m.sa ? { sa: true } : {}), at: m.at, text: m.text, ...(m.file ? { file: m.file } : {}) });
 /** Für Nicht-Superadmins: Nachrichten des Superadmins erscheinen als «Administrator» (ohne seinen Namen und seine Kennung) */
 const viewFor = (isSuper) => (isSuper ? view : (m) => scrubChat(view(m)));
 
@@ -239,17 +242,21 @@ export function route(path, method, req, deps, ctx) {
       if (method !== "POST") return wrongMethod();
       const body = parseBody(req, 8 * 1024);
       const channel = channelOf(body.channel, user, ctx.isSuper);
-      const text = cleanMessage(body.text);
+      // Anhang (optional): Datei-ID aus POST /api/files – Angaben (Name, Typ, Grösse) stammen vom Server; die Datei muss vom Absender sein und zum Kanal passen
+      const fileId = typeof body.file === "string" && body.file ? body.file : null;
+      const text = cleanMessage(body.text, { optional: Boolean(fileId) });
+      const file = fileId ? await FILES.attachmentFor(store, fileId, { uid: user.id, scope: channel }) : null;
       const cid = typeof body.cid === "string" && CID_RE.test(body.cid) ? body.cid : undefined;
       await takeRate(store, keys(channel), user.id, deps.now);
       const message = await appendMessage(store, {
-        uid: user.id, name: user.displayName, ...(ctx.isSuper ? { sa: true } : {}), at: new Date(deps.now).toISOString(), text, ...(cid ? { cid } : {}),
+        uid: user.id, name: user.displayName, ...(ctx.isSuper ? { sa: true } : {}), at: new Date(deps.now).toISOString(), text, ...(file ? { file } : {}), ...(cid ? { cid } : {}),
       }, channel);
       // Eigene Nachricht gilt als gelesen
       await markRead(store, user, message.id, channel).catch(() => {});
       // Push/E-Mail an die anderen Mitglieder – darf das Senden nie scheitern lassen
       try {
-        await PUSH.notifyTeam(deps, ctx, scrubChat(view(message)), channel === "mgmt" ? { channel, only: (m) => canManage(m) } : {}); // Empfänger sind Mitglieder: Absender «Administrator»
+        const pushed = scrubChat(view(message));
+        await PUSH.notifyTeam(deps, ctx, pushed.text || !pushed.file ? pushed : { ...pushed, text: `Datei / File: ${pushed.file.name}` }, channel === "mgmt" ? { channel, only: (m) => canManage(m) } : {}); // Empfänger sind Mitglieder: Absender «Administrator»
       } catch (err) {
         console.error("[stps-crm] Benachrichtigung fehlgeschlagen:", err?.message || err);
       }

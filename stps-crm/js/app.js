@@ -27,6 +27,7 @@ import * as push from "./push.js";
 import * as users from "./views/users.js";
 import * as platform from "./views/platform.js";
 import * as invoices from "./views/invoices.js";
+import * as board from "./views/board.js";
 import * as print from "./views/print.js";
 import { initCmdk } from "./cmdk.js";
 
@@ -36,6 +37,7 @@ const VIEWS = {
   angebote: deals,
   artikel: articles,
   rechnungen: invoices,
+  board, // Board: #/board?m=angebote|rechnungen
   druck: print, // Druckansicht ohne Menü: #/druck/offerte/<id> bzw. #/druck/rechnung/<id>
   lieferanten: suppliers,
   zuordnung: rfqs,
@@ -173,6 +175,7 @@ function onLanguageChanged() {
   const snap = snapshotEditors();
   buildNav();
   updateAccount();
+  updateDevMode();
   updateStatus();
   updateWho();
   updateChips();
@@ -208,8 +211,11 @@ function visibleNav() {
   return NAV.filter((n) => (!n.server || server) && (!n.superOnly || (server && store.isSuper())) && (!store.S.noTeam || n.route === "plattform"));
 }
 
+/** Tooltip der Menüpunkte: Downstream (Kunden, Angebote) bzw. Upstream (Lieferanten, Zuordnung) */
+const streamTip = (route) => ({ kunden: t("stream.downTip"), angebote: t("stream.downTip"), lieferanten: t("stream.upTip"), zuordnung: t("stream.upTip") })[route] || "";
+
 function buildNav() {
-  $("#nav-list").innerHTML = visibleNav().map((n) => html`<li><a href="#/${n.route}" data-route="${n.route}">${icon(n.icon)}<span>${navLabel(n.route)}</span><span class="nav-badge" data-badge="${n.route}" hidden></span></a></li>`).join("");
+  $("#nav-list").innerHTML = visibleNav().map((n) => html`<li><a href="#/${n.route}" data-route="${n.route}" ${streamTip(n.route) ? html`title="${streamTip(n.route)}"` : ""}>${icon(n.icon)}<span>${navLabel(n.route)}</span><span class="nav-badge" data-badge="${n.route}" hidden></span></a></li>`).join("");
 }
 
 function updateNavBadges() {
@@ -272,11 +278,27 @@ function updateAccount() {
   const bar = $("#superbar");
   if (store.isSuper() && tm) {
     bar.hidden = false;
-    bar.innerHTML = html`${icon("shield")}<div>${th("acct.superbar", { team: tm.name })}</div><button type="button" class="btn btn-sm" data-account="leave">${t("acct.leaveTeam")}</button>`.toString();
+    // Entwicklungsmodus: das Team bleibt betreten (der Rollenwechsler stellt «admin» immer in dieses Team) – kein «Team verlassen»
+    bar.innerHTML = html`${icon("shield")}<div>${th("acct.superbar", { team: tm.name })}</div>${store.S.dev ? "" : html`<button type="button" class="btn btn-sm" data-account="leave">${t("acct.leaveTeam")}</button>`}`.toString();
   } else {
     bar.hidden = true;
     bar.innerHTML = "";
   }
+}
+
+/** Entwicklungsmodus: dauerhafter Hinweis + Rollenwechsler (admin / Pascal / Liz / Marco) in der Kopfzeile */
+function updateDevMode() {
+  const on = Boolean(store.S.dev);
+  $("#devbanner").hidden = !on;
+  $("#dev-switch-wrap").hidden = !on;
+  document.body.classList.toggle("dev-mode", on);
+  if (!on) return;
+  $("#devbanner-text").textContent = t("dev.banner");
+  $("#dev-switch").innerHTML = store.S.devUsers
+    .map((u) => html`<option value="${u.key}" ${u.key === store.S.devKey ? "selected" : ""}>${u.displayName} · ${roleName(u.role)}</option>`)
+    .join("");
+  // Im Entwicklungsmodus gibt es weder Passwort noch Abmelden
+  document.querySelectorAll('[data-account="password"], [data-account="logout"]').forEach((b) => { b.hidden = true; });
 }
 
 function updateChips() {
@@ -294,7 +316,7 @@ function fillTeamSwitch(teams) {
   teams = teamList;
   const wrap = $("#team-switch-wrap");
   const sel = $("#team-switch");
-  const show = store.S.mode !== "local" && store.isSuper();
+  const show = store.S.mode !== "local" && store.isSuper() && !store.S.dev;
   wrap.hidden = !show;
   if (!show) return;
   const cur = store.getTeam()?.id || "";
@@ -409,6 +431,7 @@ function start() {
   buildNav();
   updateWho();
   updateAccount();
+  updateDevMode();
   updateStatus();
   initCmdk({ pages: visibleNav }); // Befehlspalette (Strg/Cmd+K, «/»)
   if (store.S.mode !== "local") {
@@ -459,6 +482,7 @@ function start() {
   $("#nav-scrim").addEventListener("click", () => document.body.classList.remove("nav-open"));
   document.addEventListener("keydown", (e) => { if (e.key === "Escape") document.body.classList.remove("nav-open"); });
   $("#whoami").addEventListener("change", (e) => { store.setUser(e.target.value); toast(t("toast.signedInAs", { name: e.target.value })); });
+  $("#dev-switch").addEventListener("change", (e) => store.devSwitch(e.target.value));
   $("#savestate").addEventListener("click", () => store.flushNow());
   $("#banner").addEventListener("click", (e) => { if (e.target.closest("[data-retry]")) store.flushNow(); });
 

@@ -6,6 +6,7 @@ import { t } from "../i18n.js";
 import { icon, toast } from "../ui.js";
 import { uid } from "../util.js";
 import { fmtArtNr, parseArtNr, validateRanges, INVOICE_CURRENCIES, DEFAULT_CURRENCY } from "../billing.js";
+import { isQrIban, normIban, REF_TYPES } from "../qrbill.js";
 import { subsOf, usageCount } from "../categories.js";
 
 const canEdit = () => store.S.mode === "local" || store.isTeamAdmin();
@@ -98,8 +99,9 @@ function bankRow(k, edit) {
         <input type="text" data-v="bic" value="${k.bic}" aria-label="${t("billing.bic")}" placeholder="BIC / SWIFT">
         <select data-v="waehrung" aria-label="${t("billing.bankCur")}">${INVOICE_CURRENCIES.map((c) => html`<option value="${c}" ${c === k.waehrung ? "selected" : ""}>${c}</option>`)}</select>
         <button type="button" class="icon-btn" data-bill="bk-del" aria-label="${t("billing.bankRemove")}" title="${t("common.remove")}">${icon("trash")}</button>
+        <input type="text" class="bk-qr" data-v="qrIban" value="${k.qrIban || ""}" aria-label="${t("billing.qrIban")}" placeholder="${t("billing.qrIban.ph")}">
       </div>`
-    : html`<tr><td>${k.bank}</td><td>${k.iban}</td><td>${k.bic}</td><td><span class="badge t-navy">${k.waehrung}</span></td></tr>`;
+    : html`<tr><td>${k.bank}</td><td>${k.iban}${k.qrIban ? html`<div class="muted">${t("billing.qrIban")}: ${k.qrIban}</div>` : ""}</td><td>${k.bic}</td><td><span class="badge t-navy">${k.waehrung}</span></td></tr>`;
 }
 
 function banksCard(b, edit) {
@@ -141,10 +143,39 @@ function termsCard(b, edit) {
   </section>`;
 }
 
+function checkField(key, label, v, edit) {
+  return html`<label class="check"><input type="checkbox" name="${key}" ${v ? "checked" : ""} ${edit ? "" : "disabled"}> <span>${label}</span></label>`;
+}
+
+/** WP-B: AGB (Zusatzseite hinter Auftragsbestätigung / Offerte) und Referenzart der QR-Rechnung */
+function docsCard(b, edit) {
+  return html`<section class="card span-all" data-bill-card="docs">
+    <div class="card-head"><h2>${t("billing.docs.title")}</h2></div>
+    <form class="list-ed pad" data-bill-form="docs" novalidate>
+      <p class="help">${t("billing.docs.help")}</p>
+      <div class="field">
+        <label for="bill-agb">${t("billing.agb")}</label>
+        <textarea id="bill-agb" name="agb" rows="10" ${edit ? "" : "disabled"}>${b.agb || ""}</textarea>
+        <div class="help">${t("billing.agb.help")}</div>
+      </div>
+      ${checkField("agbAuftragsbestaetigung", t("billing.agbAb"), b.agbAuftragsbestaetigung, edit)}
+      ${checkField("agbOfferte", t("billing.agbOfferte"), b.agbOfferte, edit)}
+      <div class="field">
+        <label for="bill-qrRefType">${t("billing.qrRefType")}</label>
+        <select id="bill-qrRefType" name="qrRefType" ${edit ? "" : "disabled"}>${REF_TYPES.map((r) => html`<option value="${r}" ${r === b.qrRefType ? "selected" : ""}>${t(`billing.qrRef.${r}`)}</option>`)}</select>
+        <div class="help">${t("billing.qrRefType.help")}</div>
+      </div>
+      <p class="help qr-test-help"><strong>${t("billing.qrTest")}</strong></p>
+      ${edit ? html`<div class="le-actions"><span class="spacer"></span><button type="submit" class="btn btn-sm btn-primary">${t("common.save")}</button></div>` : html`<p class="help">${t("billing.readOnly")}</p>`}
+      <div class="err" role="alert" data-bill-err></div>
+    </form>
+  </section>`;
+}
+
 export function cardsHtml() {
   const b = store.getBilling();
   const edit = canEdit();
-  return html`${groupsCard(b, edit)}${firmCard(b, edit)}${termsCard(b, edit)}${banksCard(b, edit)}`;
+  return html`${groupsCard(b, edit)}${firmCard(b, edit)}${termsCard(b, edit)}${banksCard(b, edit)}${docsCard(b, edit)}`;
 }
 
 const val = (form, name) => form.querySelector(`[name="${name}"]`).value.trim();
@@ -206,12 +237,25 @@ function saveBanks(form) {
     id: r.dataset.bk,
     bank: r.querySelector('[data-v="bank"]').value.trim(),
     iban: r.querySelector('[data-v="iban"]').value.trim(),
+    qrIban: normIban(r.querySelector('[data-v="qrIban"]').value),
     bic: r.querySelector('[data-v="bic"]').value.trim().toUpperCase(),
     waehrung: r.querySelector('[data-v="waehrung"]').value,
   }));
   if (rows.some((r) => !r.iban)) { err.textContent = t("billing.err.iban"); return; }
+  if (rows.some((r) => r.qrIban && !isQrIban(r.qrIban))) { err.textContent = t("billing.err.qrIban"); return; }
   err.textContent = "";
   store.setBilling({ banks: rows });
+  toast(t("billing.saved"), { type: "ok" });
+}
+
+function saveDocs(form) {
+  store.setBilling({
+    agb: form.querySelector('[name="agb"]').value.replace(/\r\n/g, "\n").trim(),
+    agbAuftragsbestaetigung: form.querySelector('[name="agbAuftragsbestaetigung"]').checked,
+    agbOfferte: form.querySelector('[name="agbOfferte"]').checked,
+    qrRefType: form.querySelector('[name="qrRefType"]').value,
+  });
+  form.querySelector("[data-bill-err]").textContent = "";
   toast(t("billing.saved"), { type: "ok" });
 }
 
@@ -255,7 +299,7 @@ export function bind(root) {
       form.querySelector("[data-wg-empty]").hidden = true;
       form.querySelector("[data-wg-rows]").lastElementChild.querySelector('[data-v="name"]').focus();
     } else if (b.dataset.bill === "bk-add") {
-      form.querySelector("[data-bk-rows]").insertAdjacentHTML("beforeend", bankRow({ id: uid(), bank: "", iban: "", bic: "", waehrung: DEFAULT_CURRENCY }, true).toString());
+      form.querySelector("[data-bk-rows]").insertAdjacentHTML("beforeend", bankRow({ id: uid(), bank: "", iban: "", bic: "", qrIban: "", waehrung: DEFAULT_CURRENCY }, true).toString());
       form.querySelector("[data-bk-empty]").hidden = true;
       form.querySelector("[data-bk-rows]").lastElementChild.querySelector('[data-v="bank"]').focus();
     } else if (b.dataset.bill === "bk-del") {
@@ -270,6 +314,6 @@ export function bind(root) {
     const form = e.target.closest("[data-bill-form]");
     if (!form) return;
     e.preventDefault();
-    ({ groups: saveGroups, firma: saveFirm, terms: saveTerms, banks: saveBanks })[form.dataset.billForm](form);
+    ({ groups: saveGroups, firma: saveFirm, terms: saveTerms, banks: saveBanks, docs: saveDocs })[form.dataset.billForm](form);
   });
 }

@@ -70,7 +70,7 @@ export function crumbs(items) {
 
 // ------------------------------------------------------------ Toasts
 
-export function toast(msg, { type = "info", ms = 4500, link = null } = {}) {
+export function toast(msg, { type = "info", ms = 4500, link = null, action = null } = {}) {
   const host = document.getElementById("toasts");
   if (!host) return;
   const el = document.createElement("div");
@@ -85,6 +85,15 @@ export function toast(msg, { type = "info", ms = 4500, link = null } = {}) {
     a.textContent = link.label;
     a.className = "toast-link";
     el.append(" ", a);
+  }
+  // Optionale Aktion (z. B. «Rückgängig»): {label, onClick}; schliesst die Meldung
+  if (action) {
+    const b = document.createElement("button");
+    b.type = "button";
+    b.className = "toast-action";
+    b.textContent = action.label;
+    b.addEventListener("click", (e) => { e.stopPropagation(); kill(); action.onClick(); });
+    el.append(" ", b);
   }
   host.appendChild(el);
   // Popover = oberste Ebene, damit Toasts auch über offenen Dialogen sichtbar sind

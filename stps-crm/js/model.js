@@ -1,7 +1,8 @@
 // Datenmodell: Felder der Tabellen (Formulare, CSV), berechnete Werte, Beziehungen, Badge-Farben.
 import * as C from "./config.js";
 import { ROUTE as TASKLOG_ROUTE } from "./tasklog.js";
-import { all, byId, getList, ownerNames, getUser, getBilling } from "./store.js";
+import { all, byId, getList, ownerNames, getUser, getBilling, getFx } from "./store.js";
+import { FX_CURS, convert, roundFx } from "./fx.js";
 import { html, chf, money, fmtDate, fmtPct, fmtNum, price, todayISO } from "./util.js";
 import { t, tv, tvAny, getLang } from "./i18n.js";
 import { COUNTRIES, countryName } from "./countries.js";
@@ -115,14 +116,8 @@ export const rfqContact = (rfq) => {
 
 const num = (v) => (v === null || v === undefined || v === "" || Number.isNaN(Number(v)) ? null : Number(v));
 
-/** Wahrscheinlichkeit auf die feste Auswahl 20/40/60/80 abbilden (alte freie Werte -> nächster Wert, .5 aufwärts); Abschluss Ja/Nein = 100/0 */
-export function normChance(v, phase) {
-  if (phase === "Abschluss Ja") return 100;
-  if (phase === "Abschluss Nein") return 0;
-  const n = num(v);
-  if (n === null) return null;
-  return C.CHANCES.reduce((best, c) => (Math.abs(c - n) < Math.abs(best - n) || (Math.abs(c - n) === Math.abs(best - n) && c > best) ? c : best), C.CHANCES[0]);
-}
+/** Wahrscheinlichkeit: feste Auswahl 20/40/60/80 (Abschluss Ja/Nein = 100/0), Logik in config.js (auch vom Speichern/Import genutzt) */
+export const normChance = C.normChance;
 const chanceOptions = (vals) => (vals.phase === "Abschluss Ja" ? [100] : vals.phase === "Abschluss Nein" ? [0] : C.CHANCES).map((v) => ({ value: v, label: fmtPct(v) }));
 export const weightedCustomer = (c) => (num(c.potenzial) === null || num(c.chance) === null ? null : (c.potenzial * normChance(c.chance, c.phase)) / 100);
 export const weightedDeal = (d) => (num(d.wert) === null || num(d.chance) === null ? null : (d.wert * normChance(d.chance, d.phase)) / 100);
@@ -144,6 +139,37 @@ export function curLines(entries, { empty = "CHF 0", always = false } = {}) {
 }
 /** Betrag einer Zeile mit eigener Währung */
 export const amt = (r, v) => (v === null || v === undefined || v === "" ? "" : money(v, curOf(r)));
+
+// Mehrwährungs-Anzeige (WP-C): jeder Wert in drei Zeilen CHF / EUR / USD. Die Originalwährung steht fett ohne «≈», die anderen sind mit den
+// Kursen aus den Einstellungen (js/fx.js, Basis CHF) umgerechnet und mit «≈» gekennzeichnet. Gespeichert wird nur der Originalbetrag.
+const fxTip = () => { const fx = getFx(); return fx.date ? t("fx.tip", { date: fmtDate(fx.date), eur: fx.EUR, usd: fx.USD }) : t("fx.tipDefault", { eur: fx.EUR, usd: fx.USD }); };
+/** Betrag einer Zeile als drei Zeilen (html); leer, wenn kein Betrag. Währungen ausser CHF/EUR/USD (z. B. VND) bleiben einzeilig. */
+export function amt3(r, v) {
+  if (num(v) === null) return "";
+  const cur = curOf(r);
+  if (!FX_CURS.includes(cur)) return html`<span class="fx3"><span class="fx-line orig" data-cur="${cur}">${money(v, cur)}</span></span>`;
+  const fx = getFx();
+  return html`<span class="fx3" title="${fxTip()}">${FX_CURS.map((c) => c === cur
+    ? html`<span class="fx-line orig" data-cur="${c}" title="${t("fx.orig")}">${money(v, c)}</span>`
+    : html`<span class="fx-line conv" data-cur="${c}"><span class="fx-approx" aria-hidden="true">≈</span> ${money(roundFx(convert(v, cur, c, fx)), c)}</span>`)}</span>`;
+}
+/** Vorschau im Formular (Kunde: potenzial/angebot, Angebot: wert) */
+export function fxInfo(vals) {
+  const parts = ["wert", "potenzial", "angebot"].filter((k) => num(vals[k]) !== null);
+  if (!parts.length) return html`<span class="muted">${t("fx.formHint")}</span>`;
+  return html`${parts.map((k) => amt3({ waehrung: vals.waehrung }, vals[k]))}`;
+}
+/** Summen (aus sumByCur) in allen drei Währungen: alles über CHF umgerechnet; ≈ vor jeder Zeile */
+export function fxTotalLines(entries, { empty = "CHF 0" } = {}) {
+  const list = entries.filter(([, v]) => v);
+  if (!list.length) return empty ? html`<span class="cur-line">${empty}</span>` : "";
+  const fx = getFx();
+  const other = list.filter(([c]) => !FX_CURS.includes(c));
+  const lines = FX_CURS.map((to) => [to, list.filter(([c]) => FX_CURS.includes(c)).reduce((s, [c, v]) => s + convert(v, c, to, fx), 0)]);
+  return html`<span class="cur-lines fx-total" title="${fxTip()}">${lines.map(([c, v]) => html`<span class="cur-line" data-cur="${c}"><span class="fx-approx" aria-hidden="true">≈</span> ${money(roundFx(v), c)}</span>`)}${other.map(([c, v]) => html`<span class="cur-line" data-cur="${c}">${money(v, c)}</span>`)}</span>`;
+}
+/** Kennzahl-Zeilen je nach Modus: "cur" = nach Währung (je Währung eine Zeile), "conv" = umgerechnet in CHF/EUR/USD */
+export const kpiLines = (entries, mode, opts) => (mode === "conv" ? fxTotalLines(entries, opts) : curLines(entries, opts));
 
 export const isClosedPhase = (p) => p === "Abschluss Ja" || p === "Abschluss Nein";
 export const isTaskDone = (t) => t.status === "Erledigt";
@@ -242,6 +268,7 @@ export const ENT = {
       fld("customers", "waehrung", "select", { options: L.pipelineWaehrungen, required: true, normalize: (v) => v || "CHF" }),
       fld("customers", "potenzial", "money"),
       fld("customers", "angebot", "money"),
+      infoField("customers", "_fx", { full: true, dependsOn: ["potenzial", "angebot", "waehrung"], render: fxInfo }),
       fld("customers", "chance", "select", { options: chanceOptions, numeric: true, normalize: (v, vals) => normChance(v, vals.phase), dependsOn: ["phase"], help: true }),
       fld("customers", "quelle", "select", { options: L.quellen }),
       fld("customers", "naechsterSchritt", "text", { full: true }),
@@ -340,6 +367,7 @@ export const ENT = {
       fld("deals", "gesendet", "date"),
       fld("deals", "waehrung", "select", { options: L.pipelineWaehrungen, required: true, normalize: (v) => v || "CHF" }),
       fld("deals", "wert", "money"),
+      infoField("deals", "_fx", { full: true, dependsOn: ["wert", "waehrung"], render: fxInfo }),
       fld("deals", "phase", "select", { options: L.kundenphasen, required: true }),
       fld("deals", "chance", "select", { options: chanceOptions, numeric: true, normalize: (v, vals) => normChance(v, vals.phase), dependsOn: ["phase"] }),
       fld("deals", "erwarteterAbschluss", "date"),

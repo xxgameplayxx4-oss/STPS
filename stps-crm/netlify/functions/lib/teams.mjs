@@ -32,6 +32,9 @@ export function scopedStore(store, teamId) {
       return (await store.list(prefix + p)).filter((k) => k.startsWith(prefix)).map((k) => k.slice(prefix.length));
     },
     remove: (key) => store.remove(teamKey(teamId, key)),
+    // Binärdaten (Dateien, siehe files.mjs)
+    readBin: (key) => store.readBin(teamKey(teamId, key)),
+    writeBin: (key, bytes) => store.writeBin(teamKey(teamId, key), bytes),
   };
 }
 

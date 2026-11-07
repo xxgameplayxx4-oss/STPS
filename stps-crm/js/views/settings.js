@@ -12,6 +12,8 @@ import * as outlook from "./outlook.js";
 import * as usersView from "./users.js";
 import * as brandingView from "./branding.js";
 import * as billingView from "./settings-billing.js";
+import * as fxView from "./settings-fx.js";
+import * as catsView from "./settings-cats.js";
 import * as push from "../push.js";
 
 const summary = (counts) => COLLECTIONS.filter((c) => counts[c]).map((c) => `${t("set.label." + c)}: ${counts[c]}`).join(", ") || t("set.empty");
@@ -69,6 +71,8 @@ export function render(root) {
       ${push.settingsCard()}
       ${server && store.getTeam() ? brandingView.cardHtml() : ""}
       ${billingView.cardsHtml()}
+      ${fxView.cardHtml()}
+      ${catsView.cardHtml()}
 
       <section class="card">
         <div class="card-head"><h2>${t("set.backup")}</h2></div>
@@ -123,6 +127,8 @@ export function render(root) {
 
   // ---- Abrechnung (Warengruppen, Firmenangaben, MWST)
   billingView.bind(root);
+  fxView.bind(root);
+  catsView.bind(root);
 
   // ---- Benachrichtigungen (Push; nur sichtbar, wenn der Server sie eingerichtet hat)
   push.mountSettings(root);

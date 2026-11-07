@@ -14,6 +14,7 @@ import * as T from "./teams.mjs";
 import * as A from "./audit.mjs";
 import * as P from "./presence.mjs";
 import * as BR from "./branding.mjs";
+import * as DEV from "./devmode.mjs";
 import { scrubStamp } from "./hide-super.mjs";
 import { mutateDoc } from "./kv.mjs";
 import { checkLock, recordFailure, clearFailures, throttleKeys, lockMessage } from "./login-throttle.mjs";
@@ -82,7 +83,7 @@ const teamInfo = (t) => (t ? { id: t.id, name: t.name, active: t.active !== fals
 
 // ---------------------------------------------------------------- Fehler → Antwort
 
-async function guard(fn) {
+export async function guard(fn) {
   try {
     return await fn();
   } catch (e) {
@@ -182,6 +183,11 @@ export async function authenticate(req, deps, now) {
     claims = verifySessionToken(bearerToken(req.headers), env, now);
   } catch (e) {
     logError("Token prüfen", e);
+  }
+  // Entwicklungsmodus (nur wenn core.mjs ihn aktiviert hat, d. h. ohne CRM_PASSWORD): ohne gültiges Token läuft die Anfrage als Pascal
+  if (!claims && deps.dev) {
+    const d = DEV.devUserFor(await U.loadUsers(store, { now, cacheMs: 0 }), DEV.DEFAULT_DEV_KEY);
+    if (d) claims = { uid: d.id, tv: d.tokenVersion || 0, exp: now + SESSION_TTL_MS };
   }
   if (!claims) return unauth();
   // Konten und Teams lesen: Scheitert schon das (Datenspeicher), ist das ein echter Serverfehler → api.mjs protokolliert ihn samt Stack.

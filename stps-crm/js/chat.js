@@ -26,6 +26,7 @@ const mk = () => ({
   open: false, // Chat-Seite ist gerade angezeigt (gilt nur für den angezeigten Kanal)
   fromBottom: 0, // Abstand der Liste zum Ende (px), damit ein Neuzeichnen die Position behält
   draft: "", // nicht gesendeter Text (bleibt beim Neuzeichnen der Seite erhalten)
+  attach: null, // hochgeladener, noch nicht gesendeter Anhang {id, name, type, size} (Bereich = Kanal, siehe files.js)
 });
 
 // Kanäle: «team» = ganzes Team, «mgmt» = Geschäftsleitung (Team-Admins + Benutzer mit Management-Kennzeichen; der Server prüft das bei jeder Anfrage).
@@ -193,10 +194,10 @@ export async function markRead() {
   }
 }
 
-/** Nachricht in den angezeigten Kanal senden. Wirft bei Fehler (Text bleibt dann im Eingabefeld). */
-export async function send(text) {
+/** Nachricht (mit optionalem Anhang: Datei-ID aus files.js) in den angezeigten Kanal senden. Wirft bei Fehler (Text bleibt dann im Eingabefeld). */
+export async function send(text, fileId) {
   const s = st;
-  const r = await api.chatSend(text, uid().replace(/-/g, "").slice(0, 24), channel);
+  const r = await api.chatSend(text, uid().replace(/-/g, "").slice(0, 24), channel, fileId);
   merge([r.message], s);
   s.lastId = Math.max(s.lastId, r.lastId);
   s.readId = Math.max(s.readId, r.message.id);

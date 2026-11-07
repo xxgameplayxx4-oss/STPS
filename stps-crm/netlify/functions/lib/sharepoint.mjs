@@ -222,7 +222,7 @@ export async function exportToSharepoint({ env, store, fetch, trigger = "manuell
 }
 
 /**
- * Täglicher Export (Netlify Scheduled Function). Braucht kein Token; ohne Einrichtung wird still übersprungen.
+ * Stündlicher Export (Netlify Scheduled Function). Braucht kein Token; ohne Einrichtung wird still übersprungen.
  * Wirft nie: Fehler werden geloggt und in «sharepoint-meta» vermerkt.
  */
 export async function runScheduledExport({ env, store, fetch, now = new Date(), log = console }) {

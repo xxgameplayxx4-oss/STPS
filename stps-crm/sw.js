@@ -10,8 +10,9 @@ const CACHE = "crm-shell-v2";
 const SHELL = [
   "./",
   "index.html",
-  "app.css", "cmdk.css", "kanban.css", "slideover.css", "chat.css", "calendar.css",
+  "app.css", "cmdk.css", "kanban.css", "board.css", "slideover.css", "chat.css", "calendar.css", "docs.css",
   "js/app.js",
+  "fonts/instrument-sans-400.woff2", "fonts/instrument-sans-700.woff2", "fonts/plex-serif-400.woff2", "fonts/plex-mono-400.woff2",
   "favicon.svg", "logo-full.svg", "kgc-favicon.svg", "kgc-logo-full.svg", "kgc-logo-symbol-white.svg",
   "icons/icon-192.png", "icons/icon-512.png", "manifest.webmanifest",
 ];
@@ -54,13 +55,13 @@ self.addEventListener("fetch", (event) => {
 // ---------------------------------------------------------------- Push
 
 /** Erlaubte Ziele einer Benachrichtigung (Entsprechung: GOTO_RE in js/push.js) */
-const GOTO = /^\/#\/(?:chat|kalender(?:\/ev_[0-9a-f]{12}(?:\?o=[0-9A-Za-z%:.\-]{10,40})?)?)$/;
+const GOTO = /^\/#\/(?:chat|uebersicht|kalender(?:\/ev_[0-9a-f]{12}(?:\?o=[0-9A-Za-z%:.\-]{10,40})?)?)$/;
 const safeUrl = (u) => (typeof u === "string" && GOTO.test(u) ? u : "/#/chat");
 
 self.addEventListener("push", (event) => {
   let data = {};
   try { data = event.data ? event.data.json() : {}; } catch { data = {}; }
-  const isCal = data.t === "cal";
+  const isCal = data.t === "cal" || data.t === "cert"; // Kalender und Zertifikats-Hinweise: kein Chat-Nachladen
   const title = typeof data.title === "string" && data.title ? data.title.slice(0, 80) : isCal ? "Kalender" : "Chat";
   const body = typeof data.body === "string" ? data.body.slice(0, 200) : "";
   event.waitUntil(

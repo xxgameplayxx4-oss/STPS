@@ -73,6 +73,14 @@ export const WAEHRUNGEN = ["CHF", "EUR", "USD", "VND"];
 export const PIPELINE_WAEHRUNGEN = ["CHF", "EUR", "USD"];
 // Wahrscheinlichkeit offener Phasen: feste Auswahl; Abschluss Ja/Nein = 100/0 (automatisch)
 export const CHANCES = [20, 40, 60, 80];
+/** Wahrscheinlichkeit auf die feste Auswahl 20/40/60/80 abbilden (freie Werte -> nächster Wert, .5 aufwärts); Abschluss Ja/Nein = 100/0; leer/ungültig = null */
+export function normChance(v, phase) {
+  if (phase === "Abschluss Ja") return 100;
+  if (phase === "Abschluss Nein") return 0;
+  if (v === null || v === undefined || v === "" || Number.isNaN(Number(v))) return null;
+  const n = Number(v);
+  return CHANCES.reduce((best, c) => (Math.abs(c - n) < Math.abs(best - n) || (Math.abs(c - n) === Math.abs(best - n) && c > best) ? c : best), CHANCES[0]);
+}
 export const BEWERTUNGEN = ["1", "2", "3", "4", "5"];
 
 // Vorschlag für "Chance %" beim Phasenwechsel (nur wenn das Feld noch leer ist)
@@ -148,6 +156,7 @@ export const NAV = [
   { route: "angebote", icon: "file" },
   { route: "artikel", icon: "box" },
   { route: "rechnungen", icon: "receipt" },
+  { route: "board", icon: "kanban" }, // Board: Angebote/Rechnungen als Spalten In Bearbeitung | Gesendet | Freigegeben
   { route: "lieferanten", icon: "factory" },
   { route: "zuordnung", icon: "link" },
   { route: TASKLOG_ROUTE, icon: "check" }, // Aufgaben & Aktivitäten (früher «aktivitaeten» und «aufgaben», siehe LEGACY_ROUTES)
@@ -169,5 +178,6 @@ export const LS = {
   local: "stps-crm:local-db", // Lokaler Modus: einzige Datenhaltung
   wasServer: "stps-crm:was-server",
   push: "stps-crm:push:", // + Benutzer-ID: Benachrichtigungen auf diesem Gerät für dieses Konto gewünscht ("1")
+  devUser: "stps-crm:dev-user", // Entwicklungsmodus: zuletzt gewählte Rolle (admin|pascal|liz|marco)
   cal: "stps-crm:cal", // Kalender: zuletzt gewählte Ansicht (Monat/Liste), Listenfilter, CRM-Fristen ein/aus
 };

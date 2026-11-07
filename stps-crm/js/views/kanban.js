@@ -2,7 +2,7 @@
 // Phasenwechsel laufen über store.update() (wie das Formular): gestempelt, gespeichert, im Verlauf sichtbar.
 import { all, byId, update } from "../store.js";
 import { html, raw, fmtPct, initials, debounce, todayISO } from "../util.js";
-import { L, tone, nameOf, isClosedPhase, normChance, amt, curLines, sumByCur } from "../model.js";
+import { L, tone, nameOf, isClosedPhase, normChance, amt3, curLines, sumByCur } from "../model.js";
 import { KUNDENPHASEN, PHASE_CHANCE } from "../config.js";
 import { dateCell } from "./common.js";
 import * as F from "../forms.js";
@@ -76,7 +76,7 @@ function cardHtml(d, canDrag) {
     </div>
     <div class="kb-cust">${cust || "–"}</div>
     ${d.produkt ? html`<div class="kb-proj" title="${d.produkt}">${d.produkt}</div>` : ""}
-    <div class="kb-meta"><span class="kb-val">${amt(d, d.wert) || "–"}</span>${d.chance !== "" && d.chance != null ? html`<span class="kb-chance" title="${t("col.chance")}">${fmtPct(normChance(d.chance, d.phase))}</span>` : ""}</div>
+    <div class="kb-meta"><span class="kb-val">${amt3(d, d.wert) || "–"}</span>${d.chance !== "" && d.chance != null ? html`<span class="kb-chance" title="${t("col.chance")}">${fmtPct(normChance(d.chance, d.phase))}</span>` : ""}</div>
     <div class="kb-foot">${dateCell(d.erwarteterAbschluss, { done: closed })}${d.owner ? html`<span class="av" title="${d.owner}" role="img" aria-label="${t("col.owner")}: ${d.owner}">${initials(d.owner)}</span>` : ""}</div>
   </article>`;
 }

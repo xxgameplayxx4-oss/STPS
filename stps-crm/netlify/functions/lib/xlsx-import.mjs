@@ -269,6 +269,8 @@ function convert(fd, cell) {
       if (isFraction) n = n * 100;
       n = Math.round(n * 1e4) / 1e4;
       if (n < 0 || n > 100) throw new Error(`Chance «${toText(v)}» liegt nicht zwischen 0 und 100 %`);
+      // Wahrscheinlichkeit nur als 20/40/60/80 (0/100 = Abschluss Nein/Ja, die Phase entscheidet beim Laden); freie Werte auf den nächsten Wert abbilden
+      if (n > 0 && n < 100 && ![20, 40, 60, 80].includes(n)) n = [20, 40, 60, 80].reduce((best, c) => (Math.abs(c - n) < Math.abs(best - n) || (Math.abs(c - n) === Math.abs(best - n) && c > best) ? c : best), 20);
       return n;
     }
     case "rating": {

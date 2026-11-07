@@ -104,9 +104,10 @@
         {
           "id": "bk_chf",
           "bank": "Beispielbank AG, Zürich",
-          "iban": "CH00 0000 0000 0000 0000 0",
+          "iban": "CH93 0076 2011 6238 5295 7",
           "bic": "BSPLCHZZ",
-          "waehrung": "CHF"
+          "waehrung": "CHF",
+          "qrIban": "CH44 3199 9123 0008 8901 2"
         },
         {
           "id": "bk_eur",
@@ -125,9 +126,18 @@
       ],
       "mwstSatz": 8.1,
       "zahlungsfristTage": 30,
-      "invoiceStart": 60000
+      "invoiceStart": 60000,
+      "qrRefType": "auto",
+      "agbAuftragsbestaetigung": true,
+      "agbOfferte": false,
+      "agb": "Allgemeine Geschäftsbedingungen (Beispieltext – vor dem produktiven Einsatz juristisch prüfen)\n\n1. Geltung\nDiese Allgemeinen Geschäftsbedingungen gelten für alle Offerten, Auftragsbestätigungen, Lieferungen und Leistungen der Beispiel Handels GmbH (nachfolgend «Verkäuferin»). Abweichende Bedingungen des Kunden gelten nur, wenn die Verkäuferin sie schriftlich bestätigt.\n\n2. Offerten und Vertragsabschluss\nOfferten sind während der angegebenen Frist, sonst 30 Tage ab Datum, freibleibend. Der Vertrag kommt mit der schriftlichen Auftragsbestätigung der Verkäuferin zustande. Technische Änderungen, die der Verbesserung dienen, bleiben vorbehalten.\n\n3. Preise und Zahlung\nAlle Preise verstehen sich in der auf dem Beleg angegebenen Währung, netto und exklusive Mehrwertsteuer, sofern nicht anders vermerkt. Rechnungen sind innert 30 Tagen ab Rechnungsdatum ohne Abzug zahlbar. Nach Ablauf der Zahlungsfrist gerät der Kunde ohne Mahnung in Verzug; es wird ein Verzugszins von 5 % pro Jahr geschuldet.\n\n4. Lieferung und Gefahrenübergang\nLiefertermine sind Richtwerte, sofern sie nicht ausdrücklich als verbindlich bestätigt wurden. Nutzen und Gefahr gehen mit der Übergabe der Ware an den Frachtführer auf den Kunden über. Teillieferungen sind zulässig.\n\n5. Prüfung und Mängelrüge\nDer Kunde prüft die Ware unverzüglich nach Erhalt. Offensichtliche Mängel sind innert 8 Tagen schriftlich zu rügen, versteckte Mängel unverzüglich nach Entdeckung. Bei berechtigter Rüge leistet die Verkäuferin nach ihrer Wahl Nachbesserung oder Ersatzlieferung.\n\n6. Gewährleistung und Haftung\nDie Gewährleistungsfrist beträgt 12 Monate ab Lieferung. Die Haftung für indirekte Schäden und entgangenen Gewinn ist, soweit gesetzlich zulässig, ausgeschlossen.\n\n7. Eigentumsvorbehalt\nDie Ware bleibt bis zur vollständigen Bezahlung Eigentum der Verkäuferin.\n\n8. Anwendbares Recht und Gerichtsstand\nEs gilt schweizerisches Recht unter Ausschluss des Wiener Kaufrechts (CISG). Gerichtsstand ist Zürich.\n"
     },
-    "beispieldaten": true
+    "beispieldaten": true,
+    "fx": {
+      "EUR": 0.93,
+      "USD": 0.8,
+      "date": "2026-11-02"
+    }
   },
   "customers": [
     {
@@ -682,13 +692,19 @@
           "id": "85f6b5e4-9bd2-453f-a212-c7e93fc737c3",
           "name": "ISO 9001:2015 Zertifikat",
           "link": "https://example.com/beispieldaten/viet-precision-iso9001.pdf",
-          "gueltigBis": "2028-03-31"
+          "gueltigBis": "2028-03-31",
+          "typ": "iso9001",
+          "ausgestelltAm": "2025-03-31",
+          "intervall": 36
         },
         {
           "id": "6550c402-21cf-44c8-a4a8-a3b7cc97f81f",
           "name": "Auditbericht Lieferantenaudit 2025",
           "link": "https://example.com/beispieldaten/viet-precision-audit-2025.pdf",
-          "gueltigBis": ""
+          "gueltigBis": "",
+          "typ": "sonstiges",
+          "ausgestelltAm": "2025-09-15",
+          "intervall": null
         }
       ],
       "firma": "Viet Precision Co., Ltd.",
@@ -744,7 +760,10 @@
           "id": "f6feae63-bc10-4413-ae50-9cc812bc3b54",
           "name": "ISO 9001:2015 Zertifikat (Rezertifizierung ausstehend)",
           "link": "https://example.com/beispieldaten/hanoi-sheet-metal-iso9001.pdf",
-          "gueltigBis": "2026-09-30"
+          "gueltigBis": "2026-09-30",
+          "typ": "iso9001",
+          "ausgestelltAm": "2023-09-30",
+          "intervall": 36
         }
       ],
       "firma": "Hanoi Sheet Metal JSC",
@@ -789,13 +808,19 @@
           "id": "207d6113-b753-48eb-ab5d-568a763a6900",
           "name": "ISO 13485:2016 Zertifikat (Medizinprodukte)",
           "link": "https://example.com/beispieldaten/muster-kunststofftechnik-iso13485.pdf",
-          "gueltigBis": "2026-12-20"
+          "gueltigBis": "2026-12-20",
+          "typ": "iso13485",
+          "ausgestelltAm": "2023-12-20",
+          "intervall": 36
         },
         {
           "id": "5febfe88-2536-494c-aeab-a748bf1e5b3b",
           "name": "ISO 9001:2015 Zertifikat",
           "link": "https://example.com/beispieldaten/muster-kunststofftechnik-iso9001.pdf",
-          "gueltigBis": "2027-08-15"
+          "gueltigBis": "2027-08-15",
+          "typ": "iso9001",
+          "ausgestelltAm": "2024-08-15",
+          "intervall": 36
         }
       ],
       "firma": "Muster Kunststofftechnik GmbH",
@@ -846,7 +871,17 @@
         "uk_d_elox",
         "uk_d_verz"
       ],
-      "dokumente": [],
+      "dokumente": [
+        {
+          "id": "245bcdb8-e305-4a6a-82fd-42be8d86b922",
+          "typ": "iso14001",
+          "name": "ISO 14001:2015 Zertifikat",
+          "link": "https://example.com/beispieldaten/demo-oberflaeche-iso14001.pdf",
+          "ausgestelltAm": "2025-11-20",
+          "gueltigBis": "2026-11-30",
+          "intervall": 12
+        }
+      ],
       "firma": "Demo Oberflächentechnik s.r.o.",
       "ort": "Brünn, Tschechien",
       "status": "In Prüfung",
@@ -889,7 +924,19 @@
           "id": "d88b3ffb-18bb-47f3-a99b-9e68b0c91769",
           "name": "ISO 9001:2015 Zertifikat",
           "link": "https://example.com/beispieldaten/demo-zerspanung-iso9001.pdf",
-          "gueltigBis": "2027-04-30"
+          "gueltigBis": "2027-04-30",
+          "typ": "iso9001",
+          "ausgestelltAm": "2024-04-30",
+          "intervall": 36
+        },
+        {
+          "id": "01f2c505-8a83-463d-8e06-a0430c1d6a3c",
+          "typ": "kalibrierung",
+          "name": "Kalibrierzertifikat Koordinatenmessmaschine",
+          "link": "https://example.com/beispieldaten/demo-zerspanung-kalibrierung.pdf",
+          "ausgestelltAm": "2026-05-10",
+          "gueltigBis": "2027-05-10",
+          "intervall": 12
         }
       ],
       "firma": "Demo Zerspanung GmbH",

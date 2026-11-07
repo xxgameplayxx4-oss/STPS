@@ -2,7 +2,7 @@
 import { all } from "../store.js";
 import { html, fmtPct, fmtDate } from "../util.js";
 import { listView } from "../table.js";
-import { L, badge, weightedDeal, nameOf, isClosedPhase, normChance, amt, curLines, sumByCur } from "../model.js";
+import { L, badge, weightedDeal, nameOf, isClosedPhase, normChance, amt3, curLines, sumByCur } from "../model.js";
 import { KUNDENPHASEN } from "../config.js";
 import { dateCell, ownerCell, textCell, dash, customerLink } from "./common.js";
 import * as F from "../forms.js";
@@ -33,15 +33,15 @@ const listCfg = () => ({
     { key: "produkt", label: t("f.deals.produkt"), sort: (r) => r.produkt, cell: (r) => textCell(r.produkt) },
     { key: "erstellt", label: t("col.created"), cls: "hide-lg", sort: (r) => r.erstellt, cell: (r) => fmtDate(r.erstellt) || dash },
     { key: "gesendet", label: t("col.sent"), cls: "hide-lg", sort: (r) => r.gesendet, cell: (r) => fmtDate(r.gesendet) || dash },
-    { key: "wert", label: t("col.value"), align: "right", sort: (r) => r.wert, cell: (r) => amt(r, r.wert) || dash, total: (rows) => curLines(sumByCur(rows, (r) => r.wert), { empty: "" }) },
+    { key: "wert", label: t("col.value"), align: "right", sort: (r) => r.wert, cell: (r) => amt3(r, r.wert) || dash, total: (rows) => curLines(sumByCur(rows, (r) => r.wert), { empty: "" }) },
     { key: "phase", label: t("col.phase"), sort: (r) => KUNDENPHASEN.indexOf(r.phase), cell: (r) => badge(r.phase) },
     { key: "chance", label: t("col.chance"), align: "right", sort: (r) => r.chance, cell: (r) => fmtPct(normChance(r.chance, r.phase)) || dash },
-    { key: "gewichtet", label: t("col.weighted"), align: "right", sort: (r) => weightedDeal(r), cell: (r) => amt(r, weightedDeal(r)) || dash, total: (rows) => curLines(sumByCur(rows, weightedDeal), { empty: "" }) },
+    { key: "gewichtet", label: t("col.weighted"), align: "right", sort: (r) => weightedDeal(r), cell: (r) => amt3(r, weightedDeal(r)) || dash, total: (rows) => curLines(sumByCur(rows, weightedDeal), { empty: "" }) },
     { key: "abschluss", label: t("col.expectedClose"), sort: (r) => r.erwarteterAbschluss, cell: (r) => dateCell(r.erwarteterAbschluss, { done: isClosedPhase(r.phase) }) },
     { key: "next", label: t("f.deals.naechsterSchritt"), sort: (r) => r.naechsterSchritt, cell: (r) => textCell(r.naechsterSchritt) },
     { key: "owner", label: t("col.owner"), sort: (r) => r.owner, cell: (r) => ownerCell(r.owner) },
     { key: "kommentar", label: t("f.deals.kommentar"), cls: "hide-lg", sort: (r) => r.kommentar, cell: (r) => textCell(r.kommentar) },
-    { key: "druck", label: "", cell: (r) => (r.positions?.length ? html`<a class="icon-btn" href="#/druck/offerte/${r.id}" aria-label="${t("print.offerAria", { nr: r.nr })}" title="${t("print.offerBtn")}">${icon("download")}</a><a class="icon-btn" href="#/druck/auftragsbestaetigung/${r.id}" aria-label="${t("print.abAria", { nr: r.nr })}" title="${t("print.abBtn")}">${icon("check")}</a>` : "") },
+    { key: "druck", label: "", cell: (r) => (r.positions?.length ? html`<a class="icon-btn" href="#/druck/offerte/${r.id}" aria-label="${t("print.offerAria", { nr: r.nr })}" title="${t("print.offerBtn")}">${icon("download")}</a><a class="icon-btn" href="#/druck/auftragsbestaetigung/${r.id}" aria-label="${t("print.abAria", { nr: r.nr })}" title="${t("print.abBtn")}">${icon("check")}</a><a class="icon-btn" href="#/druck/proforma/${r.id}" aria-label="${t("print.pfAria", { nr: r.nr })}" title="${t("print.pfBtn")}">${icon("receipt")}</a><a class="icon-btn" href="#/druck/lieferschein/${r.id}" aria-label="${t("print.lsAria", { nr: r.nr })}" title="${t("print.lsBtn")}">${icon("box")}</a>` : "") },
   ],
 });
 

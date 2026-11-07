@@ -4,7 +4,7 @@ Das CRM kann sich mit **Microsoft SharePoint** verbinden – ohne dass sich jema
 
 **Das CRM bleibt das führende System.** SharePoint ist dafür da, dass
 
-- jeden Abend (und auf Knopfdruck) eine **Excel-Datei und eine JSON-Sicherung** der CRM-Daten in einem SharePoint-Ordner landen, und
+- jede Stunde (und auf Knopfdruck) eine **Excel-Datei und eine JSON-Sicherung** der CRM-Daten in einem SharePoint-Ordner landen, und
 - Sie eine **Excel-Datei aus SharePoint** (z. B. die Vorlage `STPS_CRM_v.1.0`) auf Knopfdruck in das CRM **einlesen** können – mit Vorschau, ohne etwas zu löschen.
 
 Es gibt keine automatische Rück-Synchronisation: Der Import startet nur auf Ihren Klick und zeigt vorher, was sich ändern würde.
@@ -153,7 +153,7 @@ Netlify → Ihre Site → **Site configuration → Environment variables → Add
 
 Danach **neu deployen** (Deploys → *Trigger deploy → Deploy site*). Umgebungsvariablen gelten erst für neue Deployments. Das Secret steht nur in Netlify und wird vom CRM nie angezeigt oder an den Browser geschickt.
 
-Der Export startet jeden Abend automatisch (Netlify Scheduled Function `sharepoint-export`, Cron `0 20 * * *` = täglich 20:00 UTC = 22:00 Uhr Sommerzeit / 21:00 Uhr Winterzeit in der Schweiz). Ohne die Variablen tut er nichts. Die Scheduled Function läuft nur im veröffentlichten (Produktions-)Deploy.
+Der Export startet jede Stunde automatisch (Netlify Scheduled Function `sharepoint-export`, Cron `0 * * * *` = zur vollen Stunde; die Datei des Tages und `STPS_CRM_aktuell.xlsx` werden dabei überschrieben). Ohne die Variablen tut er nichts. Die Scheduled Function läuft nur im veröffentlichten (Produktions-)Deploy.
 
 ## 6. Testen
 
@@ -190,7 +190,7 @@ Der Export startet jeden Abend automatisch (Netlify Scheduled Function `sharepoi
 | Verbindungstest grün, Export schlägt mit 403 fehl | Rolle `read` statt `write` vergeben: `PATCH …/permissions/{id}` mit `{"roles":["write"]}` oder die Freigabe neu erstellen. |
 | «Microsoft ist gerade überlastet oder nicht erreichbar (HTTP 429/503/504)» | Microsoft drosselt kurz; das CRM wiederholt selbst einige Male. Später erneut versuchen. |
 | «Datei ist gesperrt oder ausgecheckt» | Die Zieldatei ist in SharePoint ausgecheckt oder gesperrt. Schliessen bzw. einchecken und erneut exportieren. |
-| Nächtlicher Export läuft nicht | Variablen fehlen oder wurden nach dem letzten Deploy gesetzt (neu deployen). Netlify → Logs → Functions → `sharepoint-export` zeigt «übersprungen» oder die Fehlermeldung; der Status in den Einstellungen zeigt «Letzter Export: fehlgeschlagen». |
+| Stündlicher Export läuft nicht | Variablen fehlen oder wurden nach dem letzten Deploy gesetzt (neu deployen). Netlify → Logs → Functions → `sharepoint-export` zeigt «übersprungen» oder die Fehlermeldung; der Status in den Einstellungen zeigt «Letzter Export: fehlgeschlagen». |
 | Import: «Daten wurden von jemand anderem geändert …» oder «Die Datei hat sich seit der Vorschau geändert …» | Jemand hat im CRM gespeichert bzw. die Datei in SharePoint ersetzt, während die Vorschau offen war. Import erneut starten. |
 
 Weitere Hinweise:

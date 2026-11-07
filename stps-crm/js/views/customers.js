@@ -3,7 +3,7 @@ import { all, byId } from "../store.js";
 import { html, fmtPct, fmtDate, fmtDateTime } from "../util.js";
 import { icon, crumbs } from "../ui.js";
 import { listView } from "../table.js";
-import { L, badge, prio, primaryContact, weightedCustomer, contactsOf, normChance, amt, curLines, sumByCur, deliveryAddresses, billingAddress, addressLines, countryLabel } from "../model.js";
+import { L, badge, prio, primaryContact, weightedCustomer, contactsOf, normChance, amt, amt3, curLines, sumByCur, deliveryAddresses, billingAddress, addressLines, countryLabel } from "../model.js";
 import { KUNDENPHASEN } from "../config.js";
 import { t, tv } from "../i18n.js";
 import { dateCell, ownerCell, contactCell, textCell, dash, contactsCard, addressesCard, dl } from "./common.js";
@@ -43,10 +43,10 @@ const listCfg = () => ({
     { key: "phase", label: t("col.phase"), sort: (r) => KUNDENPHASEN.indexOf(r.phase), cell: (r) => badge(r.phase) },
     { key: "produkt", label: t("f.customers.produkt"), sort: (r) => r.produkt, cell: (r) => textCell(r.produkt) },
     { key: "kategorien", label: t("f.customers.kategorien"), cls: "hide-lg", sort: (r) => kategorienOf(r).map(catShort).join(" "), cell: catChips },
-    { key: "potenzial", label: t("col.potential"), align: "right", sort: (r) => r.potenzial, cell: (r) => amt(r, r.potenzial) || dash, total: (rows) => curLines(sumByCur(rows, (r) => r.potenzial), { empty: "" }) },
-    { key: "angebot", label: t("col.offer"), align: "right", cls: "hide-lg", sort: (r) => r.angebot, cell: (r) => amt(r, r.angebot) || dash, total: (rows) => curLines(sumByCur(rows, (r) => r.angebot), { empty: "" }) },
+    { key: "potenzial", label: t("col.potential"), align: "right", sort: (r) => r.potenzial, cell: (r) => amt3(r, r.potenzial) || dash, total: (rows) => curLines(sumByCur(rows, (r) => r.potenzial), { empty: "" }) },
+    { key: "angebot", label: t("col.offer"), align: "right", cls: "hide-lg", sort: (r) => r.angebot, cell: (r) => amt3(r, r.angebot) || dash, total: (rows) => curLines(sumByCur(rows, (r) => r.angebot), { empty: "" }) },
     { key: "chance", label: t("col.chance"), align: "right", cls: "hide-lg", sort: (r) => r.chance, cell: (r) => fmtPct(normChance(r.chance, r.phase)) || dash },
-    { key: "gewichtet", label: t("col.weighted"), align: "right", sort: (r) => weightedCustomer(r), cell: (r) => amt(r, weightedCustomer(r)) || dash, total: (rows) => curLines(sumByCur(rows, weightedCustomer), { empty: "" }) },
+    { key: "gewichtet", label: t("col.weighted"), align: "right", sort: (r) => weightedCustomer(r), cell: (r) => amt3(r, weightedCustomer(r)) || dash, total: (rows) => curLines(sumByCur(rows, weightedCustomer), { empty: "" }) },
     { key: "next", label: t("f.customers.naechsterSchritt"), sort: (r) => r.naechsterSchritt, cell: (r) => textCell(r.naechsterSchritt) },
     { key: "termin", label: t("f.customers.termin"), sort: (r) => r.termin, cell: (r) => dateCell(r.termin, { done: r.phase === "Abschluss Ja" || r.phase === "Abschluss Nein" }) },
     { key: "followUp", label: t("col.followUp"), sort: (r) => r.followUp, cell: (r) => dateCell(r.followUp, { done: r.phase === "Abschluss Ja" || r.phase === "Abschluss Nein" }) },
@@ -92,10 +92,10 @@ function detail(root, id) {
         <section class="card">
           <div class="card-head"><h2>${t("det.pipeline")}</h2></div>
           ${dl([
-            [t("col.potential"), amt(c, c.potenzial)],
-            [t("col.offer"), amt(c, c.angebot)],
+            [t("col.potential"), amt3(c, c.potenzial)],
+            [t("col.offer"), amt3(c, c.angebot)],
             [t("col.chance"), fmtPct(normChance(c.chance, c.phase))],
-            [t("det.weightedPipeline"), amt(c, w)],
+            [t("det.weightedPipeline"), amt3(c, w)],
             [t("f.customers.produkt"), c.produkt],
             [t("f.customers.kategorien"), kategorienOf(c).length ? catChips(c) : ""],
             [t("f.customers.naechsterSchritt"), c.naechsterSchritt],

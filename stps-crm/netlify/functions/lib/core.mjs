@@ -10,7 +10,10 @@ import * as sp from "./sharepoint.mjs";
 import * as accounts from "./accounts.mjs";
 import * as chat from "./chat.mjs";
 import * as calendar from "./calendar.mjs";
+import * as files from "./files.mjs";
 import * as outlook from "./outlook.mjs";
+import * as dev from "./devmode.mjs";
+import { parseBody } from "./http.mjs";
 import { stampAndDiff, appendAudit } from "./audit.mjs";
 import { scrubDb, scrubStamp } from "./hide-super.mjs";
 
@@ -65,8 +68,16 @@ export async function handleApi(req, deps) {
   const method = (req.method || "GET").toUpperCase();
   const path = String(req.path || "").split("?")[0].replace(/^\/api(?=\/|$)/, "").replace(/\/+$/, "") || "/";
 
+  // Entwicklungsmodus (siehe lib/devmode.mjs): nur ohne CRM_PASSWORD und solange es keine echten Konten gibt – sonst ändert sich nichts.
+  const devActive = dev.devEnvEnabled(env) && (await dev.isDevActive(env, store, now));
+  if (devActive) {
+    env = dev.withDevEnv(env);
+    deps = { ...deps, env, dev: true };
+    await dev.ensureDevSeed(store, { now });
+  }
+
   if (path === "/ping" && method === "GET") {
-    return json(200, { ok: true, app: "stps-crm", configured: accounts.isConfigured(env), ...(accounts.isConfigured(env) ? {} : { message: accounts.configProblem(env) }) });
+    return json(200, { ok: true, app: "stps-crm", configured: accounts.isConfigured(env), ...(devActive ? { dev: true } : {}), ...(accounts.isConfigured(env) ? {} : { message: accounts.configProblem(env) }) });
   }
 
   const problem = accounts.configProblem(env);
@@ -76,6 +87,7 @@ export async function handleApi(req, deps) {
   if (path === "/outlook/callback" && method === "GET") return outlook.callback(req, { ...deps, now, rootEnv });
 
   // Konten + Teams (lib/accounts.mjs): Login, Authentifizierung bei jeder Anfrage, Team-Kontext, /me /users /teams /team /audit /presence
+  if (devActive && path === "/dev/session") return accounts.guard(() => dev.devSession(req, { ...deps, now }, method, parseBody));
   if (path === "/login") return accounts.login(req, { ...deps, now, delay }, method);
   const auth = await accounts.authenticate(req, deps, now);
   if (!auth.ok) return auth.response;
@@ -98,6 +110,10 @@ export async function handleApi(req, deps) {
   // Team-Chat und Push (lib/chat.mjs, lib/push.mjs): arbeitet nur im Namensraum des Teams dieser Anfrage
   const chatRes = await chat.route(path, method, req, { ...deps, rootStore, now }, ctx);
   if (chatRes) return chatRes;
+
+  // Dateien (lib/files.mjs): Zertifikate, Chat-Anhänge – im Namensraum des Teams, Berechtigung bei jeder Anfrage
+  const fileRes = await files.route(path, method, req, { ...deps, now }, ctx);
+  if (fileRes) return fileRes;
 
   // Team-Kalender (lib/calendar.mjs): Termine, Wiederholungen, Erinnerungen – ebenfalls nur im Namensraum des eigenen Teams
   const calRes = await calendar.route(path, method, req, { ...deps, rootStore, rootEnv, now }, ctx);
@@ -285,15 +301,25 @@ export function createBlobsAdapter(blobStore) {
     async remove(key) {
       await blobStore.delete(key);
     },
+    // Binärdaten (Dateien, siehe files.mjs)
+    async readBin(key) {
+      const b = await blobStore.get(key, { type: "arrayBuffer" });
+      return b ? Buffer.from(b) : null;
+    },
+    async writeBin(key, bytes) {
+      await blobStore.set(key, bytes);
+    },
   };
 }
 
 // Einfacher In-Memory-Store (Tests / lokale Entwicklung ohne Blobs)
 export function createMemoryStore() {
   const m = new Map();
+  const bins = new Map(); // Binärdaten (Dateien)
   let n = 0;
   return {
     m,
+    bins,
     async read(key) {
       const e = m.get(key);
       return e ? { value: JSON.parse(e.json), etag: e.etag } : null;
@@ -310,6 +336,13 @@ export function createMemoryStore() {
     },
     async remove(key) {
       m.delete(key);
+      bins.delete(key);
+    },
+    async readBin(key) {
+      return bins.has(key) ? Buffer.from(bins.get(key)) : null;
+    },
+    async writeBin(key, bytes) {
+      bins.set(key, Buffer.from(bytes));
     },
   };
 }

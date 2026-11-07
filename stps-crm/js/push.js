@@ -20,7 +20,7 @@ export function registerSW() {
 }
 
 /** Ziele, die eine Benachrichtigung öffnen darf: der Chat oder ein Termin des Kalenders (nie beliebige Adressen) */
-export const GOTO_RE = /^#\/(?:chat|kalender(?:\/ev_[0-9a-f]{12}(?:\?o=[0-9A-Za-z%:.\-]{10,40})?)?)$/;
+export const GOTO_RE = /^#\/(?:chat|uebersicht|kalender(?:\/ev_[0-9a-f]{12}(?:\?o=[0-9A-Za-z%:.\-]{10,40})?)?)$/;
 
 /** Klick auf eine Benachrichtigung bei bereits geöffneter App: der Service Worker bittet darum, die Seite zu zeigen (Chat, Termin). */
 export function listenSW({ onGoto, onPoll }) {

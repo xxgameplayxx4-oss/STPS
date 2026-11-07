@@ -35,7 +35,11 @@ export const defaultBilling = () => ({
   mwstNr: "",
   uid: "",
   handelsregister: "",
-  banks: [], // [{ id, bank, iban, bic, waehrung }]
+  banks: [], // [{ id, bank, iban, qrIban (optional, für QR-Referenz), bic, waehrung }]
+  qrRefType: "auto", // QR-Rechnung: auto (QRR mit QR-IBAN, sonst SCOR) | QRR | SCOR | NON  (WP-B)
+  agb: "", // Allgemeine Geschäftsbedingungen (Text), WP-B
+  agbAuftragsbestaetigung: true, // AGB als Zusatzseite an die Auftragsbestätigung anhängen
+  agbOfferte: false, // … an die Offerte anhängen
   mwstSatz: DEFAULT_MWST_SATZ,
   zahlungsfristTage: DEFAULT_ZAHLUNGSFRIST_TAGE,
   invoiceStart: DEFAULT_INVOICE_START,
@@ -274,10 +278,15 @@ export function normalizeBilling(raw) {
   if (Array.isArray(src.banks)) {
     out.banks = src.banks
       .filter((k) => k && typeof k === "object")
-      .map((k, i) => ({ id: k.id || `bk_${i + 1}`, bank: str(k.bank), iban: str(k.iban), bic: str(k.bic), waehrung: INVOICE_CURRENCIES.includes(k.waehrung) ? k.waehrung : DEFAULT_CURRENCY }));
+      .map((k, i) => ({ id: k.id || `bk_${i + 1}`, bank: str(k.bank), iban: str(k.iban), qrIban: str(k.qrIban), bic: str(k.bic), waehrung: INVOICE_CURRENCIES.includes(k.waehrung) ? k.waehrung : DEFAULT_CURRENCY }));
   } else if (str(src.iban).trim() || str(src.bank).trim()) {
     out.banks = [{ id: "bk_1", bank: str(src.bank), iban: str(src.iban), bic: "", waehrung: DEFAULT_CURRENCY }];
   }
+  // WP-B: AGB und QR-Rechnung
+  out.agb = typeof src.agb === "string" ? src.agb : "";
+  out.agbAuftragsbestaetigung = typeof src.agbAuftragsbestaetigung === "boolean" ? src.agbAuftragsbestaetigung : true;
+  out.agbOfferte = typeof src.agbOfferte === "boolean" ? src.agbOfferte : false;
+  out.qrRefType = ["auto", "QRR", "SCOR", "NON"].includes(src.qrRefType) ? src.qrRefType : "auto";
   out.mwstSatz = Number.isFinite(finite(src.mwstSatz)) && finite(src.mwstSatz) >= 0 ? Number(src.mwstSatz) : def.mwstSatz;
   out.zahlungsfristTage = Number.isInteger(finite(src.zahlungsfristTage)) && finite(src.zahlungsfristTage) >= 0 ? Number(src.zahlungsfristTage) : def.zahlungsfristTage;
   out.invoiceStart = Number.isInteger(finite(src.invoiceStart)) && finite(src.invoiceStart) > 0 ? Number(src.invoiceStart) : def.invoiceStart;

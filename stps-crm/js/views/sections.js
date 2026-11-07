@@ -2,11 +2,12 @@
 import { byId, update } from "../store.js";
 import { html, money, fmtPct, price } from "../util.js";
 import { icon, toast } from "../ui.js";
-import { badge, prio, contactsOf, dealsOf, rfqsOfCustomer, rfqsOfSupplier, activitiesOf, tasksOf, rfqContact, isTaskDone, isActivityDone, weightedDeal, articlesOf, warengruppeOf, normChance, amt } from "../model.js";
+import { badge, prio, contactsOf, dealsOf, rfqsOfCustomer, rfqsOfSupplier, activitiesOf, tasksOf, rfqContact, isTaskDone, isActivityDone, weightedDeal, articlesOf, warengruppeOf, normChance, amt3 } from "../model.js";
 import { fmtArtNr } from "../billing.js";
 import { dateCell, dash, customerLink, supplierLink } from "./common.js";
 import { shipCell } from "./logistics.js";
 import * as F from "../forms.js";
+import { openMatch } from "./match.js";
 import { t, tv } from "../i18n.js";
 
 const head = (title, count, actions) => html`<div class="card-head"><h2>${title} ${count !== null ? html`<span class="count-pill">${count}</span>` : ""}</h2><div class="card-actions">${actions}</div></div>`;
@@ -21,10 +22,10 @@ export function dealsSection(customerId) {
       ? html`<div class="table-wrap"><table class="tbl mini"><thead><tr><th>${t("sec.nr")}</th><th>${t("f.deals.produkt")}</th><th>${t("col.phase")}</th><th class="num">${t("sec.value")}</th><th class="num">${t("col.chance")}</th><th class="num hide-lg">${t("col.weighted")}</th><th>${t("col.expectedClose")}</th><th></th></tr></thead>
         <tbody>${deals.map((d) => html`<tr>
           <td data-label="${t("sec.nr")}">${d.nr}</td><td data-label="${t("sec.project")}" class="c-first">${d.produkt}</td><td data-label="${t("col.phase")}">${badge(d.phase)}</td>
-          <td data-label="${t("sec.value")}" class="num">${amt(d, d.wert) || dash}</td><td data-label="${t("col.chance")}" class="num">${fmtPct(normChance(d.chance, d.phase)) || dash}</td>
-          <td data-label="${t("col.weighted")}" class="num hide-lg">${amt(d, weightedDeal(d)) || dash}</td>
+          <td data-label="${t("sec.value")}" class="num">${amt3(d, d.wert) || dash}</td><td data-label="${t("col.chance")}" class="num">${fmtPct(normChance(d.chance, d.phase)) || dash}</td>
+          <td data-label="${t("col.weighted")}" class="num hide-lg">${amt3(d, weightedDeal(d)) || dash}</td>
           <td data-label="${t("col.expectedClose")}">${dateCell(d.erwarteterAbschluss, { done: d.phase === "Abschluss Ja" || d.phase === "Abschluss Nein" })}</td>
-          <td class="act">${editBtn("edit-deal", d.id)}</td></tr>`)}</tbody></table></div>`
+          <td class="act">${d.phase === "Abschluss Ja" || d.phase === "Abschluss Nein" ? "" : html`<button type="button" class="icon-btn" data-act="match-deal" data-id="${d.id}" aria-label="${t("match.btn")}" title="${t("match.btn")}">${icon("search")}</button>`}${editBtn("edit-deal", d.id)}</td></tr>`)}</tbody></table></div>`
       : html`<p class="muted pad">${t("sec.noDeals")}</p>`}
   </section>`;
 }
@@ -139,6 +140,7 @@ export function bindDetailActions(root, ctx) {
       case "add-article": return F.editRecord("articles", null, { [presetKey]: ctx.id });
       case "edit-article": return F.editRecord("articles", id);
       case "edit-deal": return F.editRecord("deals", id);
+      case "match-deal": return openMatch(ctx.id, { dealId: id });
       case "edit-rfq": return F.editRecord("rfqs", id);
       case "edit-activity": return F.editRecord("activities", id);
       case "edit-task": return F.editRecord("tasks", id);

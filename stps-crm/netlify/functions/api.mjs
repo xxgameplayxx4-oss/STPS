@@ -2,13 +2,15 @@
 // Jedes Team hat seine Daten als JSON-Dokumente im Blob-Store "stps-crm" unter "t/<teamId>/…" (db, backup-*, audit, presence, …);
 // globale Dokumente: "users", "teams", "login-throttle". Benutzerkonten mit Rollen superadmin/admin/member.
 // Logik: ./lib/core.mjs (+ accounts.mjs, users.mjs, teams.mjs, audit.mjs, presence.mjs, chat.mjs, calendar.mjs; rein, getestet).
-// Env: CRM_SECRET (Pflicht, min. 16 Zeichen), CRM_PASSWORD + CRM_ADMIN_USER (nur für die Erst-Anmeldung des Superadmins), SP_TEAM_ID (optional);
+// Entwicklungsmodus (lib/devmode.mjs): OHNE CRM_PASSWORD (und ohne echte Konten) braucht es weder Anmeldung noch CRM_SECRET – mit gesetztem CRM_PASSWORD gilt alles wie bisher.
+// Env: CRM_SECRET (Pflicht, min. 16 Zeichen; im Entwicklungsmodus optional), CRM_PASSWORD + CRM_ADMIN_USER (nur für die Erst-Anmeldung des Superadmins), SP_TEAM_ID (optional);
 // optional für SharePoint (siehe SHAREPOINT-SETUP.md): MS_TENANT_ID, MS_CLIENT_ID, MS_CLIENT_SECRET, SP_SITE, SP_DRIVE, SP_IMPORT_PATH, SP_EXPORT_FOLDER;
 // Outlook-Kalender je Benutzer (siehe OUTLOOK-SETUP.md): keine Variablen nötig – der Superadmin trägt die App-ID einmal in der App ein. Optional
 // (überschreibt die App-Einstellung): OUTLOOK_CLIENT_ID, OUTLOOK_CLIENT_SECRET (sonst MS_*), APP_URL.
 import { getStore } from "@netlify/blobs";
 import { handleApi, createBlobsAdapter, MAX_BODY_BYTES, MAX_UPLOAD_BYTES } from "./lib/core.mjs";
 import { logError } from "./lib/http.mjs";
+import { MAX_FILE_BYTES, contentDisposition } from "./lib/files.mjs";
 
 // Blob-Store erst bei Bedarf öffnen (/api/ping braucht ihn nicht). Nicht über Aufrufe hinweg merken: getStore() ist billig (kein Netzwerk)
 // und nimmt die Zugangsdaten des laufenden Aufrufs; ein im warmen Container gemerkter Store würde die des ersten Aufrufs weiterverwenden.
@@ -18,6 +20,8 @@ const lazyStore = {
   write: (...a) => open().write(...a),
   list: (...a) => open().list(...a),
   remove: (...a) => open().remove(...a),
+  readBin: (...a) => open().readBin(...a),
+  writeBin: (...a) => open().writeBin(...a),
 };
 
 const headers = {
@@ -34,7 +38,9 @@ export default async (req, context) => {
   let bodyBuffer;
   if (req.method !== "GET" && req.method !== "HEAD") {
     // Excel-Upload: bis ca. 5 MB roh (bzw. Base64 → 4/3 davon); alles andere wie bisher max. 10 MB.
-    const limit = url.pathname.replace(/\/+$/, "") === "/api/import-xlsx" ? Math.ceil(MAX_UPLOAD_BYTES * 1.4) : MAX_BODY_BYTES * 2;
+    const route = url.pathname.replace(/\/+$/, "");
+    // Datei-Upload (/api/files): rohe Bytes, höchstens 10 MB (+ Spielraum); die Typ-/Grössenprüfung macht lib/files.mjs
+    const limit = route === "/api/import-xlsx" ? Math.ceil(MAX_UPLOAD_BYTES * 1.4) : route === "/api/files" ? MAX_FILE_BYTES + 4096 : MAX_BODY_BYTES * 2;
     const declared = Number(req.headers.get("content-length"));
     if (Number.isFinite(declared) && declared > limit) return tooLarge();
     bodyBuffer = Buffer.from(await req.arrayBuffer());
@@ -55,7 +61,7 @@ export default async (req, context) => {
         status: result.status,
         headers: {
           "content-type": result.contentType,
-          "content-disposition": `attachment; filename="${result.filename}"`,
+          "content-disposition": contentDisposition(result.filename),
           "cache-control": "no-store",
           "x-content-type-options": "nosniff",
         },

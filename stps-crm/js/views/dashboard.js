@@ -1,15 +1,21 @@
 // Übersicht / Shopfloor (Blätter "Shopfloor" und "CRM Übersicht" der Excel-Vorlage)
-import { all, byId, getUser, getList } from "../store.js";
+import { all, byId, getUser, getList, getFx } from "../store.js";
 import { html, th, fmtDate, todayISO, addDays, isoWeek, weekday, relDay, isOverdue } from "../util.js";
 import { icon, confirmDialog } from "../ui.js";
 import { OVERDUE, CUSTOMER_PIPELINE, SUPPLIER_PIPELINE, SHOPFLOOR_AGENDA, MAX_FOCUS } from "../config.js";
-import { badge, prio, weightedDeal, sumByCur, curLines, amt, nameOf, isClosedPhase, isTaskOpen, isTaskDone, isActivityDone } from "../model.js";
+import { badge, prio, weightedDeal, sumByCur, curLines, kpiLines, amt, amt3, nameOf, isClosedPhase, isTaskOpen, isTaskDone, isActivityDone } from "../model.js";
 import { dateCell, ownerCell, dash } from "./common.js";
 import * as F from "../forms.js";
 import { remove } from "../store.js";
 import { invoiceKpis } from "./invoices.js";
 import { t, tv } from "../i18n.js";
 import * as TL from "../tasklog.js";
+import { certDashboardCard } from "./certs.js";
+
+// Anzeige der Geldbeträge: "cur" = nach Währung (je Währung eine Zeile, nie summiert), "conv" = umgerechnet in CHF/EUR/USD (3 Zeilen, ≈, Kurse aus den Einstellungen)
+const MODE_KEY = "stps.dash.fxMode";
+const getMode = () => { try { return localStorage.getItem(MODE_KEY) === "conv" ? "conv" : "cur"; } catch { return "cur"; } };
+const setMode = (m) => { try { localStorage.setItem(MODE_KEY, m); } catch { /* ohne Speicher: gilt nur bis zum Neuladen */ } };
 
 // ------------------------------------------------------------ Kennzahlen (wie in der Excel-Vorlage)
 
@@ -102,7 +108,50 @@ export function render(root, route) {
   const approvals = all("approvals");
 
   const kpi = (label, value, href, hint, def, alert = false) => html`<a class="kpi" href="${href}" title="${def}"><span class="kpi-l">${label}</span><span class="kpi-v">${value}</span>${hint ? html`<span class="kpi-h ${alert ? "alert" : ""}">${hint}</span>` : ""}</a>`;
+  const group = (id, label, rows, tip = "") => html`<section class="kpi-group kpi-${id}" aria-labelledby="kg-${id}"><h2 class="kpi-gh" id="kg-${id}" ${tip ? html`title="${tip}"` : ""}>${label}</h2><div class="kpi-rows">${rows}</div></section>`;
   const ph = (v) => tv("phase", v);
+  // Kennzahlen mit Geldbeträgen: Anzeige je nach Modus (nach Währung / umgerechnet); wird beim Umschalten neu gezeichnet
+  const money$ = (mode) => {
+    const cl = (entries, o) => kpiLines(entries, mode, o);
+    return html`<div class="kpi-grid">
+      ${group("customers", t("nav.kunden"), [
+        kpi(t("kpi.customers"), k.kunden, "#/kunden", "", t("kpi.def.customers")),
+        kpi(t("kpi.pipelinePotential"), cl(k.pipelinePotenzial), "#/kunden", "", t("kpi.def.pipelinePotential")),
+      ], t("stream.downTip"))}
+      ${group("deals", t("nav.angebote"), [
+        kpi(t("kpi.openDeals"), k.offeneDeals, `#/angebote${q({ phase: "__open" })}`, "", t("kpi.def.openDeals")),
+        kpi(t("kpi.offersSent"), k.angeboteGesendet, `#/angebote${q({ phase: "Angebot gesendet" })}`, "", t("kpi.def.phase", { phase: ph("Angebot gesendet") })),
+        kpi(t("kpi.negotiations"), k.verhandlungen, `#/angebote${q({ phase: "Verhandlung Angebot" })}`, "", t("kpi.def.phase", { phase: ph("Verhandlung Angebot") })),
+        kpi(t("kpi.won"), k.gewonnen, `#/angebote${q({ phase: "Abschluss Ja" })}`, "", t("kpi.def.phase", { phase: ph("Abschluss Ja") })),
+        kpi(t("kpi.offerValue"), cl(k.angebotswert), "#/angebote", "", t("kpi.def.offerValue")),
+        kpi(t("kpi.weightedPipeline"), cl(k.gewichtet), "#/angebote", "", t("kpi.def.weightedPipeline")),
+      ], t("stream.downTip"))}
+      ${group("invoices", t("nav.rechnungen"), [
+        kpi(t("kpi.openInvoices"), k.offeneRechnungen.n, `#/rechnungen${q({ status: "__open" })}`, cl(k.offeneRechnungen.betrag), t("kpi.def.openInvoices")),
+        kpi(t("kpi.overdueInvoices"), k.ueberfaelligeRechnungen.n, `#/rechnungen${q({ status: OVERDUE })}`, cl(k.ueberfaelligeRechnungen.betrag), t("kpi.def.overdueInvoices"), k.ueberfaelligeRechnungen.n > 0),
+      ])}
+      ${group("tasks", t("nav.aufgaben-aktivitaeten"), [
+        kpi(t("kpi.openTasks"), k.offeneAufgaben, TL.href({ tab: "open", typ: TL.TODO }), k.ueberfaelligeAufgaben ? t("kpi.overdue", { n: k.ueberfaelligeAufgaben }) : "", t("kpi.def.openTasks"), true),
+      ])}
+      ${group("suppliers", t("nav.lieferanten"), [
+        kpi(t("kpi.suppliersActive"), k.lieferantenAktiv, `#/lieferanten${q({ status: "Aktiv" })}`, t("kpi.ofTotal", { n: k.lieferantenTotal }), t("kpi.def.suppliersActive", { status: tv("suppStatus", "Aktiv") })),
+        kpi(t("kpi.supplierOffersReceived"), k.lieferantenangeboteErhalten, `#/zuordnung${q({ phase: "Angebot erhalten" })}`, "", t("kpi.def.assignPhase", { phase: ph("Angebot erhalten") })),
+        kpi(t("kpi.supplierWins"), k.supplierWins, `#/zuordnung${q({ phase: "Abschluss Ja" })}`, "", t("kpi.def.assignPhase", { phase: ph("Abschluss Ja") })),
+      ], t("stream.upTip"))}
+    </div>
+    <section class="card" aria-labelledby="h-cp">
+      <div class="card-head"><h2 id="h-cp" title="${t("stream.downTip")}">${t("stream.down")} <span class="muted">· ${t("stream.downOwners")}</span></h2><a class="btn btn-sm btn-ghost" href="#/kunden">${t("dash.allCustomers")}</a></div>
+      <div class="stages">
+        ${CUSTOMER_PIPELINE.map((p) => html`<a class="stage" href="#/kunden${q({ phase: p.phase })}"><span class="stage-n">${k.kundenPhasen[p.phase].n}</span><span class="stage-l">${t("pipe.cust." + p.phase)}</span><span class="stage-s">${cl(k.kundenPhasen[p.phase].potenzial, { empty: "–" })}</span></a>`)}
+      </div>
+    </section>`;
+  };
+  const fx = getFx();
+  const toggle$ = (mode) => html`<div class="fx-toggle" role="group" aria-label="${t("fx.toggleLabel")}">
+      <span class="fx-toggle-l">${t("fx.show")}</span>
+      <span class="seg"><button type="button" class="seg-btn" data-fx-mode="cur" aria-pressed="${mode === "cur" ? "true" : "false"}">${t("fx.modeCur")}</button><button type="button" class="seg-btn" data-fx-mode="conv" aria-pressed="${mode === "conv" ? "true" : "false"}">${t("fx.modeConv")}</button></span>
+      <span class="muted fx-toggle-d">${fx.date ? t("fx.ratesFrom", { date: fmtDate(fx.date) }) : t("fx.ratesDefault")} · <a href="#/einstellungen">${t("fx.setRates")}</a></span>
+    </div>`;
 
   root.innerHTML = html`
     <div class="page-head">
@@ -110,32 +159,13 @@ export function render(root, route) {
       <div class="weekbox"><strong>${t("dash.week", { n: wk.week })}</strong><span>${weekday(today)}, ${fmtDate(today)}</span></div>
     </div>
 
-    <div class="kpi-grid">
-      ${kpi(t("kpi.customers"), k.kunden, "#/kunden", "", t("kpi.def.customers"))}
-      ${kpi(t("kpi.openDeals"), k.offeneDeals, `#/angebote${q({ phase: "__open" })}`, "", t("kpi.def.openDeals"))}
-      ${kpi(t("kpi.offersSent"), k.angeboteGesendet, `#/angebote${q({ phase: "Angebot gesendet" })}`, "", t("kpi.def.phase", { phase: ph("Angebot gesendet") }))}
-      ${kpi(t("kpi.negotiations"), k.verhandlungen, `#/angebote${q({ phase: "Verhandlung Angebot" })}`, "", t("kpi.def.phase", { phase: ph("Verhandlung Angebot") }))}
-      ${kpi(t("kpi.won"), k.gewonnen, `#/angebote${q({ phase: "Abschluss Ja" })}`, "", t("kpi.def.phase", { phase: ph("Abschluss Ja") }))}
-      ${kpi(t("kpi.openTasks"), k.offeneAufgaben, TL.href({ tab: "open", typ: TL.TODO }), k.ueberfaelligeAufgaben ? t("kpi.overdue", { n: k.ueberfaelligeAufgaben }) : "", t("kpi.def.openTasks"), true)}
-      ${kpi(t("kpi.pipelinePotential"), curLines(k.pipelinePotenzial), "#/kunden", "", t("kpi.def.pipelinePotential"))}
-      ${kpi(t("kpi.offerValue"), curLines(k.angebotswert), "#/angebote", "", t("kpi.def.offerValue"))}
-      ${kpi(t("kpi.weightedPipeline"), curLines(k.gewichtet), "#/angebote", "", t("kpi.def.weightedPipeline"))}
-      ${kpi(t("kpi.openInvoices"), k.offeneRechnungen.n, `#/rechnungen${q({ status: "__open" })}`, curLines(k.offeneRechnungen.betrag), t("kpi.def.openInvoices"))}
-      ${kpi(t("kpi.overdueInvoices"), k.ueberfaelligeRechnungen.n, `#/rechnungen${q({ status: OVERDUE })}`, curLines(k.ueberfaelligeRechnungen.betrag), t("kpi.def.overdueInvoices"), k.ueberfaelligeRechnungen.n > 0)}
-      ${kpi(t("kpi.suppliersActive"), k.lieferantenAktiv, `#/lieferanten${q({ status: "Aktiv" })}`, t("kpi.ofTotal", { n: k.lieferantenTotal }), t("kpi.def.suppliersActive", { status: tv("suppStatus", "Aktiv") }))}
-      ${kpi(t("kpi.supplierOffersReceived"), k.lieferantenangeboteErhalten, `#/zuordnung${q({ phase: "Angebot erhalten" })}`, "", t("kpi.def.assignPhase", { phase: ph("Angebot erhalten") }))}
-      ${kpi(t("kpi.supplierWins"), k.supplierWins, `#/zuordnung${q({ phase: "Abschluss Ja" })}`, "", t("kpi.def.assignPhase", { phase: ph("Abschluss Ja") }))}
-    </div>
+    ${certDashboardCard(all("suppliers"))}
 
-    <section class="card" aria-labelledby="h-cp">
-      <div class="card-head"><h2 id="h-cp">${t("dash.customerPipeline")} <span class="muted">· Pascal</span></h2><a class="btn btn-sm btn-ghost" href="#/kunden">${t("dash.allCustomers")}</a></div>
-      <div class="stages">
-        ${CUSTOMER_PIPELINE.map((p) => html`<a class="stage" href="#/kunden${q({ phase: p.phase })}"><span class="stage-n">${k.kundenPhasen[p.phase].n}</span><span class="stage-l">${t("pipe.cust." + p.phase)}</span><span class="stage-s">${curLines(k.kundenPhasen[p.phase].potenzial, { empty: "–" })}</span></a>`)}
-      </div>
-    </section>
+    <div data-fx-toggle>${toggle$(getMode())}</div>
+    <div data-fx-host>${money$(getMode())}</div>
 
     <section class="card" aria-labelledby="h-sp">
-      <div class="card-head"><h2 id="h-sp">${t("dash.supplierPipeline")} <span class="muted">· Liz</span></h2><a class="btn btn-sm btn-ghost" href="#/zuordnung">${t("dash.allAssignments")}</a></div>
+      <div class="card-head"><h2 id="h-sp" title="${t("stream.upTip")}">${t("stream.up")} <span class="muted">· ${t("stream.upOwners")}</span></h2><a class="btn btn-sm btn-ghost" href="#/zuordnung">${t("dash.allAssignments")}</a></div>
       <div class="stages s7">
         ${SUPPLIER_PIPELINE.map((p) => html`<a class="stage" href="#/zuordnung${q({ phase: p.phase })}"><span class="stage-n">${k.lieferantenPhasen[p.phase]}</span><span class="stage-l">${t("pipe.supp." + p.phase)}</span></a>`)}
         <a class="stage open" href="#/zuordnung${q({ phase: "__open" })}"><span class="stage-n">${k.offeneZuordnungen}</span><span class="stage-l">${t("dash.openAssignments")}</span></a>
@@ -156,7 +186,7 @@ export function render(root, route) {
               <td data-label="#">${i + 1}</td>
               <td data-label="${t("ent.customers.singular")}" class="c-first">${c ? html`<a href="#/kunden/${c.id}" class="rowlink">${c.firma}</a><small class="nr">${c.nr}</small>` : dash}</td>
               <td data-label="${t("col.phase")}">${c ? badge(c.phase) : dash}</td><td data-label="${t("sec.product")}">${c?.produkt || dash}</td>
-              <td data-label="${t("col.potential")}" class="num">${c ? amt(c, c.potenzial) || dash : dash}</td><td data-label="${t("col.offer")}" class="num hide-lg">${c ? amt(c, c.angebot) || dash : dash}</td>
+              <td data-label="${t("col.potential")}" class="num">${c ? amt3(c, c.potenzial) || dash : dash}</td><td data-label="${t("col.offer")}" class="num hide-lg">${c ? amt3(c, c.angebot) || dash : dash}</td>
               <td data-label="${t("f.customers.naechsterSchritt")}">${c?.naechsterSchritt || dash}</td><td data-label="${t("f.customers.termin")}">${c ? dateCell(c.termin, { done: isClosedPhase(c.phase) }) : dash}</td>
               <td data-label="${t("col.prio")}" class="hide-lg">${c ? prio(c.prioritaet) || dash : dash}</td>
               <td data-label="${t("f.focus.blocker")}">${f.blocker || dash}</td><td data-label="${t("col.owner")}">${ownerCell(f.owner || c?.owner)}</td>
@@ -186,6 +216,14 @@ export function render(root, route) {
       <ol class="agenda-list">${SHOPFLOOR_AGENDA.map((a) => html`<li><strong>${a.who || t("agenda.everyone")}</strong> ${t("agenda." + a.n)}</li>`)}</ol>
     </details>`.toString();
 
+  root.addEventListener("click", (e) => {
+    const m = e.target.closest("[data-fx-mode]");
+    if (!m) return;
+    setMode(m.dataset.fxMode);
+    root.querySelector("[data-fx-toggle]").innerHTML = toggle$(getMode()).toString();
+    root.querySelector("[data-fx-host]").innerHTML = money$(getMode()).toString();
+    root.querySelector(`[data-fx-mode="${getMode()}"]`)?.focus();
+  });
   root.addEventListener("click", async (e) => {
     const el = e.target.closest("[data-act]");
     if (!el || e.target.closest("a")) return;

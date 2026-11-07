@@ -67,6 +67,8 @@ async function request(method, path, body, { auth = true, timeout = 20000, raw, 
 
 export const ping = () => request("GET", "/ping", undefined, { auth: false, timeout: 6000 });
 export const login = (username, password) => request("POST", "/login", { username, password }, { auth: false });
+/** Entwicklungsmodus (Server ohne CRM_PASSWORD): Sitzung für ein Beispielkonto – as: admin | pascal | liz | marco */
+export const devSession = (as) => request("POST", "/dev/session", { as }, { auth: false, timeout: 15000 });
 export const logout = () => request("POST", "/logout", {}, { timeout: 5000 });
 export const me = () => request("GET", "/me");
 export const changePassword = (current, next) => request("POST", "/me/password", { current, new: next });
@@ -115,7 +117,7 @@ export const downloadXlsx = () => request("GET", "/export.xlsx", undefined, { bi
 // ---- Team-Chat und Web Push (nur Servermodus mit Team-Kontext)
 /** params: { channel ("team"|"mgmt"), since, before, limit, peek } → { messages, lastId, readId, unread, hasMore, gap?, channels } */
 export const chatList = (params) => request("GET", "/chat" + qs(params), undefined, { timeout: 15000 });
-export const chatSend = (text, cid, channel = "team") => request("POST", "/chat", { text, cid, channel }, { timeout: 20000 });
+export const chatSend = (text, cid, channel = "team", file) => request("POST", "/chat", { text, cid, channel, ...(file ? { file } : {}) }, { timeout: 20000 });
 export const chatRead = (upTo, channel = "team") => request("POST", "/chat/read", { upTo, channel }, { timeout: 10000 });
 // ---- Team-Kalender (nur Servermodus mit Team-Kontext)
 /** Vorkommen im Zeitraum [from, to) (ISO-Zeitpunkte) → { occurrences:[{eventId, i, start, end, allDay}], events, members, truncated, now } */
@@ -138,3 +140,9 @@ export const olDisconnect = () => request("DELETE", "/outlook/connection", undef
 export const pushConfig = () => request("GET", "/push/config", undefined, { timeout: 10000 });
 export const pushSubscribe = (subscription) => request("POST", "/push/subscribe", { subscription }, { timeout: 15000 });
 export const pushUnsubscribe = (endpoint) => request("POST", "/push/unsubscribe", { endpoint }, { timeout: 8000 });
+// ---- Dateien (Zertifikate, Chat-Anhänge): Team-Namensraum, max. 10 MB, PDF/PNG/JPG/WEBP (WP-A)
+/** Rohe Bytes hochladen; scope: "team" | "mgmt" (nur Geschäftsleitung) → { file: {id, name, type, size, scope} } */
+export const fileUpload = (blob, { name, scope = "team" } = {}) => request("POST", "/files" + qs({ name, scope }), undefined, { raw: blob, timeout: 180000 });
+/** → Blob (Fehler: ApiError, z. B. 403/404) */
+export const fileDownload = (id) => request("GET", "/files/" + encodeURIComponent(id), undefined, { binary: true, timeout: 120000 });
+export const fileDelete = (id) => request("DELETE", "/files/" + encodeURIComponent(id), undefined, { timeout: 20000 });

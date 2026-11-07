@@ -1,12 +1,13 @@
 // Datenschicht: hält die gesamte Datenbank im Speicher, speichert entprellt auf den Server
 // (optimistische Version, 3-Wege-Merge bei 409) bzw. im Lokalen Modus nur in localStorage.
-import { LS, NR_BASE, COLLECTIONS, DEFAULT_LISTS, APP } from "./config.js";
+import { LS, NR_BASE, COLLECTIONS, DEFAULT_LISTS, APP, normChance } from "./config.js";
 import * as api from "./api.js";
 import { uid, clone } from "./util.js";
 import { t, errorText } from "./i18n.js";
 import { mergeDb } from "./merge.js";
 import { defaultBilling, normalizeBilling, nextInvoiceNr, nextArtNr, isRetainedInvoice } from "./billing.js";
 import { countryCode } from "./countries.js";
+import { normalizeFx } from "./fx.js";
 
 // ------------------------------------------------------------ Zustand
 
@@ -19,6 +20,9 @@ export const S = {
   savedAt: null,
   savedBy: "",
   noTeam: false, // Superadmin ohne betretenes Team (Plattform): es gibt keine Teamdaten
+  dev: false, // Entwicklungsmodus: Server ohne CRM_PASSWORD, keine Anmeldung, Rollenwechsler
+  devKey: "", // gewähltes Beispielkonto
+  devUsers: [], // [{key, displayName, role}] – Beispielkonten für den Rollenwechsler
 };
 
 let db = emptyDb();
@@ -99,6 +103,7 @@ export function normalizeDb(raw) {
         rec.contacts = Array.isArray(rec.contacts) ? rec.contacts.filter((x) => x && typeof x === "object").map((x) => ({ ...x, id: x.id || uid() })) : [];
       }
       if (c === "customers") normalizeCustomerAddresses(rec);
+      normalizeChance(c, rec);
       // Positionen (Offerten: optional, fehlt = alter manueller Wert; Rechnungen: immer eine Liste)
       if (c === "invoices" || c === "deals") {
         if (rec.positions !== undefined && !Array.isArray(rec.positions)) rec.positions = [];
@@ -202,10 +207,43 @@ export function setBilling(patch) {
   return next;
 }
 
+/** Wechselkurse (Basis CHF) für die Mehrwährungs-Anzeige: db.settings.fx = { EUR, USD, date } – immer vollständig (Richtwerte für Fehlendes). */
+export const getFx = () => normalizeFx(db.settings?.fx);
+export function setFx(patch) {
+  const next = normalizeFx({ ...getFx(), ...clone(patch) });
+  db.settings = { ...(db.settings || {}), fx: next };
+  changed();
+  return next;
+}
+
 /** Die Nummer, die die nächste neue Rechnung bekommt (Vorschau im Formular; vergeben wird sie in create) */
 export const peekInvoiceNr = () => nextInvoiceNr(db.invoices, getBilling().invoiceStart, db.meta.lastNr?.invoices);
 
+// ------------------------------------------------------------ Lokaler Modus: kleine Dateien (WP-A)
+
+/** Lokaler Modus ohne API: Dateien (≤ 2 MB) liegen als Data-URL in db.settings.localFiles[id] = {name, type, size, data} (siehe files.js) */
+export const localFileGet = (id) => (db.settings?.localFiles && typeof db.settings.localFiles === "object" ? db.settings.localFiles[id] || null : null);
+export function localFilePut(id, rec) {
+  db.settings = { ...(db.settings || {}), localFiles: { ...(db.settings?.localFiles || {}), [id]: rec } };
+  changed();
+  if (S.status === "error") { localFileDel(id); throw new Error(t("store.storageFull")); } // Browser-Speicher voll: nichts behalten
+}
+export function localFileDel(id) {
+  if (!localFileGet(id)) return;
+  const rest = { ...db.settings.localFiles };
+  delete rest[id];
+  db.settings = { ...db.settings, localFiles: rest };
+  changed();
+}
+
 // ------------------------------------------------------------ Schreiben
+
+/** Wahrscheinlichkeit nur als 20/40/60/80 (Abschluss Ja/Nein: 100/0) speichern – auch bei Import (JSON, Excel, API) und älteren Daten. Leer bleibt leer. */
+function normalizeChance(coll, rec) {
+  if ((coll !== "customers" && coll !== "deals") || rec.chance === undefined || rec.chance === null || rec.chance === "") return;
+  const n = normChance(rec.chance, rec.phase);
+  rec.chance = n === null ? "" : n;
+}
 
 function stamp(rec, isNew) {
   const now = new Date().toISOString();
@@ -257,6 +295,7 @@ export function create(coll, data) {
     const g = getBilling().warengruppen.find((x) => x.id === rec.warengruppeId);
     rec.nr = g ? nextArtNr(db.articles, g) : null;
   }
+  normalizeChance(coll, rec);
   stamp(rec, true);
   db[coll].push(rec);
   changed();
@@ -270,6 +309,7 @@ export function update(coll, id, patch) {
   delete p.id; delete p.createdAt; delete p.createdBy;
   if (coll !== "articles") delete p.nr; // Artikelnummern bleiben änderbar (Wechsel der Warengruppe); die Oberfläche prüft auf Duplikate
   Object.assign(rec, p);
+  if ("chance" in p || "phase" in p) normalizeChance(coll, rec);
   stamp(rec, false);
   changed();
   return rec;
@@ -554,6 +594,7 @@ export async function init() {
 
   if (info) {
     S.mode = "server";
+    if (info.dev) return initDev();
     if (!info.configured) return { state: "error", message: errorText({ error: "not_configured", reason: "secret", message: info.message }) || t("err.not_configured.secret") };
     if (!api.getToken()) return { state: "login" };
     return afterAuth();
@@ -574,6 +615,38 @@ export async function init() {
   rev++;
   setStatus("saved");
   return { state: "ready" };
+}
+
+/** Entwicklungsmodus: ohne Anmeldung als gewähltes Beispielkonto starten (Standard Pascal); der Superadmin «admin» betritt das Team. */
+async function initDev() {
+  S.dev = true;
+  let key = lsGet(LS.devUser) || "pascal";
+  let r;
+  try {
+    r = await api.devSession(key);
+  } catch (e) {
+    if (!(e instanceof api.ApiError) || e.status !== 400) return errorState(e.message || t("store.loadFailed"));
+    key = "pascal";
+    lsSet(LS.devUser, key);
+    try { r = await api.devSession(key); } catch (e2) { return errorState(e2.message || t("store.loadFailed")); }
+  }
+  api.setToken(r.token);
+  api.setTeamId(r.enterTeamId || "");
+  S.devUsers = r.devUsers || [];
+  S.devKey = key;
+  return afterAuth();
+}
+
+/** Entwicklungsmodus: Rolle wechseln (Seite wird neu geladen, damit nie Daten zweier Rollen gemischt werden). Ungespeichertes wird vorher gesichert. */
+export async function devSwitch(key) {
+  if (!S.dev) return;
+  if (dirty) await flushNow();
+  lsSet(LS.devUser, key);
+  api.setToken("");
+  api.setTeamId("");
+  lsSet(LS.me, "null");
+  location.hash = "#/uebersicht";
+  location.reload();
 }
 
 export async function loginWith(username, password) {

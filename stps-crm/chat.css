@@ -49,3 +49,15 @@
 /* Kanal-Reiter (Ganzes Team / Geschäftsleitung) */
 .chat-tabs { margin-top: 0; margin-bottom: 10px; }
 .chat-tabs .badge { margin-left: 2px; }
+
+/* WP-A: Anhänge (Datei anhängen, Anhang in der Nachricht) */
+.chat-form { flex-wrap: wrap; }
+.chat-pending { flex: 1 1 100%; font-size: 13px; } .chat-pending[hidden] { display: none; }
+.chat-pending-chip { display: inline-flex; align-items: center; gap: 6px; max-width: 100%; padding: 2px 4px 2px 10px; border: 1px solid var(--line-strong); border-radius: var(--r-pill); background: var(--bg); }
+.chat-file-name { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.chat-attach { flex: none; min-height: 42px; min-width: 44px; justify-content: center; }
+.chat-file { appearance: none; display: flex; align-items: center; gap: 8px; max-width: 100%; margin: 3px 0 2px; padding: 7px 10px; font: inherit; font-size: 13.5px; font-weight: 600; text-align: left; color: inherit; background: rgba(255, 255, 255, .55); border: 1px solid var(--line-strong); border-radius: 10px; cursor: pointer; }
+.chat-msg.mine .chat-file { background: rgba(255, 255, 255, .15); border-color: rgba(255, 255, 255, .4); }
+.chat-file:hover { border-color: var(--accent); } .chat-file:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.chat-file small { font-weight: 400; opacity: .75; white-space: nowrap; }
+.chat-file .ic { flex: none; }

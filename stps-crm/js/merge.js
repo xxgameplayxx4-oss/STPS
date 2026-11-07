@@ -124,6 +124,8 @@ function mergeLists(b, l, r, ctx) {
 /** Einstellungen (settings.billing): feldweise wie die Auswahllisten; ganze Listen (Warengruppen) zählen als ein Wert. */
 function mergeSettings(b, l, r, ctx) {
   const out = { ...(r || {}), ...(l || {}) };
+  // Wechselkurse (settings.fx): als Ganzes – wer sie geändert hat, gewinnt (beide: lokal)
+  if (r?.fx !== undefined || l?.fx !== undefined) out.fx = deepEqual(l?.fx, b?.fx) ? r?.fx : l?.fx;
   const bb = b?.billing, lb = l?.billing, rb = r?.billing;
   if (lb || rb) {
     const merged = {};

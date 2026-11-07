@@ -8,12 +8,17 @@
     "dev": "npx netlify dev",
     "check:i18n": "node scripts/check-i18n.mjs",
     "test:chat": "node scripts/test-chat.mjs",
+    "test:files": "node scripts/test-files.mjs",
     "test:wp5": "node scripts/test-wp5.mjs",
     "test:calendar": "node scripts/test-calendar.mjs",
     "test:outlook": "node scripts/test-outlook.mjs",
     "test:tasklog": "node scripts/test-tasklog.mjs",
     "test:hide-super": "node scripts/test-hide-super.mjs",
-    "test:billing-docs": "node scripts/test-billing-docs.mjs"
+    "test:billing-docs": "node scripts/test-billing-docs.mjs",
+    "test:qrbill": "node scripts/test-qrbill.mjs",
+    "test:wpc": "node scripts/test-wpc.mjs",
+    "test:devmode": "node scripts/test-devmode.mjs",
+    "test:sample": "node scripts/test-sample.mjs"
   },
   "engines": {
     "node": ">=18"

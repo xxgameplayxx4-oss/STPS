@@ -4,6 +4,7 @@
 import * as store from "../store.js";
 import * as chat from "../chat.js";
 import * as push from "../push.js";
+import * as files from "../files.js";
 import { avatarClass } from "../presence.js";
 import { html, fmtDate, initials } from "../util.js";
 import { t, locale } from "../i18n.js";
@@ -38,7 +39,8 @@ function bubble(m, prev, myId) {
     ${mine ? "" : html`<span class="av ${avatarClass(m.uid)} ${grouped ? "ghost" : ""}" aria-hidden="true">${initials(who)}</span>`}
     <div class="chat-bubble">
       ${mine || grouped ? "" : html`<div class="chat-author">${who}${m.sa && store.isSuper() ? html` <span class="badge t-navy">${roleLabel("superadmin")}</span>` : ""}</div>`}
-      <div class="chat-text">${m.text}</div>
+      ${m.text ? html`<div class="chat-text">${m.text}</div>` : ""}
+      ${m.file ? html`<button type="button" class="chat-file" data-file-id="${m.file.id}" data-file-name="${m.file.name}" title="${t("file.download")}">${icon("file")}<span class="chat-file-name">${m.file.name}</span><small>${files.sizeLabel(m.file.size || 0)}</small></button>` : ""}
       <div class="chat-time">${time}</div>
     </div>
   </li>`;
@@ -63,6 +65,9 @@ export function render(root) {
     <section class="card chat-card" aria-label="${t(`chat.ch.${shown}`)}">
       <div class="chat-list" data-chat-list role="log" aria-live="polite" aria-relevant="additions" aria-label="${t("chat.log")}" tabindex="0"></div>
       <form class="chat-form" data-chat-form>
+        <div class="chat-pending" data-chat-pending hidden></div>
+        <input type="file" class="sr" accept="${files.ACCEPT}" data-chat-file tabindex="-1" aria-hidden="true">
+        <button type="button" class="btn chat-attach" data-chat-attach aria-label="${t("chat.attach")}" title="${t("chat.attach")}">${icon("file")}</button>
         <label class="sr" for="q-chat-input">${t("chat.label")}</label>
         <textarea id="q-chat-input" rows="1" maxlength="${chat.MAX_TEXT}" placeholder="${t("chat.placeholder")}" enterkeyhint="send" autocomplete="off"></textarea>
         <button type="submit" class="btn btn-primary chat-send" data-chat-send>${icon("chatlines")}<span>${t("chat.send")}</span></button>
@@ -83,6 +88,40 @@ export function render(root) {
     input.style.height = Math.min(input.scrollHeight, 140) + "px";
   };
   grow();
+
+  const pending = root.querySelector("[data-chat-pending]");
+  const fileInput = root.querySelector("[data-chat-file]");
+  let uploading = false;
+  const paintPending = (err = "") => {
+    const a = chat.st.attach;
+    pending.hidden = !a && !uploading && !err;
+    pending.innerHTML = (uploading ? html`<span class="muted">${t("file.uploading")}</span>` : a ? html`<span class="chat-pending-chip">${icon("file")}<span class="chat-file-name">${a.name}</span><small class="muted">${files.sizeLabel(a.size || 0)}</small><button type="button" class="icon-btn" data-chat-unattach aria-label="${t("chat.attachRemove")}" title="${t("chat.attachRemove")}">${icon("x")}</button></span>` : err ? html`<span class="cert-ferr" role="alert">${err}</span>` : "").toString();
+  };
+  paintPending();
+  root.querySelector("[data-chat-attach]").addEventListener("click", () => { if (!sending && !uploading) fileInput.click(); });
+  fileInput.addEventListener("change", async () => {
+    const f = fileInput.files?.[0];
+    fileInput.value = "";
+    if (!f) return;
+    const c = chat.channel; // Bereich der Datei = Kanal, in den sie gesendet wird
+    uploading = true; paintPending();
+    let err = "";
+    try {
+      if (chat.st.attach) await files.discard(chat.st.attach);
+      chat.st.attach = await files.upload(f, { scope: c === "mgmt" ? "mgmt" : "team" });
+    } catch (e) {
+      if (!store.handleAuthError(e)) err = e.message || t("file.err.upload");
+    } finally {
+      uploading = false;
+      paintPending(err);
+    }
+  });
+  pending.addEventListener("click", (e) => {
+    if (!e.target.closest("[data-chat-unattach]")) return;
+    files.discard(chat.st.attach);
+    chat.st.attach = null;
+    paintPending();
+  });
 
   const gap = () => list.scrollHeight - list.scrollTop - list.clientHeight;
   list.addEventListener("scroll", () => { chat.st.fromBottom = gap(); }, { passive: true });
@@ -132,12 +171,15 @@ export function render(root) {
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
     const text = input.value.trim();
-    if (!text || sending) return;
+    const attach = chat.st.attach;
+    if ((!text && !attach) || sending || uploading) return;
     sending = true;
     form.querySelector("[data-chat-send]").disabled = true;
     try {
-      await chat.send(text);
+      await chat.send(text, attach?.id);
       chat.st.draft = "";
+      chat.st.attach = null;
+      paintPending();
       input.value = "";
       grow();
       forceBottom = true; // eigene Nachricht: ans Ende springen
