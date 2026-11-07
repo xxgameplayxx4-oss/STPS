@@ -15,7 +15,7 @@ export const APP = {
 // full: heller Hintergrund (Anmeldeseite) · symbol: Ladeanzeige und Seitenleiste auf heller Farbe · side: dunkle Seitenleiste · icon: Symbol im Browser-Tab
 export const DEFAULT_BRAND = {
   name: "KGC CRM",
-  color: "#0b2340", // Marineblau der Seitenleiste (--navy in app.css)
+  color: "#10151c", // Tintengrau der Seitenleiste (--navy in app.css)
   full: "kgc-logo-full.svg",
   symbol: "kgc-favicon.svg",
   side: "kgc-logo-symbol-white.svg",

@@ -16,7 +16,7 @@ body:has(dialog.drawer[open]) { overflow: hidden; }
 @media (max-width: 720px) {
   dialog.drawer, dialog.drawer.wide { inset: 0; width: 100vw; border-left: 0; animation-name: sheet-in; }
   dialog.drawer.so-under { transform: none; visibility: hidden; }
-  dialog.drawer .dlg-head { padding-top: max(14px, env(safe-area-inset-top)); }
+  dialog.drawer .dlg-head { padding-top: max(16px, env(safe-area-inset-top)); }
   dialog.drawer .dlg-body { padding: var(--s-4); }
   dialog.drawer .dlg-foot { padding: var(--s-3) var(--s-4) max(var(--s-3), env(safe-area-inset-bottom)); }
   dialog.drawer .dlg-foot .spacer { display: none; }

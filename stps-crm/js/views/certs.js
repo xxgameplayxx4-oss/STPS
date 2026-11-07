@@ -7,7 +7,8 @@ import { t } from "../i18n.js";
 import { icon, openForm, toast } from "../ui.js";
 import { update, byId, handleAuthError } from "../store.js";
 import * as files from "../files.js";
-import { certState, activeDocs, archivedDocs, docsOf, certSummary, safeUrl, CERT_TYPES, MAX_INTERVAL, proposeDue, renewDoc, certAlerts } from "../certs.js";
+import { gauge } from "./common.js";
+import { certState, activeDocs, archivedDocs, docsOf, certSummary, safeUrl, CERT_TYPES, MAX_INTERVAL, proposeDue, renewDoc, certAlerts, daysLeft, WARN_DAYS } from "../certs.js";
 
 const STATE_TONE = { expired: "red", soon: "amber", ok: "green" };
 
@@ -19,6 +20,9 @@ export function warnBadges(s) {
   const c = certSummary(s, todayISO());
   return html`${c.expired ? html`<span class="badge t-red" title="${t("cert.warn.expiredTitle")}">${t("cert.warn.expired", { n: c.expired })}</span>` : ""}${c.soon ? html` <span class="badge t-amber" title="${t("cert.warn.soonTitle")}">${t("cert.warn.soon", { n: c.soon })}</span>` : ""}`;
 }
+
+/** Restlaufzeit als Strichskala: wie viel des 60-Tage-Fensters vor dem Ablauf noch übrig ist (abgelaufen = leer, weit gültig = voll) */
+const validityScale = (days) => gauge(Math.max(0, Math.min(WARN_DAYS, Number(days) || 0)), WARN_DAYS);
 
 const typeLabel = (d) => t(`cert.type.${CERT_TYPES.includes(d.typ) ? d.typ : "sonstiges"}`);
 /** Anzeigename: eigener Name, sonst die Typbezeichnung */
@@ -33,7 +37,7 @@ function sourceHtml(d) {
 
 const metaHtml = (d, st) => html`${d.ausgestelltAm ? html`<span class="muted">${t("cert.issued")}: ${fmtDate(d.ausgestelltAm)}</span>` : ""}
   ${d.gueltigBis ? html`<span class="muted">${t("cert.validUntil")}: ${fmtDate(d.gueltigBis)}</span>` : html`<span class="muted">${t("cert.noExpiry")}</span>`}
-  ${d.intervall ? html`<span class="muted">${t("cert.every", { n: d.intervall })}</span>` : ""} ${stateBadge(st)}`;
+  ${d.intervall ? html`<span class="muted">${t("cert.every", { n: d.intervall })}</span>` : ""} ${stateBadge(st)}${st ? validityScale(daysLeft(d, todayISO())) : ""}`;
 
 /** Karte «Dokumente & Zertifikate» der Lieferanten-Detailansicht */
 export function certsCard(s) {
@@ -68,7 +72,7 @@ export function certDashboardCard(suppliers) {
       <span class="muted">${expired ? t("cert.dash.expiredN", { n: expired }) + " · " : ""}${t("cert.dash.soonHint")}</span></div>
     <ul class="cert-list">${items.slice(0, 12).map((i) => html`<li class="cert ${i.state === "expired" ? "is-expired" : ""}">
       <div class="cert-main"><a href="#/lieferanten/${i.supplierId}" class="rowlink">${i.supplier}</a> <span class="muted">· ${typeLabel(i.doc)}${i.doc.name ? " · " + i.doc.name : ""}</span></div>
-      <div class="cert-meta"><span class="muted">${fmtDate(i.doc.gueltigBis)}</span> <span class="badge t-${STATE_TONE[i.state]}">${i.state === "expired" ? t("cert.state.expired") : t("cert.state.soon")}</span> <span class="muted">${when(i)}</span></div>
+      <div class="cert-meta"><span class="muted">${fmtDate(i.doc.gueltigBis)}</span> <span class="badge t-${STATE_TONE[i.state]}">${i.state === "expired" ? t("cert.state.expired") : t("cert.state.soon")}</span> ${validityScale(i.days)}<span class="muted">${when(i)}</span></div>
     </li>`)}${items.length > 12 ? html`<li class="muted more">${t("week.andMore", { n: items.length - 12 })}</li>` : ""}</ul>
   </section>`;
 }

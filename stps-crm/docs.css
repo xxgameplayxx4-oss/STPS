@@ -80,6 +80,9 @@
 
 @media screen and (max-width: 800px) {
   .qr-slip-wrap { overflow-x: auto; }
+  /* Fusszeile des Belegs auf dem Handy: untereinander statt in drei festen Spalten (nur Bildschirm; der Druck bleibt unverändert) */
+  .sh-foot { grid-template-columns: minmax(0, 1fr); gap: 2px 0; font-size: 11px; }
+  .sh-foot-addr, .sh-foot-iban, .sh-foot-hr { white-space: normal; overflow: visible; text-overflow: clip; overflow-wrap: anywhere; }
   .qr-page.fit { height: auto; }
   .qr-page.fit .sheet { height: auto; padding: 14px; overflow: visible; }
   .qr-page.fit .qr-slip-wrap { position: static; }

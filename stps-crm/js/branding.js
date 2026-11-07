@@ -100,7 +100,7 @@ export function theme(color) {
 /** CSS-Variable → Feld von theme() */
 const THEME_VARS = { "--side-bg": "bg", "--side-bg-2": "bg2", "--side-strong": "fg", "--side-text": "text", "--side-muted": "muted", "--side-faint": "faint", "--side-hover": "hover", "--side-active": "active", "--side-accent": "accent", "--brand-ink": "ink" };
 /** Die Standardwerte aus app.css (:root) – für Vorschau-Felder, die unabhängig von der Farbe der Seite den Standard zeigen sollen */
-export const DEFAULT_THEME = Object.freeze({ bg: DEFAULT_BRAND.color, bg2: "#1d4278", fg: "#ffffff", text: "#cfd9e8", muted: "#9fb2cc", faint: "#7f95b4", hover: "rgba(255, 255, 255, .07)", active: "rgba(255, 255, 255, .13)", accent: "#5b9bff", ink: DEFAULT_BRAND.color });
+export const DEFAULT_THEME = Object.freeze({ bg: DEFAULT_BRAND.color, bg2: "#2a3340", fg: "#f3f5f8", text: "#c4ccd8", muted: "#98a3b3", faint: "#7f8a9b", hover: "rgba(255, 255, 255, .06)", active: "rgba(255, 255, 255, .10)", accent: "#7aa2ff", ink: DEFAULT_BRAND.color });
 /** Farben auf ein Element (Seite oder Vorschau) setzen; th = null: Standard. Über das CSSOM, damit die strenge CSP (kein Inline-Style) nicht greift. */
 export function applyTheme(el, th) {
   for (const [name, key] of Object.entries(THEME_VARS)) {

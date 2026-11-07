@@ -11,6 +11,7 @@ import { invoiceKpis } from "./invoices.js";
 import { t, tv } from "../i18n.js";
 import * as TL from "../tasklog.js";
 import { certDashboardCard } from "./certs.js";
+import { gauge } from "./common.js";
 
 // Anzeige der Geldbeträge: "cur" = nach Währung (je Währung eine Zeile, nie summiert), "conv" = umgerechnet in CHF/EUR/USD (3 Zeilen, ≈, Kurse aus den Einstellungen)
 const MODE_KEY = "stps.dash.fxMode";
@@ -142,7 +143,13 @@ export function render(root, route) {
     <section class="card" aria-labelledby="h-cp">
       <div class="card-head"><h2 id="h-cp" title="${t("stream.downTip")}">${t("stream.down")} <span class="muted">· ${t("stream.downOwners")}</span></h2><a class="btn btn-sm btn-ghost" href="#/kunden">${t("dash.allCustomers")}</a></div>
       <div class="stages">
-        ${CUSTOMER_PIPELINE.map((p) => html`<a class="stage" href="#/kunden${q({ phase: p.phase })}"><span class="stage-n">${k.kundenPhasen[p.phase].n}</span><span class="stage-l">${t("pipe.cust." + p.phase)}</span><span class="stage-s">${cl(k.kundenPhasen[p.phase].potenzial, { empty: "–" })}</span></a>`)}
+        ${(() => {
+          const max = Math.max(1, ...CUSTOMER_PIPELINE.map((p) => k.kundenPhasen[p.phase].n));
+          return CUSTOMER_PIPELINE.map((p) => {
+            const n = k.kundenPhasen[p.phase].n;
+            return html`<a class="stage ${n === max && n > 0 ? "is-max" : ""}" href="#/kunden${q({ phase: p.phase })}"><span class="stage-n">${n}</span><span class="stage-l">${t("pipe.cust." + p.phase)}</span><span class="stage-s">${cl(k.kundenPhasen[p.phase].potenzial, { empty: "–" })}</span>${gauge(n, max)}</a>`;
+          });
+        })()}
       </div>
     </section>`;
   };
@@ -167,7 +174,10 @@ export function render(root, route) {
     <section class="card" aria-labelledby="h-sp">
       <div class="card-head"><h2 id="h-sp" title="${t("stream.upTip")}">${t("stream.up")} <span class="muted">· ${t("stream.upOwners")}</span></h2><a class="btn btn-sm btn-ghost" href="#/zuordnung">${t("dash.allAssignments")}</a></div>
       <div class="stages s7">
-        ${SUPPLIER_PIPELINE.map((p) => html`<a class="stage" href="#/zuordnung${q({ phase: p.phase })}"><span class="stage-n">${k.lieferantenPhasen[p.phase]}</span><span class="stage-l">${t("pipe.supp." + p.phase)}</span></a>`)}
+        ${(() => {
+          const max = Math.max(1, ...SUPPLIER_PIPELINE.map((p) => k.lieferantenPhasen[p.phase]));
+          return SUPPLIER_PIPELINE.map((p) => html`<a class="stage ${k.lieferantenPhasen[p.phase] === max && max > 0 ? "is-max" : ""}" href="#/zuordnung${q({ phase: p.phase })}"><span class="stage-n">${k.lieferantenPhasen[p.phase]}</span><span class="stage-l">${t("pipe.supp." + p.phase)}</span>${gauge(k.lieferantenPhasen[p.phase], max)}</a>`);
+        })()}
         <a class="stage open" href="#/zuordnung${q({ phase: "__open" })}"><span class="stage-n">${k.offeneZuordnungen}</span><span class="stage-l">${t("dash.openAssignments")}</span></a>
       </div>
     </section>

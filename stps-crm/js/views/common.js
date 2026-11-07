@@ -113,4 +113,9 @@ export function dl(items) {
   return html`<dl class="dl">${items.filter(Boolean).map(([k, v]) => html`<div><dt>${k}</dt><dd>${v === "" || v === null || v === undefined ? dash : v}</dd></div>`)}</dl>`;
 }
 
+// Strichskala (Signatur der Oberfläche): eine Teilung mit einer Ablesemarke, wie am Messschieber. Der Anteil wird als Klasse gesetzt
+// (p-0 … p-10, Schritte von 10 %), weil die strenge CSP keine Inline-Stile erlaubt. Die Skala ist stumm für Hilfstechnik – die Zahl steht daneben.
+export const scaleStep = (frac) => Math.max(0, Math.min(10, Math.round((Number(frac) || 0) * 10)));
+export const gauge = (value, max) => html`<span class="gauge p-${scaleStep(max > 0 ? value / max : 0)}" aria-hidden="true"></span>`;
+
 export { badge, customerLabel, supplierLabel };

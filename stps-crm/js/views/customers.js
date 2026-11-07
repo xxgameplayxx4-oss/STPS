@@ -74,7 +74,7 @@ function detail(root, id) {
       <div class="head-actions">
         <button type="button" class="btn" data-act="match">${icon("search")} ${t("match.btn")}</button>
         <button type="button" class="btn btn-primary" data-act="add-activity">${icon("plus")} ${t("ent.activities.singular")}</button>
-        <button type="button" class="btn btn-primary" data-act="add-task">${icon("plus")} ${t("ent.tasks.singular")}</button>
+        <button type="button" class="btn" data-act="add-task">${icon("plus")} ${t("ent.tasks.singular")}</button>
         <button type="button" class="btn" data-act="edit">${icon("edit")} ${t("common.edit")}</button>
         <button type="button" class="btn btn-danger-ghost" data-act="delete">${icon("trash")} ${t("common.delete")}</button>
       </div>

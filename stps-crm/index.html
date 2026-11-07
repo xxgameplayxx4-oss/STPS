@@ -6,7 +6,7 @@
   <title>SwissTech Precision Solutions</title>
   <meta name="description" content="Internes CRM" data-i18n-attr="content:meta.description">
   <meta name="robots" content="noindex, nofollow">
-  <meta name="theme-color" content="#0b2340">
+  <meta name="theme-color" content="#10151c">
   <meta name="color-scheme" content="light">
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <link rel="manifest" href="manifest.webmanifest">
@@ -47,30 +47,30 @@
     <div id="nav-scrim" class="scrim"></div>
 
     <div class="shell">
-      <div id="devbanner" class="devbanner" role="status" hidden><svg class="ic" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 9v4M12 17h.01M10.3 3.9L2.4 18a2 2 0 0 0 1.7 3h15.8a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg><span id="devbanner-text"></span></div>
+      <div id="devbanner" class="devbanner" role="status" hidden><svg class="ic" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 9v4M12 17h.01M10.3 3.9L2.4 18a2 2 0 0 0 1.7 3h15.8a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg><span id="devbanner-text"></span></div>
       <header class="topbar">
         <button type="button" id="nav-toggle" class="icon-btn nav-toggle" aria-label="Menü öffnen" data-i18n-attr="aria-label:a11y.openMenu" aria-controls="nav">
-          <svg class="ic" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
+          <svg class="ic" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
         </button>
         <span class="topbar-brand">KGC CRM</span>
         <span class="spacer"></span>
         <button type="button" id="cmdk-btn" class="cmdk-btn" aria-haspopup="dialog">
-          <svg class="ic" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 19a8 8 0 1 0 0-16 8 8 0 0 0 0 16zM21 21l-4.3-4.3"/></svg>
+          <svg class="ic" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 19a8 8 0 1 0 0-16 8 8 0 0 0 0 16zM21 21l-4.3-4.3"/></svg>
           <span class="cmdk-btn-text"></span><kbd></kbd>
         </button>
         <div id="presence-chips" class="pchips" aria-label="Gerade online" data-i18n-attr="aria-label:a11y.online" hidden></div>
         <label class="team-switch" id="team-switch-wrap" hidden><span class="sr" data-i18n="nav.team">Team</span>
-          <svg class="ic" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l8 3v6c0 5-3.4 8.2-8 9-4.6-.8-8-4-8-9V6z"/></svg>
+          <svg class="ic" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l8 3v6c0 5-3.4 8.2-8 9-4.6-.8-8-4-8-9V6z"/></svg>
           <select id="team-switch" title="Team wechseln" data-i18n-attr="title:acct.switchTeam"></select>
         </label>
         <label class="who-select dev-switch" id="dev-switch-wrap" hidden><span class="sr" data-i18n="dev.roleLabel">Rolle wechseln</span>
-          <svg class="ic" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2M12 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8z"/></svg>
+          <svg class="ic" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2M12 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8z"/></svg>
           <select id="dev-switch" title="Rolle wechseln (Entwicklungsmodus)" data-i18n-attr="title:dev.roleLabel"></select>
         </label>
         <div class="lang-switch" data-lang-switch></div>
         <button type="button" id="savestate" class="savestate ok" aria-live="polite"><span class="dot" aria-hidden="true"></span><span class="ss-text">Gespeichert</span></button>
         <label class="who-select" id="who-select" hidden><span class="sr" data-i18n="auth.iAm">Ich bin</span>
-          <svg class="ic" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2M12 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8z"/></svg>
+          <svg class="ic" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2M12 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8z"/></svg>
           <select id="whoami" title="Ich bin" data-i18n-attr="title:auth.iAm"></select>
         </label>
         <div class="user-menu" id="user-menu" hidden>

@@ -16,6 +16,12 @@ export function certState(c, today, warnDays = WARN_DAYS) {
   return v - t0 <= warnDays ? "soon" : "ok";
 }
 
+/** Tage bis zum Ablauf (negativ = abgelaufen); null ohne Ablaufdatum */
+export function daysLeft(c, today) {
+  const v = dayNum(c?.gueltigBis), t0 = dayNum(today);
+  return v === null || t0 === null ? null : v - t0;
+}
+
 /** Alle Dokumente eines Lieferanten inkl. archivierter (alte Datensätze ohne Feld: leere Liste) */
 export const docsOf = (s) => (Array.isArray(s?.dokumente) ? s.dokumente.filter((d) => d && typeof d === "object") : []);
 /** Gültige (nicht archivierte) bzw. archivierte Dokumente */
