@@ -212,8 +212,9 @@ function monthHtml() {
     const dots = list.slice(0, 3).map((it) => html`<i class="cal-dot ${it.kind === "crm" ? "is-crm" : isOl(it) ? "is-outlook" : ""}"></i>`);
     cells += html`<div class="cal-cell ${other ? "is-other" : ""} ${day === today ? "is-today" : ""} ${day === st.selected ? "is-selected" : ""}" role="gridcell" tabindex="${day === st.selected ? 0 : -1}" data-cal-day="${day}" aria-selected="${day === st.selected}" aria-label="${longDay(day)}${list.length ? ", " + tn("cal.n.events", list.length) : ""}">
       <span class="cal-num">${d.getDate()}</span>
-      <div class="cal-chips">${shown.map((it) => chipHtml(it, day))}${rest > 0 ? html`<button type="button" class="cal-more" data-cal-pick="${day}">${t("cal.more", { n: rest })}</button>` : ""}</div>
+      <div class="cal-chips">${shown.map((it) => chipHtml(it, day))}${rest > 0 ? html`<button type="button" class="cal-more" data-cal-pick="${day}" aria-haspopup="dialog" aria-expanded="false" aria-label="${t("cal.more", { n: rest })}, ${longDay(day)}">${t("cal.more", { n: rest })}</button>` : ""}</div>
       <div class="cal-dots" aria-hidden="true">${dots}${list.length > 3 ? html`<small>+</small>` : ""}</div>
+      ${rest > 0 ? html`<button type="button" class="cal-more-sm" data-cal-pick="${day}" aria-haspopup="dialog" aria-expanded="false" aria-label="${t("cal.more", { n: rest })}, ${longDay(day)}">+${rest}</button>` : ""}
     </div>`.toString();
   }
   return html`<div class="cal-grid" role="grid" aria-label="${monthTitle(st.cursor)}">
@@ -282,12 +283,16 @@ export async function render(root, route) {
     <section class="card cal-agenda" data-cal-agenda></section>`.toString();
   push.mount(root);
 
+  let pop = null;
+  let popAnchor = null;
+  let closePop = () => {};
   const bar = root.querySelector("[data-cal-bar]");
   const body = root.querySelector("[data-cal-body]");
   const agenda = root.querySelector("[data-cal-agenda]");
 
   const paint = () => {
     if (!root.isConnected) return;
+    if (pop) closePop();
     const month = st.view === "month";
     bar.innerHTML = html`
       <div class="seg seg-view" role="group" aria-label="${t("cal.view.aria")}">
@@ -329,6 +334,75 @@ export async function render(root, route) {
   }, 60000);
 
   const narrow = () => matchMedia("(max-width: 720px)").matches;
+
+  // ---- «+N weitere»: Popover mit allen Terminen des Tages (Esc, Klick daneben oder Bildlauf schliesst)
+  closePop = (restoreFocus = false) => {
+    if (!pop) return;
+    const a = popAnchor;
+    pop.remove();
+    pop = null;
+    popAnchor = null;
+    document.removeEventListener("pointerdown", onPopOutside, true);
+    document.removeEventListener("keydown", onPopKey, true);
+    window.removeEventListener("resize", onPopResize);
+    window.removeEventListener("hashchange", onPopResize);
+    a?.setAttribute("aria-expanded", "false");
+    if (restoreFocus && a?.isConnected) a.focus({ preventScroll: true });
+  };
+  const onPopOutside = (e) => { if (pop && !pop.contains(e.target) && !popAnchor?.contains(e.target)) closePop(); };
+  const onPopResize = () => closePop();
+  const onPopKey = (e) => {
+    if (e.key === "Escape") { e.preventDefault(); e.stopPropagation(); closePop(true); return; }
+    if (e.key === "Tab" && pop) {
+      const f = [...pop.querySelectorAll("button, a[href]")];
+      if (!f.length) return;
+      const first = f[0], last = f[f.length - 1];
+      if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+      else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+    }
+  };
+  const openPop = (anchor) => {
+    const day = anchor.dataset.calPick;
+    if (pop && popAnchor === anchor) { closePop(true); return; }
+    closePop();
+    const list = byDay(items()).get(day) || [];
+    pop = document.createElement("div");
+    pop.className = "cal-pop";
+    pop.setAttribute("role", "dialog");
+    pop.setAttribute("aria-label", `${longDay(day)}, ${tn("cal.n.events", list.length)}`);
+    pop.innerHTML = html`<div class="cal-pop-head"><strong>${longDay(day)}</strong><button type="button" class="icon-btn" data-cal-popclose aria-label="${t("common.close")}" title="${t("common.close")}">${icon("x")}</button></div>
+      <ul class="cal-rows">${list.map((it) => rowHtml(it, day))}</ul>`.toString();
+    // an <body> hängen: ein Vorfahre der Seite verschiebt sonst den Bezugspunkt von position: fixed
+    document.body.appendChild(pop);
+    pop.addEventListener("click", (e) => {
+      if (e.target.closest("[data-cal-popclose]")) { closePop(true); return; }
+      const ev = e.target.closest("[data-ev]");
+      if (ev) { closePop(); openEvent(ev.dataset.ev, reload); return; }
+      if (e.target.closest("a.cal-row")) closePop();
+    });
+    popAnchor = anchor;
+    anchor.setAttribute("aria-expanded", "true");
+    // Position: unter dem Anker, am Rand des Fensters begrenzt (Handy: Breite = Fenster minus Rand)
+    const vw = document.documentElement.clientWidth;
+    const vh = Math.min(window.innerHeight, document.documentElement.clientHeight || window.innerHeight);
+    const m = 8;
+    const w = Math.min(340, vw - 2 * m);
+    pop.style.width = `${w}px`;
+    pop.style.maxHeight = `${vh - 2 * m}px`;
+    const r = anchor.getBoundingClientRect();
+    const h = Math.min(pop.offsetHeight, vh - 2 * m);
+    let left = Math.max(m, Math.min(r.left, vw - w - m));
+    let top = r.bottom + 4;
+    if (top + h > vh - m) top = Math.max(m, r.top - h - 4);
+    if (top + h > vh - m) top = Math.max(m, vh - h - m);
+    pop.style.left = `${left}px`;
+    pop.style.top = `${top}px`;
+    document.addEventListener("pointerdown", onPopOutside, true);
+    document.addEventListener("keydown", onPopKey, true);
+    window.addEventListener("resize", onPopResize);
+    window.addEventListener("hashchange", onPopResize);
+    pop.querySelector(".cal-row")?.focus({ preventScroll: true });
+  };
   const pick = (day) => {
     st.selected = day;
     const d = parseDay(day);
@@ -339,9 +413,10 @@ export async function render(root, route) {
   // ---- Bedienung
   root.addEventListener("click", async (e) => {
     const q = (s) => e.target.closest(s);
+    if (q("[data-cal-popclose]")) { closePop(true); return; }
     const chip = q("[data-ev]");
-    if (chip) { openEvent(chip.dataset.ev, reload); return; }
-    if (q("a.cal-ev, a.cal-row")) return; // CRM-Frist: normaler Link
+    if (chip) { closePop(); openEvent(chip.dataset.ev, reload); return; }
+    if (q("a.cal-ev, a.cal-row")) { closePop(); return; } // CRM-Frist: normaler Link
     const nw = q("[data-cal-new]");
     if (nw) { newEvent(nw.dataset.calNew || st.selected, reload); return; }
     const view = q("[data-cal-view]");
@@ -364,7 +439,7 @@ export async function render(root, route) {
     if (q("[data-cal-more]")) { st.days = Math.min(LIST_MAX_DAYS, st.days + LIST_STEP_DAYS); paint(); refresh(); return; }
     if (q("[data-cal-retry]")) { reload(); return; }
     const more = q("[data-cal-pick]");
-    if (more) { pick(more.dataset.calPick); return; }
+    if (more) { e.stopPropagation(); openPop(more); return; }
     const cell = q("[data-cal-day]");
     if (cell) {
       const day = cell.dataset.calDay;

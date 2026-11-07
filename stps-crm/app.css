@@ -275,7 +275,7 @@ small.nr { margin-left: 8px; color: var(--muted); font-family: var(--mono); font
 .flt select { font-weight: 400; letter-spacing: 0; text-transform: none; color: var(--text); }
 .count { margin-left: auto; font-family: var(--mono); font-size: 12px; color: var(--muted); padding-bottom: 8px; font-variant-numeric: tabular-nums; }
 .table-card { overflow: hidden; }
-.table-wrap { overflow-x: auto; }
+.table-wrap { overflow-x: auto; overscroll-behavior-x: contain; }
 .tbl { width: 100%; border-collapse: collapse; font-size: 14px; }
 .tbl th { text-align: left; font-size: 12px; font-weight: 500; color: var(--muted); padding: 12px 12px 8px; background: var(--card); border-bottom: 1px solid var(--line-strong); white-space: nowrap; position: sticky; top: 0; z-index: 2; }
 .tbl th.sortable { padding: 0; }
@@ -291,6 +291,14 @@ small.nr { margin-left: 8px; color: var(--muted); font-family: var(--mono); font
 .tbl tbody tr { transition: background var(--t-fast) var(--ease); }
 .tbl tr.is-done td { opacity: .6; }
 .tbl tfoot td { background: transparent; font-weight: 500; border-top: 1px solid var(--text-2); }
+/* Reicht die Breite trotzdem nicht, scrollt die Tabelle im Kartenrahmen; die erste Spalte bleibt stehen (nur ab 721px, darunter Kartenansicht) */
+@media (min-width: 721px) {
+  .tbl th:first-child, .tbl td:first-child { position: sticky; left: 0; z-index: 1; background: var(--card); }
+  .tbl th:first-child { z-index: 3; }
+  .tbl tbody tr.clickable:hover td:first-child { background: var(--hover); }
+  .tbl td.num, .tbl th.num { padding-left: 8px; padding-right: 8px; }
+  .tbl th.num .th-btn { padding-left: 8px; padding-right: 8px; justify-content: flex-end; }
+}
 .tbl .num { text-align: right; white-space: nowrap; font-variant-numeric: tabular-nums; }
 .tbl td.num { font-size: 14px; letter-spacing: .005em; }
 .tbl .w-nr { width: 1%; white-space: nowrap; color: var(--muted); }
@@ -544,8 +552,15 @@ dialog.modal.wide { width: min(640px, calc(100vw - 32px)); }
 .danger-zone h2 { color: var(--danger); }
 
 /* ---------- Responsive ---------- */
-@media (max-width: 1600px) {
+@media (max-width: 1800px) {
   .hide-lg { display: none !important; }
+}
+/* Spalten mit niedriger Priorität: hide-xl ab 1800px, hide-md ab 1340px ausgeblendet (Tabellen laufen sonst über den Kartenrand) */
+@media (max-width: 1800px) {
+  .hide-xl { display: none !important; }
+}
+@media (max-width: 1340px) {
+  .hide-md { display: none !important; }
 }
 @media (max-width: 1200px) {
   .kpi-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
