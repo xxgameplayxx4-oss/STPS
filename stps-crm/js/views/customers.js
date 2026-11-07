@@ -3,7 +3,7 @@ import { all, byId } from "../store.js";
 import { html, fmtPct, fmtDate, fmtDateTime } from "../util.js";
 import { icon, crumbs } from "../ui.js";
 import { listView } from "../table.js";
-import { L, badge, prio, primaryContact, weightedCustomer, contactsOf, normChance, amt, amt3, curLines, sumByCur, deliveryAddresses, billingAddress, addressLines, countryLabel } from "../model.js";
+import { countryFilter, customerCountry, landTag, L, badge, prio, primaryContact, weightedCustomer, contactsOf, normChance, amt, amt3, curLines, sumByCur, deliveryAddresses, billingAddress, addressLines, countryLabel } from "../model.js";
 import { KUNDENPHASEN } from "../config.js";
 import { t, tv } from "../i18n.js";
 import { dateCell, ownerCell, contactCell, textCell, dash, contactsCard, addressesCard, dl } from "./common.js";
@@ -34,10 +34,11 @@ const listCfg = () => ({
     { key: "owner", label: t("col.owner"), options: L.owners, test: (r, v) => r.owner === v },
     { key: "prio", label: t("f.customers.prioritaet"), options: L.prioritaeten, test: (r, v) => r.prioritaet === v },
     { key: "kategorie", label: t("f.customers.kategorien"), options: catOptions, test: (r, v) => kategorienOf(r).includes(v) },
+    countryFilter(() => all("customers"), customerCountry),
   ],
   columns: [
     { key: "nr", label: t("ent.customers.nr"), sort: (r) => r.nr, cell: (r) => html`<span class="nr">${r.nr}</span>`, cls: "w-nr" },
-    { key: "firma", label: t("f.customers.firma"), sort: (r) => r.firma, cell: (r) => html`<a href="#/kunden/${r.id}" class="rowlink">${r.firma}</a>`, cls: "c-title" },
+    { key: "firma", label: t("f.customers.firma"), sort: (r) => r.firma, cell: (r) => html`<a href="#/kunden/${r.id}" class="rowlink">${r.firma}</a>${landTag(customerCountry(r))}`, cls: "c-title" },
     { key: "contact", label: t("contact.primary"), sort: (r) => primaryContact(r)?.name, cell: contactCell },
     { key: "prio", label: t("col.prio"), sort: (r) => r.prioritaet, cell: (r) => prio(r.prioritaet) || dash, cls: "w-sm" },
     { key: "phase", label: t("col.phase"), sort: (r) => KUNDENPHASEN.indexOf(r.phase), cell: (r) => badge(r.phase) },

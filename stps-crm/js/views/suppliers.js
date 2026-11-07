@@ -3,7 +3,7 @@ import { all, byId } from "../store.js";
 import { html, fmtDate, fmtDateTime } from "../util.js";
 import { icon, crumbs } from "../ui.js";
 import { listView } from "../table.js";
-import { L, badge, stars, primaryContact, contactsOf } from "../model.js";
+import { countryFilter, supplierCountry, landTag, L, badge, stars, primaryContact, contactsOf } from "../model.js";
 import { t, tv } from "../i18n.js";
 import { dateCell, ownerCell, contactCell, textCell, dash, contactsCard, dl } from "./common.js";
 import { articlesSection, rfqsSection, activitiesSection, tasksSection, notesCard, bindDetailActions } from "./sections.js";
@@ -37,10 +37,11 @@ const listCfg = () => ({
     { key: "geprueft", label: t("f.suppliers.geprueft"), options: () => [{ value: "1", label: t("supp.vetted") }, { value: "0", label: t("supp.notVetted") }], test: (r, v) => Boolean(r.geprueft) === (v === "1") },
     { key: "kategorie", label: t("f.suppliers.kategorien"), options: catOptions, test: (r, v) => kategorienOf(r).includes(v) },
     { key: "bewertung", label: t("col.rating"), options: () => [1, 2, 3, 4, 5].map((n) => ({ value: n, label: t("suppliers.ratingFrom", { n }) })), test: (r, v) => (Number(r.bewertung) || 0) >= Number(v) },
+    countryFilter(() => all("suppliers"), supplierCountry),
   ],
   columns: [
     { key: "nr", label: t("ent.suppliers.nr"), sort: (r) => r.nr, cell: (r) => html`<span class="nr">${r.nr}</span>`, cls: "w-nr" },
-    { key: "firma", label: t("f.suppliers.firma"), sort: (r) => r.firma, cell: (r) => html`<a href="#/lieferanten/${r.id}" class="rowlink">${r.firma}</a>`, cls: "c-title" },
+    { key: "firma", label: t("f.suppliers.firma"), sort: (r) => r.firma, cell: (r) => html`<a href="#/lieferanten/${r.id}" class="rowlink">${r.firma}</a>${landTag(supplierCountry(r))}`, cls: "c-title" },
     { key: "contact", label: t("contact.primary"), sort: (r) => primaryContact(r)?.name, cell: contactCell },
     { key: "ort", label: t("f.suppliers.ort"), cls: "hide-xl", sort: (r) => r.ort, cell: (r) => r.ort || dash },
     { key: "produkte", label: t("f.suppliers.produkte"), cls: "hide-xl", sort: (r) => r.produkte, cell: (r) => textCell(r.produkte) },

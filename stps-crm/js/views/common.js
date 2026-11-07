@@ -1,7 +1,7 @@
 // Gemeinsame Darstellungs-Bausteine für die Ansichten.
 import { html, fmtDate, isOverdue, relDay, mailLink, telLink, initials, todayISO } from "../util.js";
 import { icon } from "../ui.js";
-import { badge, contactsOf, primaryContact, customerLabel, supplierLabel, deliveryAddresses, billingAddress, effectiveAddress, addressNr, addressLines } from "../model.js";
+import { badge, landTag, customerCountry, contactsOf, primaryContact, customerLabel, supplierLabel, deliveryAddresses, billingAddress, effectiveAddress, addressNr, addressLines } from "../model.js";
 import { byId, all } from "../store.js";
 import { t, tv } from "../i18n.js";
 
@@ -29,9 +29,9 @@ export function contactCell(rec) {
     ${p.telefon || p.mobile ? html`<small>${telLink(p.telefon || p.mobile)}</small>` : ""}</div>`;
 }
 
-export const customerLink = (id) => {
+export const customerLink = (id, { land = false } = {}) => {
   const c = byId("customers", id);
-  return c ? html`<a href="#/kunden/${c.id}" class="rowlink">${c.firma}</a><small class="nr">${c.nr}</small>` : dash;
+  return c ? html`<a href="#/kunden/${c.id}" class="rowlink">${c.firma}</a><small class="nr">${c.nr}</small>${land ? landTag(customerCountry(c)) : ""}` : dash;
 };
 export const supplierLink = (id) => {
   const s = byId("suppliers", id);

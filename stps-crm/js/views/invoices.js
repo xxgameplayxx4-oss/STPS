@@ -3,7 +3,7 @@ import { all, byId, create, update, remove, peekInvoiceNr } from "../store.js";
 import { html, th, fmtDate, fmtDateTime, todayISO, addDays, clone } from "../util.js";
 import { icon, crumbs, openForm, confirmDialog, toast } from "../ui.js";
 import { listView } from "../table.js";
-import { dealsOf, customerLabel, primaryContact } from "../model.js";
+import { dealsOf, customerLabel, primaryContact, countryFilter, customerCountry } from "../model.js";
 import { dateCell, dash, customerLink, textCell, dl } from "./common.js";
 import { positionsField, unpackPositions } from "./positions.js";
 import { billingSettings, invBadge, statusOf, totalsOf, docMoney, sumsByCurrency, vatForCustomer, positionsTable, totalsBlock, INVOICE_STATUS } from "./docs.js";
@@ -172,10 +172,11 @@ const listCfg = () => ({
   filters: [
     { key: "status", label: t("col.status"), options: STATUS_FILTER, test: (r, v) => (v === "__open" ? isOpen(statusOf(r)) : statusOf(r) === v) },
     { key: "kunde", label: t("ent.customers.singular"), options: customerOptions, test: (r, v) => r.customerId === v },
+    countryFilter(() => all("invoices") || [], (r) => customerCountry(byId("customers", r.customerId))),
   ],
   columns: [
     { key: "nr", label: t("inv.nr"), sort: (r) => r.nr, cell: (r) => html`<span class="nr">${r.nr}</span>`, cls: "w-nr" },
-    { key: "kunde", label: t("ent.customers.singular"), sort: (r) => byId("customers", r.customerId)?.firma || "", cell: (r) => customerLink(r.customerId), cls: "c-title" },
+    { key: "kunde", label: t("ent.customers.singular"), sort: (r) => byId("customers", r.customerId)?.firma || "", cell: (r) => customerLink(r.customerId, { land: true }), cls: "c-title" },
     { key: "datum", label: t("f.invoices.datum"), cls: "hide-lg", sort: (r) => r.datum, cell: (r) => fmtDate(r.datum) || dash },
     { key: "faellig", label: t("f.invoices.faellig"), sort: (r) => r.faellig, cell: (r) => dateCell(r.faellig, { done: !isOpen(statusOf(r)) }) },
     { key: "status", label: t("col.status"), sort: (r) => INVOICE_STATUS.indexOf(r.status), cell: (r) => invBadge(statusOf(r)) },

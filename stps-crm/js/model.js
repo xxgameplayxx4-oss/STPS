@@ -5,7 +5,7 @@ import { all, byId, getList, ownerNames, getUser, getBilling, getFx } from "./st
 import { FX_CURS, convert, roundFx } from "./fx.js";
 import { html, chf, money, fmtDate, fmtPct, fmtNum, price, todayISO } from "./util.js";
 import { t, tv, tvAny, getLang } from "./i18n.js";
-import { COUNTRIES, countryName } from "./countries.js";
+import { COUNTRIES, countryName, countryCode } from "./countries.js";
 import { SHIP_STATUS, CARRIERS, safeUrl } from "./logistics.js";
 import { INVOICE_STATUS, fmtArtNr, nextArtNr, margin, dueDate, DEFAULT_MWST_SATZ, INVOICE_CURRENCIES } from "./billing.js";
 
@@ -80,6 +80,19 @@ export function stars(n) {
 
 // ------------------------------------------------------------ Hilfen zu Datensätzen
 
+// ---- Land für Filter und Kürzel in Listen: Kunden = Land der Rechnungsadresse (Stammadresse, nicht die Lieferadresse);
+// Lieferanten haben nur das Freitextfeld «Ort / Land» → letzter Teil nach dem Komma (z. B. «Kempten, Deutschland» → DE)
+export const customerCountry = (c) => (c?.land ? countryCode(c.land) || String(c.land).trim().toUpperCase() : "");
+export const supplierCountry = (s) => { const parts = String(s?.ort || "").split(/[,/]/); return countryCode(parts[parts.length - 1]) || ""; };
+/** Land-Filter für Listen: Optionen = die Länder, die in den Daten vorkommen. codeOf(Zeile) liefert den Ländercode. */
+export const countryFilter = (rowsFn, codeOf) => ({
+  key: "land",
+  label: t("f.customers.land"),
+  options: () => [...new Set(rowsFn().map(codeOf).filter(Boolean))].sort((a, b) => countryName(a, getLang()).localeCompare(countryName(b, getLang()), getLang())).map((c) => ({ value: c, label: `${c} · ${countryName(c, getLang())}` })),
+  test: (r, v) => codeOf(r) === v,
+});
+/** Kleines Länderkürzel hinter dem Namen (nichts, wenn unbekannt) */
+export const landTag = (code) => (code ? html`<small class="ctag" title="${countryName(code, getLang())}">${code}</small>` : "");
 export const customerLabel = (c) => (c ? `${c.nr} · ${c.firma}` : "");
 export const supplierLabel = (s) => (s ? `${s.nr} · ${s.firma}` : "");
 export const articleLabel = (a) => (a ? `${fmtArtNr(a.nr)} · ${a.bezeichnung}` : "");

@@ -209,6 +209,7 @@ main { padding: 28px 32px 48px; width: 100%; max-width: 1600px; margin: 0 auto; 
 .count-pill.alert { background: var(--danger-50); color: var(--danger); border-color: transparent; }
 .nr-pill, .nr { font-variant-numeric: tabular-nums; }
 .nr-pill { display: inline-block; vertical-align: middle; font-family: var(--mono); color: var(--muted); border: 1px solid var(--line-strong); border-radius: var(--r-xs); padding: 0 8px; font-size: .8rem; font-weight: 400; margin-left: 8px; letter-spacing: 0; line-height: 1.6; }
+small.ctag { margin-left: 6px; padding: 0 4px; border: 1px solid var(--line-strong); border-radius: var(--r-xs, 3px); color: var(--muted); font-family: var(--mono); font-size: .72em; letter-spacing: .02em; vertical-align: 1px; }
 small.nr { margin-left: 8px; color: var(--muted); font-family: var(--mono); font-size: .78em; }
 .meta { padding: 0 20px 16px; margin: 0; color: var(--muted); font-size: 13px; }
 
