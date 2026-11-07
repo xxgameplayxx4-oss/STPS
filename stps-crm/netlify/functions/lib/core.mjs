@@ -13,6 +13,7 @@ import * as calendar from "./calendar.mjs";
 import * as files from "./files.mjs";
 import * as outlook from "./outlook.mjs";
 import * as dev from "./devmode.mjs";
+import { updateTeamFx } from "./fx-rates.mjs";
 import { parseBody } from "./http.mjs";
 import { stampAndDiff, appendAudit } from "./audit.mjs";
 import { scrubDb, scrubStamp } from "./hide-super.mjs";
@@ -122,6 +123,16 @@ export async function handleApi(req, deps) {
   // Outlook-Verbindung des eigenen Benutzers (lib/outlook.mjs)
   const olRes = await outlook.route(path, method, req, { ...deps, rootStore, rootEnv, now }, ctx);
   if (olRes) return olRes;
+
+  // Wechselkurse jetzt von der EZB holen (Button «Jetzt aktualisieren»); nur Team-Admins, nur im Modus «Automatisch»
+  if (path === "/fx/refresh") {
+    if (method !== "POST") return json(405, { error: "method_not_allowed", message: "Methode nicht erlaubt" });
+    if (!ctx.isAdmin && !ctx.isSuper) return json(403, { error: "forbidden", message: "Nur Admins dürfen die Wechselkurse aktualisieren", reason: "fx_admins_only" });
+    const r = await updateTeamFx(store, { now, fetch: deps.fetch });
+    if (r.status === "ok") return json(200, { ok: true, fx: r.fx });
+    // Kein HTTP-Fehler für erwartbare Ausgänge (manuell, Dienst nicht erreichbar, noch keine Daten): die Oberfläche wertet «status» aus
+    return json(200, { ok: false, status: r.status, ...(r.status === "failed" ? { message: "Wechselkurse konnten nicht geladen werden" } : {}) });
+  }
 
   if (path === "/db") {
     if (method === "GET") {

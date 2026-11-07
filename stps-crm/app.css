@@ -1023,3 +1023,10 @@ dialog.modal.match-dlg { width: min(980px, calc(100vw - 32px)); }
 .toast-action { font: inherit; font-weight: 500; margin-left: 8px; padding: 2px 8px; border: 1px solid currentColor; border-radius: var(--r-xs, 3px); background: transparent; color: inherit; cursor: pointer; }
 .cat-tags .badge + .badge { margin-left: 8px; }
 [data-fx-form] .field-row { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+
+.fx-mode { margin: 4px 0 12px; }
+.fx-meta { display: flex; flex-direction: column; gap: 6px; margin-top: 8px; }
+.fx-meta .help { margin: 0; }
+.fx-fail { display: flex; align-items: center; gap: 6px; color: #7a4a00; }
+.fx-fail .ic { width: 14px; height: 14px; flex: none; }
+[data-fx-form] input[readonly], [data-fx-form] input:disabled { background: var(--hover); color: var(--text); opacity: 1; cursor: default; }

@@ -74,6 +74,7 @@ export const me = () => request("GET", "/me");
 export const changePassword = (current, next) => request("POST", "/me/password", { current, new: next });
 export const getDb = () => request("GET", "/db");
 export const putDb = (baseVersion, data, by) => request("PUT", "/db", { baseVersion, data, by }, { timeout: 40000 });
+export const refreshFx = () => request("POST", "/fx/refresh", {}, { timeout: 20000 });
 export const listBackups = () => request("GET", "/backups");
 export const getBackup = (date) => request("GET", "/backups/" + encodeURIComponent(date));
 

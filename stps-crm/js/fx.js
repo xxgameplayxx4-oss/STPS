@@ -1,5 +1,6 @@
 // Wechselkurse für die Mehrwährungs-Anzeige (Basis CHF). Rein rechnerisch, ohne Abhängigkeiten.
-// Gespeichert in db.settings.fx = { EUR, USD, date } – «EUR: 0.93» heisst: 1 EUR = 0.93 CHF. Manuell gepflegt (Einstellungen), kein Abruf.
+// Gespeichert in db.settings.fx = { EUR, USD, date, mode?, source?, fetchedAt?, failedAt? } – «EUR: 0.93» heisst: 1 EUR = 0.93 CHF.
+// mode «auto»: täglich von der EZB (Server, lib/fx-rates.mjs); «manual»: von Hand gepflegt, wird nie überschrieben.
 // Die Umrechnung dient nur der Übersicht (≈); gespeichert und fakturiert wird immer in der Originalwährung.
 
 /** Währungen der 3-Zeilen-Anzeige, CHF zuerst */
@@ -12,12 +13,19 @@ const rate = (v) => { const n = typeof v === "string" ? Number(v.replace(",", ".
 /** Kurse bereinigen: ungültige Werte fallen auf den Richtwert zurück, Datum nur als ISO «JJJJ-MM-TT». */
 export function normalizeFx(raw) {
   const src = raw && typeof raw === "object" && !Array.isArray(raw) ? raw : {};
-  return {
+  const out = {
     EUR: rate(src.EUR) ?? DEFAULT_FX.EUR,
     USD: rate(src.USD) ?? DEFAULT_FX.USD,
     date: typeof src.date === "string" && /^\d{4}-\d{2}-\d{2}$/.test(src.date) ? src.date : "",
   };
+  if (src.mode === "auto" || src.mode === "manual") out.mode = src.mode;
+  if (typeof src.source === "string" && src.source) out.source = src.source.slice(0, 80);
+  for (const k of ["fetchedAt", "failedAt"]) if (typeof src[k] === "string" && !Number.isNaN(Date.parse(src[k]))) out[k] = src[k];
+  return out;
 }
+
+/** Aktualisierungsart: ausdrücklich gewählt, sonst «auto» für Teams ohne erfasste Kurse und «manual» für bereits von Hand gepflegte */
+export const fxMode = (fx) => fx?.mode ?? (fx?.date ? "manual" : "auto");
 
 /** Umrechnen über CHF; null, wenn Betrag leer/ungültig oder eine der Währungen nicht umrechenbar ist (z. B. VND). */
 export function convert(amount, from, to, fx = DEFAULT_FX) {
