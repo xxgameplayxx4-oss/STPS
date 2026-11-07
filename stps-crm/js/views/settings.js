@@ -110,6 +110,7 @@ export function render(root) {
           <p class="help">${t("set.sampleHelp")}</p>
           <button type="button" class="btn" data-set="sample" ${empty ? "" : "disabled"}>${t("set.sampleLoad")}</button>
           ${empty ? "" : html`<p class="help">${t("set.sampleNotEmpty")}</p>`}
+          ${store.S.dev ? html`<p class="help">${t("set.sampleFullHelp")}</p><button type="button" class="btn" data-set="sample-full">${icon("upload")} ${t("set.sampleFullLoad")}</button>` : ""}
         </div>
       </section>
 
@@ -202,6 +203,13 @@ export function render(root) {
         loadSampleData();
         toast(t("toast.sampleLoaded"), { type: "ok" });
         break;
+      case "sample-full":
+        try {
+          const res = await fetch("/sample/beispieldaten.json", { cache: "no-store" });
+          if (!res.ok) throw new Error(`HTTP ${res.status}`);
+          if (await confirmAndReplace(await res.json(), t("set.sampleFullLabel"))) await seedSampleChat();
+        } catch (err) { toast(t("toast.importFailed", { msg: err.message }), { type: "error", ms: 8000 }); }
+        break;
       case "wipe": {
         const ok = await confirmDialog({
           title: t("set.wipeTitle"),
@@ -239,9 +247,25 @@ async function confirmAndReplace(raw, label) {
     message: html`<p>${th("set.replaceMsg", { current: html`<strong>${summary(store.counts())}</strong>`, label })}</p><p><strong>${summary(counts)}</strong></p><p class="muted">${t("set.replaceNote")}</p>`,
     confirmLabel: t("set.replaceConfirm"), danger: true,
   });
-  if (!ok) return;
+  if (!ok) return false;
   await store.replaceDb(raw);
   toast(t("toast.dbReplaced"), { type: "ok" });
+  return true;
+}
+
+// Beispiel-Chat (nur Entwicklungsmodus, nur wenn der Team-Chat noch leer ist)
+const SAMPLE_CHAT = [
+  "Guten Morgen zusammen – die Offerte 40003 für Muster Maschinenbau geht heute raus.",
+  "Super. Hanoi Sheet Metal hat das ISO-9001-Zertifikat noch nicht erneuert, ich frage nach.",
+  "Rechnung 60001 ist seit dem 28.10. überfällig – Mahnung vorbereiten?",
+  "Ja bitte. Und die Export-Rechnungen nach Österreich im Auge behalten (EUR).",
+];
+async function seedSampleChat() {
+  try {
+    const r = await api.chatList({ limit: 1 });
+    if (r?.messages?.length) return;
+    for (const m of SAMPLE_CHAT) await api.chatSend(m);
+  } catch { /* Chat ist optional */ }
 }
 
 const backupLabel = (id, time) => (time ? t("set.backupLabelImport", { date: fmtDate(id.slice(0, 10)), time }) : t("set.backupLabel", { date: fmtDate(id.slice(0, 10)) }));

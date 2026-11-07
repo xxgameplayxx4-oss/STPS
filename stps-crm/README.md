@@ -133,6 +133,7 @@ Ohne API (z. B. `python3 -m http.server` oder `npx serve`) startet die App im **
 - **Import-Backups:** Vor jedem Excel-Import (Datei oder SharePoint) sichert der Server den bisherigen Stand zusätzlich als `backup-JJJJ-MM-TT-import-HHMMSS` (gleiche 30 Tage; in der Liste mit «vor Import» markiert).
 - **Einstellungen → Datensicherung:** komplette Datenbank als JSON exportieren/importieren (ersetzt alles) sowie jede Tabelle als CSV (UTF-8 mit BOM, Semikolon – öffnet direkt im Schweizer Excel). Empfehlung: regelmässig ein JSON-Export zusätzlich ablegen.
 - **Beispieldaten:** Einstellungen → «Beispieldaten laden» (nur bei leerer Datenbank).
+- **Vollständige Beispieldaten (nur Entwicklungsmodus):** `npm run dev` → Einstellungen → «Vollständige Beispieldaten laden» → «Ersetzen». Lädt `sample/beispieldaten.json` (9 Kunden, 6 Lieferanten, Artikel, Deals, Rechnungen, Chat). Alternativ: Einstellungen → JSON-Import mit dieser Datei.
 - Auswahllisten (Team, Quellen, Aktivitätstypen, Kundenstatus) sind unter Einstellungen editierbar; Phasen, Prioritäten und Status mit Berechnungslogik stehen in `js/config.js`.
 
 ## Excel & SharePoint

@@ -4,11 +4,11 @@
     "createdAt": "2026-11-02T08:00:00.000Z",
     "lastNr": {
       "customers": 10008,
-      "suppliers": 20004,
+      "suppliers": 20005,
       "activities": 30006,
       "deals": 40010,
       "tasks": 50005,
-      "invoices": 60004
+      "invoices": 60006
     },
     "beispieldaten": true
   },
@@ -808,9 +808,9 @@
           "id": "207d6113-b753-48eb-ab5d-568a763a6900",
           "name": "ISO 13485:2016 Zertifikat (Medizinprodukte)",
           "link": "https://example.com/beispieldaten/muster-kunststofftechnik-iso13485.pdf",
-          "gueltigBis": "2026-12-20",
+          "gueltigBis": "2026-11-22",
           "typ": "iso13485",
-          "ausgestelltAm": "2023-12-20",
+          "ausgestelltAm": "2023-11-22",
           "intervall": 36
         },
         {
@@ -961,6 +961,64 @@
           "mobile": "",
           "notiz": "Beispieldaten",
           "primary": true,
+          "rechnung": false
+        }
+      ],
+      "createdAt": "2026-11-02T08:00:00.000Z",
+      "updatedAt": "2026-11-02T08:00:00.000Z"
+    },
+    {
+      "id": "c523888e-53db-4127-85dd-5e582423a04f",
+      "nr": 20005,
+      "geprueft": false,
+      "kategorien": [
+        "wg_a",
+        "uk_a_dreh"
+      ],
+      "dokumente": [
+        {
+          "id": "36372e46-adaf-41a8-a0ea-64e3e60dd410",
+          "name": "ISO 9001:2015 Zertifikat",
+          "link": "https://example.com/beispieldaten/saigon-casting-iso9001.pdf",
+          "gueltigBis": "2026-11-27",
+          "typ": "iso9001",
+          "ausgestelltAm": "2023-11-27",
+          "intervall": 36
+        }
+      ],
+      "firma": "Saigon Casting & Machining Co., Ltd.",
+      "ort": "Binh Duong, Vietnam",
+      "status": "In Prüfung",
+      "owner": "Liz",
+      "bewertung": "3",
+      "seit": "2026-10-01",
+      "produkte": "Alu-Druckguss mit CNC-Nachbearbeitung",
+      "qualitaet": "ISO 9001, Messberichte nach Vereinbarung, Erstmuster vor Serienfreigabe",
+      "zahlungskonditionen": "30 Tage netto",
+      "letzterKontakt": "2026-11-04",
+      "followUp": "2026-11-04",
+      "notiz": "Beispieldaten: Neuer Kandidat, Audit im Dezember geplant.",
+      "contacts": [
+        {
+          "id": "4a81d28b-ccf6-4c14-b041-33cdc3d5ff3c",
+          "name": "Le Minh Chau",
+          "funktion": "Export Sales",
+          "email": "chau.le@example.com",
+          "telefon": "+84 28 0000 0001",
+          "mobile": "",
+          "notiz": "Beispieldaten",
+          "primary": true,
+          "rechnung": false
+        },
+        {
+          "id": "8cfb5790-80ce-4d5f-a38e-bb0893aac15d",
+          "name": "Pham Quoc Dung",
+          "funktion": "QA Manager",
+          "email": "dung.pham@example.com",
+          "telefon": "",
+          "mobile": "+84 90 000 0002",
+          "notiz": "Ansprechperson für Messberichte (Beispieldaten)",
+          "primary": false,
           "rechnung": false
         }
       ],
@@ -2327,6 +2385,88 @@
         },
         {
           "id": "2500bc09-7eb0-4147-ad4e-4d716b09e14a",
+          "articleId": "202a6360-5966-4cbf-a9f1-8863f7ffea34",
+          "artNr": 200004,
+          "bezeichnung": "Schweissbaugruppe Maschinenrahmen",
+          "menge": 60,
+          "einheit": "Stk",
+          "brutto": 118,
+          "rabatt": 10,
+          "netto": 106.2
+        }
+      ],
+      "createdAt": "2026-11-02T08:00:00.000Z",
+      "updatedAt": "2026-11-02T08:00:00.000Z"
+    },
+    {
+      "id": "ce52a07f-b957-4327-a3f1-c405a4d7a143",
+      "nr": 60005,
+      "customerId": "d5ab2776-311a-46e6-aba9-363db01f3ce8",
+      "dealId": "",
+      "referenz": "",
+      "mwstAktiv": false,
+      "mwstSatz": 8.1,
+      "waehrung": "EUR",
+      "bankId": "bk_eur",
+      "faellig": "2026-10-10",
+      "datum": "2026-09-10",
+      "status": "Bezahlt",
+      "bemerkung": "Beispieldaten: Export Österreich, bezahlt.",
+      "positions": [
+        {
+          "id": "aeec10a2-8333-4773-ab32-ee312e94a396",
+          "articleId": "c1b09330-63d8-4b18-adc8-a3c79b60ec8f",
+          "artNr": 100005,
+          "bezeichnung": "Fräsplatte 120 × 80 × 20 mm, Alu EN AW-7075",
+          "menge": 200,
+          "einheit": "Stk",
+          "brutto": 29.5,
+          "rabatt": 8,
+          "netto": 27.14
+        },
+        {
+          "id": "01854334-3fd7-4a43-a41e-8b53c6745801",
+          "articleId": "202a6360-5966-4cbf-a9f1-8863f7ffea34",
+          "artNr": 200004,
+          "bezeichnung": "Schweissbaugruppe Maschinenrahmen",
+          "menge": 60,
+          "einheit": "Stk",
+          "brutto": 118,
+          "rabatt": 10,
+          "netto": 106.2
+        }
+      ],
+      "createdAt": "2026-11-02T08:00:00.000Z",
+      "updatedAt": "2026-11-02T08:00:00.000Z"
+    },
+    {
+      "id": "46c097a5-3a66-4e3f-b323-4f39e53573f1",
+      "nr": 60006,
+      "customerId": "d5ab2776-311a-46e6-aba9-363db01f3ce8",
+      "dealId": "",
+      "referenz": "",
+      "mwstAktiv": false,
+      "mwstSatz": 8.1,
+      "waehrung": "EUR",
+      "bankId": "bk_eur",
+      "faellig": "2026-10-25",
+      "datum": "2026-09-25",
+      "status": "Gesendet",
+      "bemerkung": "Beispieldaten: Export Österreich, Zahlung überfällig.",
+      "positions": [
+        {
+          "id": "0631e615-1f12-4575-bbc0-72bb78cbb21f",
+          "articleId": "c1b09330-63d8-4b18-adc8-a3c79b60ec8f",
+          "artNr": 100005,
+          "bezeichnung": "Fräsplatte 120 × 80 × 20 mm, Alu EN AW-7075",
+          "menge": 200,
+          "einheit": "Stk",
+          "brutto": 29.5,
+          "rabatt": 8,
+          "netto": 27.14
+        },
+        {
+          "id": "9c9cb51c-c15e-48c1-8699-dfb26b1333e5",
           "articleId": "202a6360-5966-4cbf-a9f1-8863f7ffea34",
           "artNr": 200004,
           "bezeichnung": "Schweissbaugruppe Maschinenrahmen",
