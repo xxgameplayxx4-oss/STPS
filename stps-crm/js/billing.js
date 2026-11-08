@@ -321,3 +321,8 @@ export function normalizeArticle(a) {
     notiz: str(a?.notiz),
   };
 }
+
+/** Positionen eines Angebots als Kopie für eine Rechnung (neue IDs werden im Editor vergeben) */
+export function positionsFromDeal(deal) {
+  return (Array.isArray(deal?.positions) ? deal.positions : []).map((p) => ({ ...JSON.parse(JSON.stringify(p)), id: undefined }));
+}

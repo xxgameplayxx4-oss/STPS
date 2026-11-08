@@ -40,4 +40,21 @@ assert.equal(B.bankFor(b, "USD"), null);
 // Aufbewahrung: nur Entwürfe löschbar
 assert.equal(B.isRetainedInvoice({ status: "Entwurf" }), false);
 for (const s of ["Gesendet", "Bezahlt", "Storniert"]) assert.equal(B.isRetainedInvoice({ status: s }), true);
+// Angebot -> Rechnung: Positionen werden kopiert (tief, ohne id)
+{
+  const deal = { positions: [{ id: "x", bezeichnung: "A", menge: 2, netto: 5 }] };
+  const c = B.positionsFromDeal(deal);
+  assert.equal(c.length, 1); assert.equal(c[0].id, undefined); assert.equal(c[0].bezeichnung, "A");
+  c[0].menge = 9; assert.equal(deal.positions[0].menge, 2, "Kopie, nicht dieselbe Referenz");
+  assert.deepEqual(B.positionsFromDeal({}), []);
+}
+
+// /api/ping meldet das Speicher-Backend
+{
+  const { handleApi, createMemoryStore } = await import("../netlify/functions/lib/core.mjs");
+  const ping = async (env) => (await handleApi({ method: "GET", path: "/api/ping", query: new URLSearchParams(), headers: {}, bodyText: "" }, { env, store: createMemoryStore() })).body;
+  assert.equal((await ping({})).backend, "blobs");
+  assert.equal((await ping({ DB_DRIVER: "mysql" })).backend, "mysql");
+  assert.equal((await ping({ DB_DRIVER: "MySQL" })).backend, "mysql");
+}
 console.log("test-billing-docs: OK");

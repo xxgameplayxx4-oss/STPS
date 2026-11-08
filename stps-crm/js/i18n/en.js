@@ -620,6 +620,7 @@ export default {
   "set.userConnection": "User & connection",
   "set.mode": "Mode",
   "set.modeServer": "Server (Netlify Blobs) – shared data for the whole team",
+  "set.modeServerMysql": "Server (MySQL) – shared data for the whole team",
   "set.modeOffline": "Offline – data from the local cache",
   "set.modeLocal": "Local mode – data only in this browser",
   "set.dataVersion": "Data version",

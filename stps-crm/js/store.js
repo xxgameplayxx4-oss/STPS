@@ -594,6 +594,7 @@ export async function init() {
 
   if (info) {
     S.mode = "server";
+    S.backend = info.backend === "mysql" ? "mysql" : "blobs";
     if (info.dev) return initDev();
     if (!info.configured) return { state: "error", message: errorText({ error: "not_configured", reason: "secret", message: info.message }) || t("err.not_configured.secret") };
     if (!api.getToken()) return { state: "login" };

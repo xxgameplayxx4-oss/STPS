@@ -47,7 +47,7 @@ export function render(root) {
   const counts = store.counts();
   const empty = COLLECTIONS.every((c) => !counts[c]);
   const server = S.mode === "server";
-  const modeText = server ? t("set.modeServer") : S.mode === "offline" ? t("set.modeOffline") : t("set.modeLocal");
+  const modeText = server ? t(S.backend === "mysql" ? "set.modeServerMysql" : "set.modeServer") : S.mode === "offline" ? t("set.modeOffline") : t("set.modeLocal");
   const spAdmin = server && store.isSuper(); // SharePoint-Einrichtung/-Diagnose: nur Superadmin (auch im betretenen Team)
 
   root.innerHTML = html`

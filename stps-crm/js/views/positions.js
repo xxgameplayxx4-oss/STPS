@@ -4,7 +4,7 @@
 import { all } from "../store.js";
 import { html, uid, fmtNum, parseAmount, str } from "../util.js";
 import { icon } from "../ui.js";
-import { fmtArtNr, parseArtNr, nettoFrom, rabattFrom, lineTotal, docTotals } from "../billing.js";
+import { positionsFromDeal, fmtArtNr, parseArtNr, nettoFrom, rabattFrom, lineTotal, docTotals } from "../billing.js";
 import { billingSettings, money2, n2 } from "./docs.js";
 import { docCurrency } from "../billing.js";
 import { t } from "../i18n.js";
@@ -31,6 +31,8 @@ const blankPosition = () => ({ id: uid(), articleId: null, artNr: null, bezeichn
  * opts.vatDefault: MWST bei neuen Belegen vorbelegt (Rechnungen: ja, Angebote: nein)
  * opts.vatAuto: { isNew, forCustomer(customerId) → true (Inland, MWST) | false (Ausland, 0 %) | null (unbekannt) }: bei NEUEN Belegen folgt die MWST dem
  *   Land des gewählten Kunden, solange sie nicht von Hand umgestellt wurde (Haken «MWST berechnen» bleibt frei überschreibbar).
+ * opts.fromDeal(dealId) → Angebot | null: Wird im Formular ein Angebot gewählt, werden dessen Positionen (und Währung/MWST) übernommen,
+ *   aber nur solange der Benutzer noch keine eigenen Positionen erfasst hat.
  * Die Währung der Summen kommt aus dem Formularfeld «waehrung» (falls vorhanden), sonst CHF.
  */
 export function positionsField(opts = {}) {
@@ -215,6 +217,22 @@ export function positionsField(opts = {}) {
         });
       }
       form.addEventListener("change", (e) => { if (e.target.matches('[name="waehrung"]')) paintTotals(); });
+      if (opts.fromDeal) {
+        form.addEventListener("change", (e) => {
+          if (!e.target.matches('[name="dealId"]') || !e.target.value) return;
+          const d = opts.fromDeal(e.target.value);
+          if (!d?.positions?.length) return;
+          const typed = state.positions.some((p) => (p.bezeichnung || "").trim() || Number(p.brutto) || Number(p.netto));
+          if (typed) return; // nichts überschreiben
+          state.positions = positionsFromDeal(d).map((p) => ({ ...p, id: uid() }));
+          if (d.mwstSatz > 0) state.mwstSatz = Number(d.mwstSatz);
+          if (d.mwstAktiv !== undefined && d.mwstAktiv !== null) { vatTouched = true; setVat(Boolean(d.mwstAktiv)); }
+          const cur = form.querySelector('[name="waehrung"]');
+          if (cur && d.waehrung && [...cur.options].some((o) => o.value === d.waehrung) && cur.value !== d.waehrung) { cur.value = d.waehrung; cur.dispatchEvent(new Event("change", { bubbles: true })); }
+          ctx.changed();
+          paintRows();
+        });
+      }
 
       el.addEventListener("input", (e) => {
         const tgt = e.target;

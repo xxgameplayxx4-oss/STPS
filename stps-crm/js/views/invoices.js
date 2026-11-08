@@ -7,7 +7,7 @@ import { dealsOf, customerLabel, primaryContact, countryFilter, customerCountry 
 import { dateCell, dash, customerLink, textCell, dl } from "./common.js";
 import { positionsField, unpackPositions } from "./positions.js";
 import { billingSettings, invBadge, statusOf, totalsOf, docMoney, sumsByCurrency, vatForCustomer, positionsTable, totalsBlock, INVOICE_STATUS } from "./docs.js";
-import { INVOICE_CURRENCIES, DEFAULT_CURRENCY, docCurrency, banksFor, bankFor, isRetainedInvoice } from "../billing.js";
+import { positionsFromDeal, INVOICE_CURRENCIES, DEFAULT_CURRENCY, docCurrency, banksFor, bankFor, isRetainedInvoice } from "../billing.js";
 import { OVERDUE } from "../config.js";
 import { t, tv } from "../i18n.js";
 
@@ -64,7 +64,7 @@ export async function editInvoice(id = null, preset = {}) {
       options: (v) => banksFor(b, v.waehrung || DEFAULT_CURRENCY).map((k) => ({ value: k.id, label: `${k.bank || ""} ${k.iban}`.trim() })),
     }),
     // MWST folgt bei neuen Rechnungen dem Land des Kunden (CH/LI mit MWST, sonst Export ohne MWST), bleibt aber von Hand änderbar
-    positionsField({ vatDefault: true, vatAuto: { isNew: !existing, forCustomer: (cid) => vatForCustomer(byId("customers", cid)) } }),
+    positionsField({ vatDefault: true, fromDeal: (id) => byId("deals", id), vatAuto: { isNew: !existing, forCustomer: (cid) => vatForCustomer(byId("customers", cid)) } }),
     f("bemerkung", "textarea", { rows: 3, full: true }),
   ];
   let saved = null;
@@ -111,7 +111,7 @@ export function invoiceFromDeal(dealId) {
     customerId: d.customerId,
     dealId: d.id,
     referenz: t("inv.refFromDeal", { nr: d.nr }),
-    positions: d.positions.map((p) => ({ ...clone(p), id: undefined })),
+    positions: positionsFromDeal(d),
     waehrung: INVOICE_CURRENCIES.includes(d.waehrung) ? d.waehrung : DEFAULT_CURRENCY, // Währung aus dem Angebot
     mwstAktiv: vatForCustomer(byId("customers", d.customerId)) ?? Boolean(d.mwstAktiv), // nach Land des Kunden, sonst wie im Angebot
     mwstSatz: Number(d.mwstSatz) > 0 ? Number(d.mwstSatz) : b.mwstSatz,

@@ -86,7 +86,7 @@ function renderTeams(root) {
       submitLabel: t("plat.addTeam"),
       async onSubmit(v) { created = (await api.createTeam(v.name)).team; },
     });
-    if (created) { toast(t("plat.toast.created", { name: created.name }), { type: "ok" }); location.hash = `#/plattform/${created.id}`; }
+    if (created) { toast(t("plat.toast.created", { name: created.name }), { type: "ok" }); await load(); location.hash = `#/plattform/${created.id}`; }
   }
 
   async function renameTeam(tm) {

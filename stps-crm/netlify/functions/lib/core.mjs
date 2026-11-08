@@ -78,7 +78,7 @@ export async function handleApi(req, deps) {
   }
 
   if (path === "/ping" && method === "GET") {
-    return json(200, { ok: true, app: "stps-crm", configured: accounts.isConfigured(env), ...(devActive ? { dev: true } : {}), ...(accounts.isConfigured(env) ? {} : { message: accounts.configProblem(env) }) });
+    return json(200, { ok: true, app: "stps-crm", backend: String(rootEnv.DB_DRIVER || "").toLowerCase() === "mysql" ? "mysql" : "blobs", configured: accounts.isConfigured(env), ...(devActive ? { dev: true } : {}), ...(accounts.isConfigured(env) ? {} : { message: accounts.configProblem(env) }) });
   }
 
   const problem = accounts.configProblem(env);
