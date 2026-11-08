@@ -1,0 +1,11 @@
+# /etc/systemd/system/stps-backup.timer  ->  systemctl enable --now stps-backup.timer
+[Unit]
+Description=STPS CRM Sicherung taeglich 02:30
+
+[Timer]
+OnCalendar=*-*-* 02:30:00
+Persistent=true
+RandomizedDelaySec=300
+
+[Install]
+WantedBy=timers.target

@@ -1,0 +1,21 @@
+# Lokale MySQL-8-Testdatenbank (nur Beispieldaten!). Start: docker compose -f db/docker-compose.yml up -d
+# Env: DB_DRIVER=mysql DB_HOST=127.0.0.1 DB_PORT=3307 DB_USER=stps DB_PASSWORD=stps-test DB_NAME=stps_crm
+services:
+  mysql:
+    image: mysql:8.0
+    command: ["--character-set-server=utf8mb4", "--collation-server=utf8mb4_unicode_ci", "--max_allowed_packet=64M"]
+    environment:
+      MYSQL_ROOT_PASSWORD: root-test
+      MYSQL_DATABASE: stps_crm
+      MYSQL_USER: stps
+      MYSQL_PASSWORD: stps-test
+    ports: ["127.0.0.1:3307:3306"]
+    volumes:
+      - ./schema.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
+      - stps_mysql:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-uroot", "-proot-test"]
+      interval: 5s
+      retries: 20
+volumes:
+  stps_mysql:

@@ -36,10 +36,19 @@ export function bearerToken(headers) {
   return m ? m[1].trim() : "";
 }
 
-/** IP-Adresse des Clients: nur der von Netlify gesetzte Header (nicht fälschbar wie X-Forwarded-For). */
-export function clientIp(headers) {
-  const v = String(headerOf(headers, "x-nf-client-connection-ip") || "").trim();
-  return /^[0-9a-fA-F:.]{2,45}$/.test(v) ? v.toLowerCase() : "unknown";
+const IP_RE = /^[0-9a-fA-F:.]{2,45}$/;
+const ipOf = (v) => { const t = String(v || "").trim(); return IP_RE.test(t) ? t.toLowerCase() : ""; };
+
+/**
+ * IP-Adresse des Clients oder "" (unbekannt – Aufrufer darf dann NICHT in einen gemeinsamen Topf fallen).
+ * TRUST_PROXY=1 (VPS hinter nginx): nur X-Real-IP bzw. erster X-Forwarded-For-Eintrag, die nginx selbst setzt; der Netlify-Header wird ignoriert (fälschbar).
+ * Sonst (Netlify): nur x-nf-client-connection-ip.
+ */
+export function clientIp(headers, env = typeof process !== "undefined" ? process.env : {}) {
+  if (String(env?.TRUST_PROXY ?? "").trim() === "1") {
+    return ipOf(headerOf(headers, "x-real-ip")) || ipOf(String(headerOf(headers, "x-forwarded-for")).split(",")[0]);
+  }
+  return ipOf(headerOf(headers, "x-nf-client-connection-ip"));
 }
 
 export function queryOf(req) {

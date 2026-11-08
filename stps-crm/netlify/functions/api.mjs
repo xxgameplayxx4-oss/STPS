@@ -7,14 +7,14 @@
 // optional für SharePoint (siehe SHAREPOINT-SETUP.md): MS_TENANT_ID, MS_CLIENT_ID, MS_CLIENT_SECRET, SP_SITE, SP_DRIVE, SP_IMPORT_PATH, SP_EXPORT_FOLDER;
 // Outlook-Kalender je Benutzer (siehe OUTLOOK-SETUP.md): keine Variablen nötig – der Superadmin trägt die App-ID einmal in der App ein. Optional
 // (überschreibt die App-Einstellung): OUTLOOK_CLIENT_ID, OUTLOOK_CLIENT_SECRET (sonst MS_*), APP_URL.
-import { getStore } from "@netlify/blobs";
-import { handleApi, createBlobsAdapter, MAX_BODY_BYTES, MAX_UPLOAD_BYTES } from "./lib/core.mjs";
+import { open as openStore } from "./lib/store.mjs";
+import { handleApi, MAX_BODY_BYTES, MAX_UPLOAD_BYTES } from "./lib/core.mjs";
 import { logError } from "./lib/http.mjs";
 import { MAX_FILE_BYTES, contentDisposition } from "./lib/files.mjs";
 
 // Blob-Store erst bei Bedarf öffnen (/api/ping braucht ihn nicht). Nicht über Aufrufe hinweg merken: getStore() ist billig (kein Netzwerk)
 // und nimmt die Zugangsdaten des laufenden Aufrufs; ein im warmen Container gemerkter Store würde die des ersten Aufrufs weiterverwenden.
-const open = () => createBlobsAdapter(getStore({ name: "stps-crm", consistency: "strong" }));
+const open = () => openStore();
 const lazyStore = {
   read: (...a) => open().read(...a),
   write: (...a) => open().write(...a),
@@ -34,6 +34,11 @@ const tooLarge = () => new Response(JSON.stringify({ error: "too_large", message
 
 export default async (req, context) => {
   const url = new URL(req.url);
+  // Gesundheitscheck für externes Monitoring (ohne Anmeldung): billiger Lesezugriff auf den Speicher
+  if (url.pathname.replace(/\/+$/, "") === "/api/health" && (req.method === "GET" || req.method === "HEAD")) {
+    const up = await Promise.race([open().read("__health__").then(() => true, () => false), new Promise((r) => setTimeout(() => r(false), 5000))]);
+    return new Response(JSON.stringify({ ok: up, db: up ? "up" : "down" }), { status: up ? 200 : 503, headers });
+  }
   let bodyText = "";
   let bodyBuffer;
   if (req.method !== "GET" && req.method !== "HEAD") {

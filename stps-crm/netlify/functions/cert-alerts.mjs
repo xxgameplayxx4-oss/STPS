@@ -1,11 +1,10 @@
 // Netlify Scheduled Function: Ablauf-Hinweise für Lieferanten-Dokumente/Zertifikate (einmal täglich, 06:00 UTC).
 // Logik und Doppelversand-Schutz: lib/cert-alerts.mjs. Ohne Versandweg (weder VAPID-Schlüssel noch Resend) passiert nichts.
-import { getStore } from "@netlify/blobs";
-import { createBlobsAdapter } from "./lib/core.mjs";
+import { open as openStore } from "./lib/store.mjs";
 import { runCertAlerts } from "./lib/cert-alerts.mjs";
 import { logError } from "./lib/http.mjs";
 
-const open = () => createBlobsAdapter(getStore({ name: "stps-crm", consistency: "strong" }));
+const open = () => openStore();
 const lazyStore = {
   read: (...a) => open().read(...a),
   write: (...a) => open().write(...a),

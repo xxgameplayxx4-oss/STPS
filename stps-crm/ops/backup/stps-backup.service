@@ -1,0 +1,18 @@
+# /etc/systemd/system/stps-backup.service
+[Unit]
+Description=STPS CRM verschluesselte DB-Sicherung
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=oneshot
+User=stps-backup
+# DB_HOST, DB_NAME, DB_USER, DB_PASSWORD, BACKUP_DIR, AGE_RECIPIENT, SYNC_TARGET ... (chmod 600, Besitzer stps-backup)
+EnvironmentFile=/etc/stps-backup.env
+ExecStart=/opt/stps-crm/ops/backup/backup.sh
+# Fehlermeldung per E-Mail: siehe docs/crm-plan/08-monitoring-audit.md (OnFailure)
+OnFailure=stps-notify@%n.service
+Nice=10
+PrivateTmp=true
+ProtectSystem=strict
+ReadWritePaths=/var/backups/stps

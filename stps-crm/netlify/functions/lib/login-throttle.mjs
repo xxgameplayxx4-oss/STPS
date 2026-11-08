@@ -6,9 +6,10 @@ export const THROTTLE_KEY = "login-throttle";
 export const MAX_FAILS = 5;
 export const LOCK_MS = 15 * 60 * 1000;
 export const WINDOW_MS = 15 * 60 * 1000;
-const MAX_ENTRIES = 500;
+const MAX_ENTRIES = 2000;
 
-export const throttleKeys = (username, ip) => [`u:${username}`, `ip:${ip}`];
+// Ohne bekannte IP nur pro Benutzername (nie ein gemeinsamer «unknown»-Topf, der alle aussperren würde)
+export const throttleKeys = (username, ip) => (ip && ip !== "unknown" ? [`u:${username}`, `ip:${ip}`] : [`u:${username}`]);
 
 /** @returns {{locked:boolean, retryAfterMs:number}} */
 export async function checkLock(store, keys, now) {
@@ -24,9 +25,13 @@ export async function checkLock(store, keys, now) {
 function prune(entries, now) {
   const out = {};
   for (const [k, e] of Object.entries(entries)) if (e.until > now || now - e.first <= WINDOW_MS) out[k] = e;
+  // Überlauf: gesperrte Einträge werden NIE verdrängt (sonst hebt Fluten mit Zufallsnamen Sperren auf);
+  // von den übrigen zuerst die mit den wenigsten Fehlversuchen/ältesten, damit laufende Zählungen länger überleben.
   const keys = Object.keys(out);
   if (keys.length > MAX_ENTRIES) {
-    keys.sort((a, b) => out[a].first - out[b].first).slice(0, keys.length - MAX_ENTRIES).forEach((k) => delete out[k]);
+    keys.filter((k) => !(out[k].until > now))
+      .sort((a, b) => out[a].count - out[b].count || out[a].first - out[b].first)
+      .slice(0, keys.length - MAX_ENTRIES).forEach((k) => delete out[k]);
   }
   return out;
 }

@@ -1,13 +1,12 @@
 // Netlify Scheduled Function: exportiert die Datenbank stündlich nach SharePoint (Excel + JSON).
 // Läuft ohne Login-Token direkt über die Export-Logik (für das Team, dem die SharePoint-Anbindung gehört). Ohne SharePoint-Einrichtung (Umgebungsvariablen) passiert nichts.
 // Zeitplan: jede volle Stunde (UTC, Cron «0 * * * *»). Die Datei des Tages (STPS_CRM_Export_JJJJ-MM-TT) und STPS_CRM_aktuell werden dabei überschrieben.
-import { getStore } from "@netlify/blobs";
-import { createBlobsAdapter } from "./lib/core.mjs";
+import { open as openStore } from "./lib/store.mjs";
 import { runScheduledExport, sharepointVars } from "./lib/sharepoint.mjs";
 import { loadTeams, sharepointTeamId, scopedStore } from "./lib/teams.mjs";
 
 // Blob-Store erst bei Bedarf öffnen: ohne Einrichtung wird er nie angefasst. Nicht über Aufrufe hinweg merken (siehe api.mjs).
-const open = () => createBlobsAdapter(getStore({ name: "stps-crm", consistency: "strong" }));
+const open = () => openStore();
 const lazyStore = {
   read: (...a) => open().read(...a),
   write: (...a) => open().write(...a),

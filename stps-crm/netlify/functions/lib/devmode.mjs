@@ -27,8 +27,18 @@ export const DEV_USERS = [
 ];
 export const DEFAULT_DEV_KEY = "pascal";
 
-/** Nur anhand der Umgebung: darf der Entwicklungsmodus überhaupt gelten? (CRM_PASSWORD gesetzt → nie) */
-export const devEnvEnabled = (env) => !String(env?.CRM_PASSWORD ?? "").trim() && String(env?.CRM_DEV_MODE ?? "").trim().toLowerCase() !== "off";
+/** Produktion? NODE_ENV/CRM_ENV=production (in env ODER process.env) oder VPS-Betrieb (MySQL-Speicher konfiguriert). Dann ist der Entwicklungsmodus unmöglich (fail-closed). */
+export function isProductionEnv(env) {
+  const flag = (v) => String(v ?? "").trim().toLowerCase() === "production";
+  const penv = typeof process !== "undefined" ? process.env : {};
+  if ([env?.NODE_ENV, env?.CRM_ENV, penv.NODE_ENV, penv.CRM_ENV].some(flag)) return true;
+  const vps = (e) => String(e?.DB_DRIVER ?? "").trim().toLowerCase() === "mysql" || Boolean(String(e?.DB_HOST ?? "").trim());
+  return vps(env) || vps(penv);
+}
+
+/** Nur anhand der Umgebung: darf der Entwicklungsmodus überhaupt gelten? (CRM_PASSWORD gesetzt oder Produktion → nie) */
+export const devEnvEnabled = (env) =>
+  !isProductionEnv(env) && !String(env?.CRM_PASSWORD ?? "").trim() && String(env?.CRM_DEV_MODE ?? "").trim().toLowerCase() !== "off";
 
 /** Gilt der Entwicklungsmodus jetzt? Nur ohne CRM_PASSWORD und solange es keine echten Konten gibt. */
 export async function isDevActive(env, store, now = Date.now()) {
@@ -40,6 +50,7 @@ export async function isDevActive(env, store, now = Date.now()) {
 
 /** Umgebung für den Entwicklungsmodus: fehlendes/zu kurzes CRM_SECRET wird durch den festen Schlüssel ersetzt. */
 export function withDevEnv(env) {
+  if (isProductionEnv(env)) return env; // Sicherheitsnetz: in Produktion nie der bekannte Entwicklungs-Schlüssel
   return String(env?.CRM_SECRET ?? "").length >= MIN_SECRET_LENGTH ? env : { ...env, CRM_SECRET: DEV_SECRET };
 }
 
