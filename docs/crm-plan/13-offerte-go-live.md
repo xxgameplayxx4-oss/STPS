@@ -1,41 +1,55 @@
-# 13 – Offerte OF-2026-002: Go-live auf Infomaniak
+# 13 – Go-live-Arbeiten in Offerte OF-2026-001, Version 2
 
-Zusatzofferte zu OF-2026-001 (07.11.2026). Datum 08.11.2026, gültig bis 08.12.2026. Von Cung Hoang An-Khang (KGC), Brugg, an SwissTech Precision Solutions (Einzelfirma, Marco G. Walser), Freienbach SZ. Nicht unterzeichnet. PDF: `/mnt/project-files/offerten/Offerte_OF-2026-002_CRM-Go-live.pdf`.
+Die Go-live-Arbeiten auf Infomaniak sind seit dem 08.11.2026 Teil der ersten Offerte: **OF-2026-001, Version 2** (08.11.2026, gültig bis 08.12.2026, nicht unterzeichnet). Sie ersetzt Version 1 vom 07.11.2026. Die separate Zusatzofferte OF-2026-002 wird dadurch inhaltlich abgelöst (die Dateien bleiben unverändert als Referenz bestehen).
 
-## (A) Einmalige Arbeiten, CHF 40/h, nicht MWST-pflichtig
+Dateien: `/mnt/project-files/stps-offer/Offerte_STPS_CRM_2026-001_v2.docx` und `.pdf` (v1-Dateien unverändert).
+
+## Änderungen gegenüber Version 1
+
+- Pos. 3.2 «Hosting und Go-live-Setup» (3 Std.) entfällt und wird durch Pos. 3.2.1 bis 3.2.9 (Go-live auf Infomaniak, total 31.5 Std. inkl. Reserve) ersetzt. Keine Doppelverrechnung.
+- Neu in Ziffer 8: Infomaniak-Drittkosten (Schätzung, direkt an STPS verrechnet).
+- Neu in Ziffer 6: Annahmen (Bestellung der Infomaniak-Dienste durch STPS auf eigenen Namen, Treuhänder klärt Archivierung, Backup-Regeln inkl. externe Platten durch STPS, Nicht-Umfang SSO/neue Funktionen).
+- Ziffer 7 (Wartung): Infomaniak ersetzt Netlify, keine Weiterverrechnung.
+- Alles andere (Layout, Wortlaut, Stundensatz CHF 40, nicht MWST-pflichtig) unverändert.
+
+## Positionen Go-live (CHF 40/h)
 
 | Pos. | Leistung | Std. | CHF |
 |---|---|---|---|
-| A1 | VPS, DB-Anbindung, DNS, TLS, Konfiguration | 6.0 | 240.00 |
-| A2 | Datenmigration und Prüfung | 4.0 | 160.00 |
-| A3 | Sicherheit: Rolle «nur lesen», Export/Backup nur Admin/GL | 4.0 | 160.00 |
-| A4 | Sicherheit: Logout widerruft Sitzung | 1.5 | 60.00 |
-| A5 | Backup inkl. verschlüsselter externer Platte, erster Restore-Test | 6.0 | 240.00 |
-| A6 | Monitoring | 2.0 | 80.00 |
-| A7 | Staging | 3.0 | 120.00 |
-| A8 | Betriebsdoku und Übergabe | 2.0 | 80.00 |
-| A9 | Reserve ca. 10 % (nur nach Rücksprache) | 3.0 | 120.00 |
-| | Total vor Gutschrift | 31.5 | 1'260.00 |
-| G | Gutschrift OF-2026-001 Pos. 3.2 Hosting/Go-live-Setup | -3.0 | -120.00 |
-| | **Total (A)** | **28.5** | **1'140.00** |
+| 3.2.1 | VPS, Datenbank, DNS, TLS | 6.0 | 240.00 |
+| 3.2.2 | Datenmigration und Prüfung | 4.0 | 160.00 |
+| 3.2.3 | Sicherheit: Rechte | 4.0 | 160.00 |
+| 3.2.4 | Sicherheit: Logout | 1.5 | 60.00 |
+| 3.2.5 | Backup und erster Restore-Test | 6.0 | 240.00 |
+| 3.2.6 | Monitoring | 2.0 | 80.00 |
+| 3.2.7 | Staging | 3.0 | 120.00 |
+| 3.2.8 | Betriebsdoku und Übergabe | 2.0 | 80.00 |
+| 3.2.9 | Reserve ca. 10 % (nur nach Rücksprache) | 3.0 | 120.00 |
+| | Total Go-live | 31.5 | 1'260.00 |
 
-Schulung bleibt in OF-2026-001 Pos. 3.3. Meetings nicht verrechnet.
+## Neue Totale
 
-## (B) Drittkosten Infomaniak (direkt an STPS, Schätzung)
+| Paket | Std. | CHF |
+|---|---|---|
+| 0 Erstentwurf (gratis) | 0 | 0.00 |
+| 1 WP1–WP5 | 22 | 880.00 |
+| 2 Weitere Funktionen | 42 | 1'680.00 |
+| 3 Integration, Betrieb, Einführung (3.1: 3 + 3.2: 31.5 + 3.3: 6) | 40.5 | 1'620.00 |
+| 4 Projektführung | 6 | 240.00 |
+| **Total** | **110.5** | **4'420.00** |
+
+Vorher (V1): 82 Std. / CHF 3'280.00. Differenz +28.5 Std. / +CHF 1'140.00 (= OF-002 netto nach Gutschrift).
+
+Zahlung 30/40/30: CHF 1'326.00 / 1'768.00 / 1'326.00 (Summe 4'420.00), je 30 Tage netto, Meilensteine wie V1 (Unterzeichnung, M3, Abnahme M6).
+
+## Drittkosten Infomaniak (direkt an STPS, Schätzung)
 
 - Managed MySQL essential-db-4: ca. CHF 21/Monat (Option business-db-4: ca. CHF 40/Monat)
-- VPS: ca. CHF 10–20/Monat, gemäss Infomaniak-Preisliste
-- Domain: gemäss Anbieter; externe Backup-Platten (2 Stück): einmalig, Richtwert ca. CHF 60–100 pro Platte
+- VPS: ca. CHF 10–20/Monat
+- Domain: gemäss Anbieter; 2 externe Backup-Platten: einmalig ca. CHF 60–100 pro Platte
 - Laufend ca. CHF 31–41/Monat (mit business-db-4 ca. CHF 50–60)
 
-## (C) Optional: Wartung
+## Offene Punkte
 
-CHF 80/Monat inkl. 2 h, Zusatzstunden CHF 40/h, Mindestlaufzeit 6 Monate, danach monatlich kündbar mit 2 Monaten Frist (wie OF-2026-001 Ziff. 7). Infomaniak-Kosten ersetzen Netlify, keine Weiterverrechnung.
-
-## Bedingungen und Annahmen
-
-- Zahlung: Rechnung nach Go-live, 30 Tage netto (UBS, IBAN CH30 0021 0210 1055 8140 E, oder TWINT). Keine MWST (nicht mehrwertsteuerpflichtig).
-- STPS bestellt die Infomaniak-Dienste auf eigenen Namen und gibt Zugänge frei.
-- Treuhänder von STPS klärt Aufbewahrungs-/Archivfristen; keine Rechtsberatung.
-- Nicht enthalten: SSO, SharePoint/Outlook (OF-2026-001 Pos. 3.1), neue Funktionen. Zusatzwünsche nur nach schriftlicher Freigabe.
-- Go-live ca. 2 Wochen nach Bestellung der Dienste. Rechte, Datenschutz, Gewährleistung, Haftung wie OF-2026-001 Ziff. 9.
+- Absenderdaten in der Offerte sind wie in V1 noch Platzhalter (OF-002 nannte Name, Adresse, IBAN).
+- Terminplan unverändert (Go-live 18.12.2026); das setzt die Bestellung der Infomaniak-Dienste rund 2 Wochen vorher voraus.
