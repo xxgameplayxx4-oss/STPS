@@ -69,7 +69,7 @@ export async function handleApi(req, deps) {
   const method = (req.method || "GET").toUpperCase();
   const path = String(req.path || "").split("?")[0].replace(/^\/api(?=\/|$)/, "").replace(/\/+$/, "") || "/";
 
-  // Entwicklungsmodus (siehe lib/devmode.mjs): nur ohne CRM_PASSWORD und solange es keine echten Konten gibt – sonst ändert sich nichts.
+  // Entwicklungsmodus (siehe lib/devmode.mjs): nur ausdrücklich lokal (CRM_DEV_MODE=on bzw. netlify dev), nie in Produktion, ohne CRM_PASSWORD und solange es keine echten Konten gibt.
   const devActive = dev.devEnvEnabled(env) && (await dev.isDevActive(env, store, now));
   if (devActive) {
     env = dev.withDevEnv(env);
@@ -80,6 +80,9 @@ export async function handleApi(req, deps) {
   if (path === "/ping" && method === "GET") {
     return json(200, { ok: true, app: "stps-crm", backend: String(rootEnv.DB_DRIVER || "").toLowerCase() === "mysql" ? "mysql" : "blobs", configured: accounts.isConfigured(env), ...(devActive ? { dev: true } : {}), ...(accounts.isConfigured(env) ? {} : { message: accounts.configProblem(env) }) });
   }
+
+  // /api/dev/* gibt es nur im Entwicklungsmodus – sonst nicht einmal ein Hinweis darauf (404)
+  if (!devActive && (path === "/dev" || path.startsWith("/dev/"))) return json(404, { error: "not_found", message: "Nicht gefunden" });
 
   const problem = accounts.configProblem(env);
   if (problem) return json(500, { error: "not_configured", message: problem, reason: "secret" });

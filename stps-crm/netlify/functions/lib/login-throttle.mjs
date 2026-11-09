@@ -1,15 +1,31 @@
-// STPS CRM – Schutz gegen Durchprobieren von Passwörtern: Fehlversuche pro Benutzername und pro IP im Blob «login-throttle».
-// Nach MAX_FAILS Fehlversuchen innerhalb von WINDOW_MS ist der Schlüssel LOCK_MS lang gesperrt (auch mit richtigem Passwort).
+// STPS CRM – Schutz gegen Durchprobieren von Passwörtern (Blob «login-throttle»).
+//
+// Harte Sperre (429, auch mit richtigem Passwort) gilt nur je IP-Adresse:
+//   «ipu:<ip>|<benutzer>»  nach MAX_FAILS Fehlversuchen dieser IP für diesen Benutzernamen,
+//   «ip:<ip>»              nach MAX_IP_FAILS Fehlversuchen dieser IP insgesamt (z. B. Durchprobieren vieler Benutzernamen).
+// Ein fremder Angreifer kann so den echten Benutzer NICHT aussperren: Je Benutzername gibt es nur eine weiche Bremse («u:<benutzer>»):
+// eine wachsende Wartezeit vor der Prüfung (ab SOFT_FREE Fehlversuchen im Zeitfenster, höchstens SOFT_MAX_MS), nie eine Sperre.
+// Ohne bekannte IP (falsch konfigurierter Proxy, siehe TRUST_PROXY) gibt es nur die weiche Bremse.
+// Andere Schlüssel (z. B. «pw:<benutzer>» beim Passwortwechsel) sperren nach MAX_FAILS.
 import { mutateDoc } from "./kv.mjs";
 
 export const THROTTLE_KEY = "login-throttle";
 export const MAX_FAILS = 5;
+export const MAX_IP_FAILS = 30;
 export const LOCK_MS = 15 * 60 * 1000;
 export const WINDOW_MS = 15 * 60 * 1000;
+export const SOFT_FREE = 3;
+export const SOFT_BASE_MS = 500;
+export const SOFT_MAX_MS = 5000;
 const MAX_ENTRIES = 2000;
 
-// Ohne bekannte IP nur pro Benutzername (nie ein gemeinsamer «unknown»-Topf, der alle aussperren würde)
-export const throttleKeys = (username, ip) => (ip && ip !== "unknown" ? [`u:${username}`, `ip:${ip}`] : [`u:${username}`]);
+const limitOf = (k) => (k.startsWith("u:") ? Infinity : k.startsWith("ip:") ? MAX_IP_FAILS : MAX_FAILS);
+
+/** Schlüssel der Fehlversuche einer Anmeldung: harte Schlüssel (nur mit bekannter IP) + weicher Schlüssel je Benutzername. */
+export const throttleKeys = (username, ip) => {
+  const known = ip && ip !== "unknown";
+  return { hard: known ? [`ipu:${ip}|${username}`, `ip:${ip}`] : [], soft: `u:${username}` };
+};
 
 /** @returns {{locked:boolean, retryAfterMs:number}} */
 export async function checkLock(store, keys, now) {
@@ -44,10 +60,17 @@ export async function recordFailure(store, keys, now) {
       const fresh = !e || (e.until <= now && now - e.first > WINDOW_MS);
       const count = fresh ? 1 : e.until > now ? e.count : e.count + 1;
       const first = fresh ? now : e.first;
-      entries[k] = { count, first, until: count >= MAX_FAILS ? (e && e.until > now ? e.until : now + LOCK_MS) : 0 };
+      entries[k] = { count, first, until: count >= limitOf(k) ? (e && e.until > now ? e.until : now + LOCK_MS) : 0 };
     }
     return { entries };
   });
+}
+
+/** Wartezeit (ms) vor der Prüfung eines Versuchs für diesen Benutzernamen: 0 bis SOFT_FREE-1 Fehlversuche, danach 500, 1000, 2000 … höchstens SOFT_MAX_MS. */
+export async function softDelayMs(store, username, now) {
+  const e = (await store.read(THROTTLE_KEY))?.value?.entries?.[`u:${username}`];
+  if (!e || now - e.first > WINDOW_MS || e.count < SOFT_FREE) return 0;
+  return Math.min(SOFT_MAX_MS, SOFT_BASE_MS * 2 ** (e.count - SOFT_FREE));
 }
 
 export async function clearFailures(store, keys, now) {

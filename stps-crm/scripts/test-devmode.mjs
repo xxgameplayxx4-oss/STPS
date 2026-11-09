@@ -15,7 +15,7 @@ const ok = (r, s = 200) => { assert.equal(r.status, s, JSON.stringify(r.body)); 
 // ================= A) Entwicklungsmodus: kein CRM_PASSWORD, kein CRM_SECRET =================
 {
   const store = createMemoryStore();
-  const api = mk({}, store);
+  const api = mk({ CRM_DEV_MODE: "on" }, store);
   const ping = ok(await api("GET", "/ping"));
   assert.equal(ping.dev, true);
   assert.equal(ping.configured, true, "ohne CRM_SECRET gilt der feste Entwicklungs-Schlüssel");
@@ -55,7 +55,7 @@ const ok = (r, s = 200) => { assert.equal(r.status, s, JSON.stringify(r.body)); 
   assert.equal(ok(await api("GET", "/users", { token: s.token })).users.length, users.length);
 
   // Mit eigenem CRM_SECRET bleibt es dabei (kein Dev-Schlüssel)
-  const own = mk({ CRM_SECRET: "e".repeat(32) }, createMemoryStore());
+  const own = mk({ CRM_DEV_MODE: "on", CRM_SECRET: "e".repeat(32) }, createMemoryStore());
   const t1 = ok(await own("GET", "/dev/session")).token;
   assert.equal(ok(await own("GET", "/me", { token: t1 })).user.username, "pascal");
   assert.notEqual(t1.split(".")[2], undefined);
@@ -69,8 +69,8 @@ const ok = (r, s = 200) => { assert.equal(r.status, s, JSON.stringify(r.body)); 
   const api = mk(env, store);
   const ping = ok(await api("GET", "/ping"));
   assert.equal(ping.dev, undefined, "kein dev-Flag");
-  assert.equal((await api("GET", "/dev/session")).status, 401, "Dev-Sitzung nicht verfügbar");
-  assert.equal((await api("POST", "/dev/session", { body: { as: "admin" } })).status, 401);
+  assert.equal((await api("GET", "/dev/session")).status, 404, "Dev-Sitzung nicht verfügbar");
+  assert.equal((await api("POST", "/dev/session", { body: { as: "admin" } })).status, 404);
   for (const [m, p] of [["GET", "/me"], ["GET", "/db"], ["GET", "/users"], ["GET", "/teams"], ["PUT", "/db"]]) {
     assert.equal((await api(m, p)).status, 401, `${m} ${p} ohne Token → 401`);
   }
@@ -84,7 +84,7 @@ const ok = (r, s = 200) => { assert.equal(r.status, s, JSON.stringify(r.body)); 
   assert.equal(login.user.role, "superadmin");
   // Ein mit dem festen Entwicklungs-Schlüssel gebildetes Token wird nicht akzeptiert
   const { createSessionToken } = await import("../netlify/functions/lib/session.mjs");
-  const forged = createSessionToken({ CRM_SECRET: DEV_SECRET }, { id: login.user.id, tokenVersion: 0 }, clock);
+  const forged = createSessionToken({ CRM_SECRET: DEV_SECRET, __CRM_DEV_ACTIVE: true }, { id: login.user.id, tokenVersion: 0 }, clock);
   assert.equal((await api("GET", "/me", { token: forged })).status, 401);
   // Ohne CRM_SECRET: weiterhin Konfigurationsfehler (kein Dev-Schlüssel)
   const noSecret = ok(await mk({ CRM_PASSWORD: "abc" }, createMemoryStore())("GET", "/ping"));
@@ -100,10 +100,49 @@ const ok = (r, s = 200) => { assert.equal(r.status, s, JSON.stringify(r.body)); 
   const api = mk({ CRM_SECRET: env1.CRM_SECRET }, store); // CRM_PASSWORD wurde später entfernt
   assert.equal(ok(await api("GET", "/ping")).dev, undefined);
   assert.equal((await api("GET", "/me")).status, 401);
-  assert.equal((await api("GET", "/dev/session")).status, 401);
+  assert.equal((await api("GET", "/dev/session")).status, 404);
   // ausdrücklich abgeschaltet
   const off = mk({ CRM_DEV_MODE: "off" }, createMemoryStore());
   assert.equal(ok(await off("GET", "/ping")).configured, false);
+}
+
+// ================= C2) Dev-Modus nur ausdrücklich lokal (CRM_DEV_MODE=on bzw. netlify dev), nie auf bereitgestellten Hosts =================
+{
+  const probe = async (env) => {
+    const api = mk(env, createMemoryStore());
+    const ping = ok(await api("GET", "/ping"));
+    const sess = await api("GET", "/dev/session");
+    const anon = await api("GET", "/me");
+    return { dev: ping.dev === true, sess: sess.status, anon: anon.status, token: Boolean(sess.body?.token) };
+  };
+  const off = (r, why) => { assert.equal(r.dev, false, why); assert.equal(r.sess, 404, why); assert.notEqual(r.anon, 200, why); assert.equal(r.token, false, why); };
+  // Standard (leere Umgebung, deployter Host ohne Passwort): KEIN Dev-Modus mehr, kein Auto-Login
+  off(await probe({}), "leere Umgebung");
+  off(await probe({ CRM_SECRET: "s".repeat(32) }), "mit Secret, ohne Passwort");
+  off(await probe({ CONTEXT: "production" }), "Netlify CONTEXT");
+  off(await probe({ NETLIFY: "true", CRM_DEV_MODE: "on" }), "Netlify-Build/-Host trotz CRM_DEV_MODE=on");
+  off(await probe({ AWS_LAMBDA_FUNCTION_NAME: "api", CRM_DEV_MODE: "on" }), "Lambda-Laufzeit trotz CRM_DEV_MODE=on");
+  off(await probe({ NODE_ENV: "production", CRM_DEV_MODE: "on" }), "NODE_ENV=production trotz on");
+  off(await probe({ NETLIFY_DEV: "true", CRM_DEV_MODE: "off" }), "off gewinnt");
+  off(await probe({ CRM_DEV_MODE: "on", CRM_PASSWORD: "x" }), "CRM_PASSWORD gesetzt");
+  // Ausdrücklich lokal: aktiv
+  for (const env of [{ CRM_DEV_MODE: "on" }, { NETLIFY_DEV: "true" }, { NETLIFY_DEV: "true", NETLIFY: "true", CONTEXT: "dev", SITE_ID: "x" }]) {
+    const r = await probe(env);
+    assert.equal(r.dev, true, JSON.stringify(env)); assert.equal(r.sess, 200); assert.equal(r.anon, 200);
+  }
+  // Der bekannte Dev-Schlüssel signiert/prüft ausserhalb des Dev-Modus nie (fail-closed), auch nicht als CRM_SECRET gesetzt
+  const sess = await import("../netlify/functions/lib/session.mjs");
+  assert.throws(() => sess.createSessionToken({ CRM_SECRET: DEV_SECRET }, { id: "u_1" }, clock), /CRM_SECRET/);
+  assert.equal(sess.getSecret({ CRM_SECRET: DEV_SECRET }), null);
+  const prodPing = ok(await mk({ CRM_SECRET: DEV_SECRET }, createMemoryStore())("GET", "/ping"));
+  assert.equal(prodPing.configured, false, "ohne eigenes Secret: nicht konfiguriert (klare Fehlermeldung)");
+  assert.match(prodPing.message, /CRM_SECRET/);
+  assert.equal((await mk({}, createMemoryStore())("GET", "/db")).status, 500, "fail-closed: nicht konfiguriert");
+  // Im Dev-Modus mit Dev-Schlüssel signierte Tokens gelten nicht mehr, sobald der Dev-Modus aus ist
+  const devApi = mk({ CRM_DEV_MODE: "on" }, createMemoryStore());
+  const devTok = ok(await devApi("GET", "/dev/session")).token;
+  const prodApi = mk({ CRM_SECRET: "p".repeat(32) }, createMemoryStore());
+  assert.equal((await prodApi("GET", "/me", { token: devTok })).status, 401);
 }
 
 // ================= D) SharePoint-Export läuft stündlich =================

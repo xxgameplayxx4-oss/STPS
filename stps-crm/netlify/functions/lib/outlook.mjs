@@ -666,7 +666,7 @@ async function startConnect(deps, store, ctx, req) {
   const env = envOf(deps);
   const cfg = await cfgOf(deps, req);
   if (!cfg.configured) throw fail(400, "not_configured", "Outlook ist nicht eingerichtet", { reason: "outlook" });
-  if (!cfg.redirectUri) throw fail(400, "not_configured", "Die Adresse der App ist unbekannt (APP_URL setzen)", { reason: "outlook" });
+  if (!cfg.redirectUri) throw fail(400, "not_configured", cfg.appUrlRequired ? "APP_URL ist nicht gesetzt – in Produktion ist die öffentliche Adresse (https://…) Pflicht, sie wird nicht aus der Anfrage abgeleitet" : "Die Adresse der App ist unbekannt (APP_URL setzen)", { reason: "outlook" });
   const now = tnow(deps);
   // abgelaufene, nie abgeschlossene Anmeldungen aufräumen
   for (const k of await store.list("cal/ol/pending/")) {

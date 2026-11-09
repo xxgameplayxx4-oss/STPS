@@ -169,7 +169,8 @@ export const navLabel = (route) => t(`nav.${route}`);
 // ------------------------------------------------------------ localStorage-Schlüssel
 
 export const LS = {
-  token: "stps-crm:token",
+  token: "stps-crm:token", // veraltet: früher das Sitzungs-Token; wird beim Start gelöscht (die Sitzung liegt im HttpOnly-Cookie)
+  session: "stps-crm:session", // Merker «angemeldet» (kein Geheimnis)
   user: "stps-crm:user", // nur Lokaler Modus: «Ich bin» (im Servermodus kommt der Benutzer vom Konto)
   me: "stps-crm:me", // zuletzt angemeldetes Konto (für den Offline-Start)
   team: "stps-crm:team", // sessionStorage: vom Superadmin betretenes Team

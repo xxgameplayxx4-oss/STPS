@@ -197,7 +197,7 @@ export function render(root) {
         toast(t("toast.jsonExported"), { type: "ok" });
         break;
       case "logout":
-        push.detach().finally(() => { store.logout(); location.reload(); });
+        push.detach().finally(() => store.logout().finally(() => location.reload()));
         break;
       case "sample":
         loadSampleData();

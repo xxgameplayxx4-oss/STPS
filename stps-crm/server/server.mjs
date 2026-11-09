@@ -1,11 +1,17 @@
 // STPS CRM – eigenständiger Node-Server (Infomaniak-VPS): statische Dateien + Netlify-Functions + Zeitpläne.
 // Bildet netlify.toml nach: /api/* -> api.mjs, gesperrte Pfade -> 404, Sicherheits-Header, geplante Functions per setInterval.
 // Start: node server/server.mjs   (PORT, HOST, ENABLE_SCHEDULES=0 zum Abschalten der Zeitpläne)
+// Lokale Entwicklung ohne Netlify: node server/server.mjs --dev  (npm run dev:server) schaltet den Entwicklungsmodus ein (CRM_DEV_MODE=on, siehe lib/devmode.mjs) – nie in Produktion.
 import http from "node:http";
 import { createReadStream } from "node:fs";
 import { readdir, stat } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
+
+if (process.argv.includes("--dev")) {
+  if (String(process.env.NODE_ENV || "").trim().toLowerCase() === "production") console.warn("[stps-crm] --dev wird in Produktion (NODE_ENV=production) ignoriert.");
+  else process.env.CRM_DEV_MODE ||= "on"; // ein ausdrückliches CRM_DEV_MODE=off bleibt erhalten
+}
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const FN_DIR = path.join(ROOT, "netlify", "functions");
@@ -175,6 +181,10 @@ async function startSchedules() {
 
 server.listen(PORT, HOST, async () => {
   console.log(`[stps-crm] läuft auf http://${HOST}:${PORT}`);
+  if (String(process.env.NODE_ENV || "").trim().toLowerCase() === "production" && !String(process.env.TRUST_PROXY ?? "").trim()) {
+    console.warn("[stps-crm] WARNUNG: NODE_ENV=production, aber TRUST_PROXY ist nicht gesetzt. Hinter nginx ist die Client-IP dann unbekannt: die Login-Sperre je IP greift nicht (nur eine Verzögerung je Benutzername). " +
+      "Läuft der Server nur hinter nginx (HOST=127.0.0.1, nginx setzt X-Real-IP), TRUST_PROXY=1 setzen – siehe ops/deploy/.env.example. Bei direktem Internetzugriff TRUST_PROXY NICHT setzen (Header wären fälschbar).");
+  }
   if (process.env.ENABLE_SCHEDULES !== "0") await startSchedules().catch((e) => console.error("[stps-crm] Zeitpläne nicht gestartet:", e));
 });
 

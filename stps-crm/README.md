@@ -29,13 +29,22 @@ Abgeleitet aus der Excel-Vorlage `STPS_CRM_v.1.0` (Kunden, Angebote, Lieferanten
 
 ## Entwicklungsmodus (ohne Passwort)
 
-In der Entwicklungsphase soll das CRM **kein Passwort** verlangen. Deshalb gilt: **Ist `CRM_PASSWORD` nicht gesetzt**, läuft der Server im Entwicklungsmodus (Code: `netlify/functions/lib/devmode.mjs`):
+Lokal soll das CRM **kein Passwort** verlangen. Der Entwicklungsmodus (Code: `netlify/functions/lib/devmode.mjs`) gilt deshalb **nur ausdrücklich lokal**:
 
-- Es gibt keine Anmeldeseite. `GET /api/dev/session` liefert eine Sitzung; Anfragen ohne gültiges Token laufen als Pascal (Team-Admin). `CRM_SECRET` ist dann optional – fehlt es, gilt ein fester interner Entwicklungs-Schlüssel.
+- **Aktiv** bei `npm run dev` (`netlify dev` setzt `NETLIFY_DEV=true`; keine Einrichtung nötig, auch unter Windows), bei `npm run dev:server` (`node server/server.mjs --dev`) oder mit `CRM_DEV_MODE=on` – und nur, solange `CRM_PASSWORD` nicht gesetzt ist und es keine echten Konten gibt.
+- **Nie aktiv** bei `NODE_ENV=production`/`CRM_ENV=production`, im MySQL-Betrieb, auf einer bereitgestellten Netlify-Site (auch nicht mit `CRM_DEV_MODE=on`) und bei `CRM_DEV_MODE=off`. Dort gibt es `/api/dev/*` nicht (404), keine Anfragen ohne Anmeldung und keinen Entwicklungs-Schlüssel (fehlt `CRM_SECRET`, antwortet die API mit einer klaren Fehlermeldung).
+- Im Entwicklungsmodus: keine Anmeldeseite; Anfragen ohne gültige Sitzung laufen als Pascal (Team-Admin). `CRM_SECRET` ist optional (fester interner Schlüssel).
 - Gibt es noch keine Konten, wird das Team **SwissTech Precision Solutions** mit den Konten `admin` (Superadmin), `Pascal` (Team-Admin), `Liz` und `Marco` (Mitglieder, Geschäftsleitung) angelegt. Ihre Passwörter sind zufällig und unbekannt.
 - Oben erscheint dauerhaft der Hinweis «Entwicklungsmodus – ohne Passwort. Nur Beispieldaten verwenden.»; in der Kopfzeile wechselt ein **Rollenwechsler** (admin / Pascal / Liz / Marco) die Rolle. «admin» betritt das Team als Superadmin.
-- **Ist `CRM_PASSWORD` gesetzt, ändert sich nichts:** Anmeldung ist Pflicht, `/api/dev/session` existiert nicht, der Entwicklungs-Schlüssel wird nie akzeptiert. Ebenso bleibt die Anmeldung Pflicht, sobald sich je ein echtes Konto angemeldet hat (z. B. nach der Erst-Anmeldung, wenn `CRM_PASSWORD` später entfernt wurde), oder wenn `CRM_DEV_MODE=off` gesetzt ist.
-- **Vor dem Produktivbetrieb `CRM_PASSWORD` (und `CRM_SECRET`) setzen** – sonst ist die Site offen. Test: `npm run test:devmode`.
+- **Produktiv:** `CRM_SECRET` und `CRM_PASSWORD` (für die Erst-Anmeldung) setzen; `CRM_DEV_MODE` nie auf `on`. Test: `npm run test:devmode`.
+
+## Sitzungen und Anmeldeschutz
+
+- **Sitzung:** Das Token liegt in einem `HttpOnly`-Cookie (`__Host-stps_session`; `SameSite=Strict`, `Path=/`, `Secure` – nur bei `http://localhost` ohne Secure und ohne Präfix), nicht im Browser-Speicher. `Authorization: Bearer …` gilt weiterhin für Skripte.
+- **CSRF:** Ändernde Anfragen (POST/PUT/PATCH/DELETE) brauchen den Header `X-Requested-With: stps-crm` (das Frontend sendet ihn immer) oder `Authorization: Bearer`; sonst 403.
+- **Abmelden** widerruft genau diese Sitzung (Sitzungs-ID in der Liste `session-revocations` bis zum Ablauf des Tokens) und löscht das Cookie. «Überall abmelden» (Passwortwechsel, Deaktivieren) wirkt weiter über die Token-Version. Nach dem Update müssen sich alle einmal neu anmelden (alte Tokens ohne Sitzungs-ID gelten nicht mehr).
+- **Login-Sperre:** hart nur je IP (5 Fehlversuche je IP + Benutzername, 30 je IP insgesamt → 15 Minuten); je Benutzername nur eine wachsende Wartezeit (nie eine Sperre). Hinter nginx `TRUST_PROXY=1` setzen (siehe `ops/deploy/.env.example`), sonst ist die IP unbekannt (der Server warnt beim Start).
+- **`APP_URL`:** In Produktion (und auf Netlify) Pflicht für «Outlook verbinden»; die Rückleit-Adresse wird nie aus dem Host-Header abgeleitet (auf Netlify genügt die automatisch gesetzte `URL`).
 
 ## Erste Einrichtung
 

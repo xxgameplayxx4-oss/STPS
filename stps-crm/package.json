@@ -6,6 +6,7 @@
   "type": "module",
   "scripts": {
     "dev": "npx netlify dev",
+    "dev:server": "node server/server.mjs --dev",
     "check:i18n": "node scripts/check-i18n.mjs",
     "test:chat": "node scripts/test-chat.mjs",
     "test:files": "node scripts/test-files.mjs",
@@ -19,6 +20,7 @@
     "test:wpc": "node scripts/test-wpc.mjs",
     "test:devmode": "node scripts/test-devmode.mjs",
     "test:security": "node scripts/test-security.mjs",
+    "test:session": "node scripts/test-session.mjs",
     "test:sample": "node scripts/test-sample.mjs",
     "test:fx": "node scripts/test-fx-rates.mjs",
     "test:shipments": "node scripts/test-shipments.mjs",

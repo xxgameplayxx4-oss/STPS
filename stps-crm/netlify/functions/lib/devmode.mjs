@@ -1,22 +1,25 @@
-// STPS CRM – Entwicklungsmodus (Entwicklungsphase: «das CRM soll kein Passwort verlangen»).
+// STPS CRM – Entwicklungsmodus (nur für die lokale Entwicklung: «das CRM soll lokal kein Passwort verlangen»).
 //
-// Aktiv, wenn die Umgebungsvariable CRM_PASSWORD NICHT gesetzt ist (und CRM_DEV_MODE nicht «off» ist) UND es noch keine echten
-// Konten gibt (keine Konten, nur die hier angelegten Beispielkonten mit devSeed:true oder nie angemeldete Konten). Dann:
+// Aktiv NUR, wenn ALLES zutrifft:
+//  - ausdrücklich lokal: CRM_DEV_MODE=on ODER `netlify dev` (NETLIFY_DEV=true; `npm run dev`) bzw. `npm run dev:server` (setzt CRM_DEV_MODE=on);
+//  - NICHT Produktion (NODE_ENV/CRM_ENV=production, MySQL-Betrieb) und NICHT auf einer bereitgestellten Netlify-Site;
+//  - CRM_DEV_MODE ist nicht «off», CRM_PASSWORD ist nicht gesetzt;
+//  - es gibt noch keine echten Konten (nur Beispielkonten mit devSeed:true oder nie angemeldete Konten).
+// Dann:
 //  - /api/ping meldet dev:true, /api/dev/session liefert ohne Anmeldung eine Sitzung (wählbar: admin, pascal, liz, marco),
 //    und Anfragen ohne gültiges Token laufen als Pascal (Team-Admin);
-//  - fehlt CRM_SECRET, gilt ein fester interner Entwicklungs-Schlüssel;
+//  - fehlt CRM_SECRET, gilt ein fester interner Entwicklungs-Schlüssel (nur hier; session.mjs lehnt ihn sonst ab);
 //  - das Team «SwissTech Precision Solutions» mit den vier Beispielkonten wird angelegt, falls es noch keine Konten gibt.
-// Ist CRM_PASSWORD gesetzt, ist dieses Modul wirkungslos: Anmeldung, Schlüssel und Konten verhalten sich wie zuvor.
-// Gibt es echte Konten (angemeldet, z. B. nach der Erst-Anmeldung, danach wurde CRM_PASSWORD entfernt), bleibt die Anmeldung ebenfalls Pflicht.
+// Ausserhalb des Entwicklungsmodus existiert /api/dev/* nicht (404).
 import { randomBytes } from "node:crypto";
 import { mutateDoc } from "./kv.mjs";
 import * as U from "./users.mjs";
 import * as T from "./teams.mjs";
-import { createSessionToken, SESSION_TTL_MS, MIN_SECRET_LENGTH } from "./session.mjs";
-import { json } from "./http.mjs";
+import { createSessionToken, SESSION_TTL_MS, MIN_SECRET_LENGTH, DEV_SECRET, DEV_ACTIVE_FLAG } from "./session.mjs";
+import { isProductionEnv, isDeployedNetlify, isNetlifyLocalDev } from "./runtime-env.mjs";
+export { DEV_SECRET, isProductionEnv };
+import { json, withCookies, sessionCookie } from "./http.mjs";
 
-/** Fester interner Schlüssel – nur im Entwicklungsmodus und nur, wenn CRM_SECRET fehlt. Schützt nichts (bewusst). */
-export const DEV_SECRET = "stps-crm-dev-mode-secret-NOT-FOR-PRODUCTION";
 export const DEV_TEAM_NAME = "SwissTech Precision Solutions";
 /** Beispielkonten: key = Name im Rollenwechsler; Pascal ist der Standard. */
 export const DEV_USERS = [
@@ -27,18 +30,14 @@ export const DEV_USERS = [
 ];
 export const DEFAULT_DEV_KEY = "pascal";
 
-/** Produktion? NODE_ENV/CRM_ENV=production (in env ODER process.env) oder VPS-Betrieb (MySQL-Speicher konfiguriert). Dann ist der Entwicklungsmodus unmöglich (fail-closed). */
-export function isProductionEnv(env) {
-  const flag = (v) => String(v ?? "").trim().toLowerCase() === "production";
-  const penv = typeof process !== "undefined" ? process.env : {};
-  if ([env?.NODE_ENV, env?.CRM_ENV, penv.NODE_ENV, penv.CRM_ENV].some(flag)) return true;
-  const vps = (e) => String(e?.DB_DRIVER ?? "").trim().toLowerCase() === "mysql" || Boolean(String(e?.DB_HOST ?? "").trim());
-  return vps(env) || vps(penv);
+/** Nur anhand der Umgebung: darf der Entwicklungsmodus überhaupt gelten? (Ausdrücklich lokal, nie Produktion/bereitgestellte Site, CRM_PASSWORD nicht gesetzt, nicht «off») */
+export function devEnvEnabled(env) {
+  const mode = String(env?.CRM_DEV_MODE ?? "").trim().toLowerCase();
+  if (mode === "off") return false;
+  if (isProductionEnv(env) || isDeployedNetlify(env)) return false;
+  if (String(env?.CRM_PASSWORD ?? "").trim()) return false;
+  return mode === "on" || isNetlifyLocalDev(env);
 }
-
-/** Nur anhand der Umgebung: darf der Entwicklungsmodus überhaupt gelten? (CRM_PASSWORD gesetzt oder Produktion → nie) */
-export const devEnvEnabled = (env) =>
-  !isProductionEnv(env) && !String(env?.CRM_PASSWORD ?? "").trim() && String(env?.CRM_DEV_MODE ?? "").trim().toLowerCase() !== "off";
 
 /** Gilt der Entwicklungsmodus jetzt? Nur ohne CRM_PASSWORD und solange es keine echten Konten gibt. */
 export async function isDevActive(env, store, now = Date.now()) {
@@ -50,8 +49,8 @@ export async function isDevActive(env, store, now = Date.now()) {
 
 /** Umgebung für den Entwicklungsmodus: fehlendes/zu kurzes CRM_SECRET wird durch den festen Schlüssel ersetzt. */
 export function withDevEnv(env) {
-  if (isProductionEnv(env)) return env; // Sicherheitsnetz: in Produktion nie der bekannte Entwicklungs-Schlüssel
-  return String(env?.CRM_SECRET ?? "").length >= MIN_SECRET_LENGTH ? env : { ...env, CRM_SECRET: DEV_SECRET };
+  if (!devEnvEnabled(env)) return env; // Sicherheitsnetz: ausserhalb des Entwicklungsmodus nie der bekannte Entwicklungs-Schlüssel
+  return String(env?.CRM_SECRET ?? "").length >= MIN_SECRET_LENGTH ? env : { ...env, CRM_SECRET: DEV_SECRET, [DEV_ACTIVE_FLAG]: true };
 }
 
 /** Legt Team + Beispielkonten an, falls es noch keine Konten gibt (atomar, mehrfach aufrufbar). Passwörter: zufällig, unbekannt (Anmeldung per Passwort nicht möglich). */
@@ -109,10 +108,10 @@ export async function devSession(req, deps, method, parseBody) {
   const team = user.teamId ? T.teamById(await T.loadTeams(store, { now, cacheMs: 0 }), user.teamId) : (await T.loadTeams(store, { now, cacheMs: 0 })).find((t) => t.name === DEV_TEAM_NAME) || null;
   const token = createSessionToken(env, user, now);
   const teamInfo = team ? { id: team.id, name: team.name, active: team.active !== false, owners: Array.isArray(team.settings?.owners) ? team.settings.owners : [] } : null;
-  return json(200, {
+  return withCookies(json(200, {
     dev: true, token, expiresAt: now + SESSION_TTL_MS, user: U.publicUser(user), team: teamInfo, mustChangePassword: false,
     // Der Superadmin hat kein eigenes Team: der Client betritt dieses (X-CRM-Team), damit er die Daten sieht.
     enterTeamId: user.role === "superadmin" ? team?.id ?? null : null,
     devUsers: publicDevList(),
-  });
+  }), [sessionCookie(token, { origin: req.origin, dev: true, maxAgeSec: SESSION_TTL_MS / 1000 })]);
 }

@@ -403,7 +403,7 @@ function schedule(ms) {
 export const flushNow = () => { clearTimeout(saveTimer); return flush(); };
 
 function sessionExpired() {
-  api.setToken("");
+  api.setSession(false);
   setStatus("error", { key: "store.sessionExpired" });
   emit("auth");
 }
@@ -482,14 +482,14 @@ function adoptRemote(r) {
 }
 
 /** Fehlerbildschirm beim Start. Mit Token kann man sich abmelden (canLogout) – sonst bliebe eine kaputte Sitzung eine Sackgasse. */
-const errorState = (message) => ({ state: "error", message, canLogout: Boolean(api.getToken()) });
+const errorState = (message) => ({ state: "error", message, canLogout: Boolean(api.hasSession()) });
 
 async function loadServer() {
   let r;
   try {
     r = await api.getDb();
   } catch (e) {
-    if (e instanceof api.ApiError && e.status === 401) { api.setToken(""); return { state: "login" }; }
+    if (e instanceof api.ApiError && e.status === 401) { api.setSession(false); return { state: "login" }; }
     if (e instanceof api.ApiError && e.status === 500) return errorState(e.message);
     if (e instanceof api.ApiError && e.status === 409 && e.body?.error === "team_required") { S.noTeam = true; return { state: "ready" }; }
     if (e instanceof api.ApiUnavailable && loadOfflineCache()) return { state: "ready" };
@@ -570,11 +570,11 @@ async function afterAuth() {
     r = await api.me();
   } catch (e) {
     if (e instanceof api.ApiError && e.status === 404 && api.getTeamId()) { api.setTeamId(""); return afterAuth(); } // betretenes Team gibt es nicht mehr
-    if (e instanceof api.ApiError && (e.status === 401 || e.status === 403)) { api.setToken(""); return { state: "login" }; }
+    if (e instanceof api.ApiError && (e.status === 401 || e.status === 403)) { api.setSession(false); return { state: "login" }; }
     if (e instanceof api.ApiError && e.status === 500) return errorState(e.message);
     if (e instanceof api.ApiUnavailable) {
       const cached = readCachedMe();
-      if (cached && api.getToken()) { me = cached.user; team = cached.team; S.noTeam = isSuper() && !team; if (loadOfflineCache()) return { state: "ready" }; }
+      if (cached && api.hasSession()) { me = cached.user; team = cached.team; S.noTeam = isSuper() && !team; if (loadOfflineCache()) return { state: "ready" }; }
     }
     return errorState(e.message || t("store.loadFailed"));
   }
@@ -597,11 +597,11 @@ export async function init() {
     S.backend = info.backend === "mysql" ? "mysql" : "blobs";
     if (info.dev) return initDev();
     if (!info.configured) return { state: "error", message: errorText({ error: "not_configured", reason: "secret", message: info.message }) || t("err.not_configured.secret") };
-    if (!api.getToken()) return { state: "login" };
+    if (!api.hasSession()) return { state: "login" };
     return afterAuth();
   }
 
-  if (lsGet(LS.wasServer) && api.getToken()) {
+  if (lsGet(LS.wasServer) && api.hasSession()) {
     const cached = readCachedMe();
     if (cached) { me = cached.user; team = cached.team; S.noTeam = isSuper() && !team; }
     if (loadOfflineCache()) return { state: "ready" };
@@ -631,7 +631,7 @@ async function initDev() {
     lsSet(LS.devUser, key);
     try { r = await api.devSession(key); } catch (e2) { return errorState(e2.message || t("store.loadFailed")); }
   }
-  api.setToken(r.token);
+  api.setSession(true);
   api.setTeamId(r.enterTeamId || "");
   S.devUsers = r.devUsers || [];
   S.devKey = key;
@@ -643,7 +643,7 @@ export async function devSwitch(key) {
   if (!S.dev) return;
   if (dirty) await flushNow();
   lsSet(LS.devUser, key);
-  api.setToken("");
+  api.setSession(false);
   api.setTeamId("");
   lsSet(LS.me, "null");
   location.hash = "#/uebersicht";
@@ -652,7 +652,7 @@ export async function devSwitch(key) {
 
 export async function loginWith(username, password) {
   const r = await api.login(username, password);
-  api.setToken(r.token);
+  api.setSession(true);
   try { lsSet(LS.lastUser, username.trim().toLowerCase()); } catch { /* ignore */ }
   return afterAuth();
 }
@@ -660,7 +660,7 @@ export async function loginWith(username, password) {
 /** Eigenes Passwort ändern; das Token wird ersetzt (alle anderen Sitzungen sind danach abgemeldet). */
 export async function changePassword(current, next) {
   const r = await api.changePassword(current, next);
-  api.setToken(r.token);
+  api.setSession(true);
   if (r.user) { me = r.user; applyMe({ user: r.user, team }); }
   return r;
 }
@@ -675,15 +675,17 @@ export async function enterTeam(teamId) {
   location.reload();
 }
 
+/** Meldet ab: der Server widerruft die Sitzung und löscht das Cookie. Das Ergebnis abwarten, bevor die Seite neu lädt (sonst bräche der Neuladevorgang die Anfrage ab). */
 export function logout() {
   const wasDirty = dirty;
-  if (api.getToken()) api.logout().catch(() => {});
-  api.setToken("");
+  const done = api.hasSession() ? api.logout().catch(() => {}) : Promise.resolve();
+  api.setSession(false);
   api.setTeamId("");
   if (!wasDirty) lsSet(cacheKey(), "null");
   lsSet(LS.me, "null");
   me = null;
   team = null;
+  return done;
 }
 
 /** Periodischer Abgleich: übernimmt Änderungen anderer, solange man selbst nichts Offenes hat. */

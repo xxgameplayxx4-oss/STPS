@@ -7,8 +7,9 @@
 // Team-Kontext: Normale Benutzer arbeiten immer im Team aus ihrem Konto – ein mitgeschickter Header X-CRM-Team wird ignoriert.
 // Nur der Superadmin kann mit X-CRM-Team in ein Team «eintreten»; ohne Header hat er keinen Team-Kontext (nur Plattform).
 import { createHash, timingSafeEqual } from "node:crypto";
-import { json, ApiFail, headerOf, bearerToken, clientIp, queryOf, parseBody, logError } from "./http.mjs";
+import { json, ApiFail, headerOf, bearerToken, cookieToken, sessionCookie, clearSessionCookies, withCookies, clientIp, queryOf, parseBody, logError } from "./http.mjs";
 import { createSessionToken, verifySessionToken, getSecret, SESSION_TTL_MS } from "./session.mjs";
+import * as REV from "./revocations.mjs";
 import * as U from "./users.mjs";
 import * as T from "./teams.mjs";
 import * as A from "./audit.mjs";
@@ -17,7 +18,7 @@ import * as BR from "./branding.mjs";
 import * as DEV from "./devmode.mjs";
 import { scrubStamp } from "./hide-super.mjs";
 import { mutateDoc } from "./kv.mjs";
-import { checkLock, recordFailure, clearFailures, throttleKeys, lockMessage } from "./login-throttle.mjs";
+import { checkLock, recordFailure, clearFailures, softDelayMs, throttleKeys, lockMessage } from "./login-throttle.mjs";
 
 export const GENERIC_LOGIN_ERROR = "Benutzername oder Passwort falsch";
 const FAIL_DELAY_MS = 500;
@@ -102,10 +103,14 @@ export function login(req, deps, method) {
     const body = parseBody(req, 4096);
     const username = U.looseUsername(body.username);
     const password = typeof body.password === "string" ? body.password.slice(0, 1024) : "";
-    const keys = throttleKeys(username, clientIp(req.headers));
+    const tk = throttleKeys(username, clientIp(req.headers));
+    const keys = [...tk.hard, tk.soft]; // Fehlversuche werden unter allen Schlüsseln gezählt; hart gesperrt wird nur je IP (siehe login-throttle.mjs)
 
-    const lock = await checkLock(store, keys, now);
+    const lock = await checkLock(store, tk.hard, now);
     if (lock.locked) return json(429, { error: "locked", message: lockMessage(lock.retryAfterMs), retryAfter: Math.ceil(lock.retryAfterMs / 1000) });
+    // Weiche Bremse je Benutzername (nie eine Sperre): wachsende Wartezeit nach mehreren Fehlversuchen, auch von anderen Adressen
+    const wait = await softDelayMs(store, username, now);
+    if (wait) await delay(wait);
 
     let users = await U.loadUsers(store, fresh(now));
     let user = null;
@@ -155,13 +160,13 @@ export function login(req, deps, method) {
       team = T.teamById(await T.loadTeams(store, fresh(now)), user.teamId);
       if (!team || team.active === false) return json(403, { error: "team_inactive", message: `Das Team${team ? ` «${team.name}»` : ""} ist deaktiviert. Bitte wenden Sie sich an den Plattform-Administrator.`, ...(team ? { team: team.name } : { reason: "unknown" }) });
     }
-    await clearFailures(store, keys, now);
+    await clearFailures(store, [...tk.hard.filter((k) => k.startsWith("ipu:")), tk.soft], now); // die IP-weite Zählung bleibt (sonst liesse sie sich mit einem eigenen Konto zurücksetzen)
     await U.recordLogin(store, user.id, now);
     const token = createSessionToken(env, user, now);
-    return json(200, {
+    return withCookies(json(200, {
       token, expiresAt: now + SESSION_TTL_MS,
       user: U.publicUser({ ...user, lastLoginAt: new Date(now).toISOString() }), team: teamInfo(team), mustChangePassword: Boolean(user.mustChangePassword),
-    });
+    }), [sessionCookie(token, { origin: req.origin, dev: deps.dev, maxAgeSec: SESSION_TTL_MS / 1000 })]);
   });
 }
 
@@ -180,12 +185,13 @@ export async function authenticate(req, deps, now) {
   // Ein unbrauchbares Token (auch eines, das eine frühere Version ausgestellt hat) ist immer ein 401 – nie ein 500: Der Browser meldet sich dann neu an.
   let claims = null;
   try {
-    claims = verifySessionToken(bearerToken(req.headers), env, now);
+    // Authorization: Bearer (Skripte) hat Vorrang, sonst das HttpOnly-Sitzungs-Cookie des Browsers
+    claims = verifySessionToken(bearerToken(req.headers) || cookieToken(req.headers, { origin: req.origin, dev: Boolean(deps.dev) }), env, now);
   } catch (e) {
     logError("Token prüfen", e);
   }
   // Entwicklungsmodus (nur wenn core.mjs ihn aktiviert hat, d. h. ohne CRM_PASSWORD): ohne gültiges Token läuft die Anfrage als Pascal
-  if (!claims && deps.dev) {
+  if (!claims && deps.dev && DEV.devEnvEnabled(env)) {
     const d = DEV.devUserFor(await U.loadUsers(store, { now, cacheMs: 0 }), DEV.DEFAULT_DEV_KEY);
     if (d) claims = { uid: d.id, tv: d.tokenVersion || 0, exp: now + SESSION_TTL_MS };
   }
@@ -194,6 +200,8 @@ export async function authenticate(req, deps, now) {
   const users = await U.loadUsers(store, o(deps, now));
   const teams = await T.loadTeams(store, o(deps, now));
   try {
+    // Einzeln widerrufene Sitzung (Abmelden)? Tokens des Entwicklungsmodus ohne Token tragen keine sid.
+    if (claims.sid && (await REV.isRevoked(store, claims.sid, o(deps, now)))) return unauth("Sitzung abgelaufen – bitte neu anmelden", "expired");
     const user = U.findById(users, claims.uid);
     if (!user || user.active === false || (user.tokenVersion || 0) !== claims.tv) return unauth("Sitzung abgelaufen – bitte neu anmelden", "expired");
     const isSuper = user.role === "superadmin";
@@ -212,7 +220,7 @@ export async function authenticate(req, deps, now) {
     return {
       ok: true,
       ctx: {
-        user, isSuper, isAdmin: user.role === "admin", teamId: team?.id ?? null, team, teams,
+        user, isSuper, session: { sid: claims.sid || null, exp: claims.exp }, isAdmin: user.role === "admin", teamId: team?.id ?? null, team, teams,
         store: team ? T.scopedStore(store, team.id) : null,
         env: team && team.id === spId ? env : withoutSharepoint(env),
         actor: { id: user.id, displayName: user.displayName, name: isSuper ? `${user.displayName} (Superadmin)` : user.displayName, superadmin: isSuper },
@@ -251,7 +259,12 @@ export function route(path, method, req, deps, ctx) {
     }
 
     // ---- Konto
-    if (path === "/logout") return method === "POST" ? json(200, { ok: true }) : wrongMethod();
+    if (path === "/logout") {
+      if (method !== "POST") return wrongMethod();
+      // Genau diese Sitzung bis zum Ablauf des Tokens widerrufen und das Cookie löschen
+      await REV.revokeSession(root, ctx.session?.sid, ctx.session?.exp, now);
+      return withCookies(json(200, { ok: true }), clearSessionCookies());
+    }
     if (path === "/me") {
       if (method !== "GET") return wrongMethod();
       return json(200, { user: U.publicUser(user), team: teamInfo(ctx.team), superadmin: ctx.isSuper, mustChangePassword: Boolean(user.mustChangePassword), now: new Date(now).toISOString() });
@@ -259,7 +272,7 @@ export function route(path, method, req, deps, ctx) {
     if (path === "/me/password") {
       if (method !== "POST") return wrongMethod();
       const body = parseBody(req, 4096);
-      const keys = [`u:${user.username}`];
+      const keys = [`pw:${user.id}`]; // eigener Schlüssel: sperrt nur den Passwortwechsel, nie die Anmeldung
       const lock = await checkLock(root, keys, now);
       if (lock.locked) return json(429, { error: "locked", message: lockMessage(lock.retryAfterMs), retryAfter: Math.ceil(lock.retryAfterMs / 1000) });
       if (typeof body.current !== "string" || !(await U.verifyPassword(body.current, user.passwordHash))) {
@@ -270,7 +283,8 @@ export function route(path, method, req, deps, ctx) {
       U.checkPasswordPolicy(body.new, { username: user.username, current: body.current });
       const updated = await U.setOwnPassword(root, user.id, user.tokenVersion || 0, body.new, { scryptParams: deps.scryptParams });
       await clearFailures(root, keys, now);
-      return json(200, { ok: true, token: createSessionToken(env, updated, now), expiresAt: now + SESSION_TTL_MS, user: U.publicUser(updated) });
+      const token = createSessionToken(env, updated, now);
+      return withCookies(json(200, { ok: true, token, expiresAt: now + SESSION_TTL_MS, user: U.publicUser(updated) }), [sessionCookie(token, { origin: req.origin, dev: deps.dev, maxAgeSec: SESSION_TTL_MS / 1000 })]);
     }
 
     // ---- Plattform (nur Superadmin)

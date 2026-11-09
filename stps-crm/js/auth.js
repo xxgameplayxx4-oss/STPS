@@ -144,7 +144,7 @@ export function showChangePassword() {
       err.textContent = errFn();
       restore(form, snap);
       first = false;
-      form.querySelector("[data-logout]").addEventListener("click", () => { store.logout(); location.reload(); });
+      form.querySelector("[data-logout]").addEventListener("click", () => { store.logout().finally(() => location.reload()); });
       form.addEventListener("submit", async (e) => {
         e.preventDefault();
         errFn = () => "";

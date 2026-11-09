@@ -1,4 +1,4 @@
-// Client für die Netlify Function /api/*
+// Client für die Netlify Function unter /api (Anmeldung per HttpOnly-Cookie, siehe unten)
 import { LS } from "./config.js";
 import { t, errorText } from "./i18n.js";
 
@@ -23,8 +23,11 @@ export class ApiUnavailable extends Error {
   }
 }
 
-export const getToken = () => { try { return localStorage.getItem(LS.token) || ""; } catch { return ""; } };
-export const setToken = (t) => { try { t ? localStorage.setItem(LS.token, t) : localStorage.removeItem(LS.token); } catch { /* ignore */ } };
+// Das Sitzungs-Token steckt in einem HttpOnly-Cookie, das der Server setzt (für JavaScript unlesbar). Hier liegt nur ein Merker «war angemeldet»
+// (kein Geheimnis): er steuert den Offline-Start und den Abmelde-Knopf im Fehlerbildschirm. Ein früher gespeichertes Token wird entfernt.
+try { localStorage.removeItem(LS.token); } catch { /* ignore */ }
+export const hasSession = () => { try { return localStorage.getItem(LS.session) === "1"; } catch { return false; } };
+export const setSession = (on) => { try { on ? localStorage.setItem(LS.session, "1") : localStorage.removeItem(LS.session); } catch { /* ignore */ } };
 
 // Vom Superadmin «betretenes» Team (nur pro Browser-Tab). Der Server beachtet den Header nur für den Superadmin.
 let teamMem = "";
@@ -41,11 +44,12 @@ async function request(method, path, body, { auth = true, timeout = 20000, raw, 
       headers: {
         ...(body !== undefined ? { "content-type": "application/json" } : {}),
         ...(raw !== undefined ? { "content-type": "application/octet-stream" } : {}),
-        ...(auth && getToken() ? { authorization: "Bearer " + getToken() } : {}),
+        "x-requested-with": "stps-crm", // CSRF-Schutz: der Server verlangt diesen Header bei ändernden Anfragen (das Cookie geht automatisch mit)
         ...(auth && getTeamId() ? { "x-crm-team": getTeamId() } : {}),
       },
       body: raw !== undefined ? raw : body !== undefined ? JSON.stringify(body) : undefined,
       cache: "no-store",
+      credentials: "same-origin",
       signal: ctl.signal,
     });
   } catch (e) {

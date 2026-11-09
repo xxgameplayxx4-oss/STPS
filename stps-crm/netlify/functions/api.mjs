@@ -2,14 +2,14 @@
 // Jedes Team hat seine Daten als JSON-Dokumente im Blob-Store "stps-crm" unter "t/<teamId>/…" (db, backup-*, audit, presence, …);
 // globale Dokumente: "users", "teams", "login-throttle". Benutzerkonten mit Rollen superadmin/admin/member.
 // Logik: ./lib/core.mjs (+ accounts.mjs, users.mjs, teams.mjs, audit.mjs, presence.mjs, chat.mjs, calendar.mjs; rein, getestet).
-// Entwicklungsmodus (lib/devmode.mjs): OHNE CRM_PASSWORD (und ohne echte Konten) braucht es weder Anmeldung noch CRM_SECRET – mit gesetztem CRM_PASSWORD gilt alles wie bisher.
+// Entwicklungsmodus (lib/devmode.mjs): NUR lokal (netlify dev bzw. CRM_DEV_MODE=on), nie in Produktion/auf Netlify – dort braucht es Anmeldung und CRM_SECRET. Sitzung: HttpOnly-Cookie (accounts.mjs), CSRF-Header unten.
 // Env: CRM_SECRET (Pflicht, min. 16 Zeichen; im Entwicklungsmodus optional), CRM_PASSWORD + CRM_ADMIN_USER (nur für die Erst-Anmeldung des Superadmins), SP_TEAM_ID (optional);
 // optional für SharePoint (siehe SHAREPOINT-SETUP.md): MS_TENANT_ID, MS_CLIENT_ID, MS_CLIENT_SECRET, SP_SITE, SP_DRIVE, SP_IMPORT_PATH, SP_EXPORT_FOLDER;
 // Outlook-Kalender je Benutzer (siehe OUTLOOK-SETUP.md): keine Variablen nötig – der Superadmin trägt die App-ID einmal in der App ein. Optional
 // (überschreibt die App-Einstellung): OUTLOOK_CLIENT_ID, OUTLOOK_CLIENT_SECRET (sonst MS_*), APP_URL.
 import { open as openStore } from "./lib/store.mjs";
 import { handleApi, MAX_BODY_BYTES, MAX_UPLOAD_BYTES } from "./lib/core.mjs";
-import { logError } from "./lib/http.mjs";
+import { logError, csrfOk } from "./lib/http.mjs";
 import { MAX_FILE_BYTES, contentDisposition } from "./lib/files.mjs";
 
 // Blob-Store erst bei Bedarf öffnen (/api/ping braucht ihn nicht). Nicht über Aufrufe hinweg merken: getStore() ist billig (kein Netzwerk)
@@ -39,6 +39,11 @@ export default async (req, context) => {
     const up = await Promise.race([open().read("__health__").then(() => true, () => false), new Promise((r) => setTimeout(() => r(false), 5000))]);
     return new Response(JSON.stringify({ ok: up, db: up ? "up" : "down" }), { status: up ? 200 : 503, headers });
   }
+  // CSRF: Das Sitzungs-Cookie wird vom Browser automatisch mitgeschickt. Ändernde Anfragen brauchen deshalb den Header X-Requested-With: stps-crm
+  // (oder Authorization: Bearer) – Fremdseiten können ihn ohne CORS-Freigabe nicht setzen. Gilt auch für /login und /dev/session (Login-CSRF).
+  if (!csrfOk(req.method, req.headers)) {
+    return new Response(JSON.stringify({ error: "csrf", message: "Anfrage abgelehnt (fehlender Sicherheits-Header)", reason: "csrf" }), { status: 403, headers });
+  }
   let bodyText = "";
   let bodyBuffer;
   if (req.method !== "GET" && req.method !== "HEAD") {
@@ -60,19 +65,25 @@ export default async (req, context) => {
       { method: req.method, path: url.pathname, query: url.searchParams, origin: url.origin, headers: req.headers, bodyText, bodyBuffer },
       { env: process.env, store: lazyStore },
     );
-    if (result.redirect) return new Response(null, { status: result.status, headers: { location: result.redirect, "cache-control": "no-store", "x-content-type-options": "nosniff" } });
+    // Set-Cookie (Anmelden/Abmelden): mehrere Zeilen als eigene Header
+    const withSetCookie = (h) => {
+      const out = new Headers(h);
+      for (const c of result.setCookie ?? []) out.append("set-cookie", c);
+      return out;
+    };
+    if (result.redirect) return new Response(null, { status: result.status, headers: withSetCookie({ location: result.redirect, "cache-control": "no-store", "x-content-type-options": "nosniff" }) });
     if (result.binary) {
       return new Response(result.binary, {
         status: result.status,
-        headers: {
+        headers: withSetCookie({
           "content-type": result.contentType,
           "content-disposition": contentDisposition(result.filename),
           "cache-control": "no-store",
           "x-content-type-options": "nosniff",
-        },
+        }),
       });
     }
-    return new Response(JSON.stringify(result.body), { status: result.status, headers });
+    return new Response(JSON.stringify(result.body), { status: result.status, headers: withSetCookie(headers) });
   } catch (err) {
     // Der echte Fehler samt Stack steht im Function-Log (Netlify → Logs → Functions → api); der Browser sieht nur «Serverfehler» + Fehlerart.
     logError(`API-Fehler ${req.method} ${url.pathname}`, err);

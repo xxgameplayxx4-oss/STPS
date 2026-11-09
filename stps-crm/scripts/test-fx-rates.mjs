@@ -93,7 +93,7 @@ const fxOf = async (st) => (await st.read(DB_KEY)).value.data.settings.fx;
   let fetchImpl = okFetch;
   const api = async (method, path, { token, body } = {}) =>
     handleApi({ method, path: "/api" + path, query: new URLSearchParams(), headers: { ...(token ? { authorization: `Bearer ${token}` } : {}) }, bodyText: body === undefined ? "" : JSON.stringify(body) },
-      { env: {}, store, now: () => clock, delay: async () => {}, scryptParams: { N: 1024 }, userCacheMs: 0, fetch: (...a) => fetchImpl(...a) });
+      { env: { CRM_DEV_MODE: "on" }, store, now: () => clock, delay: async () => {}, scryptParams: { N: 1024 }, userCacheMs: 0, fetch: (...a) => fetchImpl(...a) });
   const s = (await api("GET", "/dev/session")).body;
   const put = async (token, fx) => {
     const cur = (await api("GET", "/db", { token })).body;

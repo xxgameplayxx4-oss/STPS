@@ -360,7 +360,7 @@ async function doLogout() {
     if (!ok) return;
   }
   await push.detach(); // Push-Abo dieses Geräts vom Konto lösen (braucht noch das Token)
-  store.logout();
+  await store.logout();
   location.reload();
 }
 
@@ -386,7 +386,7 @@ async function authLoop(res) {
     else {
       const failed = res;
       // «Abmelden» (Token verwerfen, Seite neu laden → Anmeldeseite) neben «Erneut versuchen», wenn der Fehler mit einer bestehenden Sitzung auftrat
-      const onLogout = failed.canLogout ? () => { store.logout(); location.reload(); } : undefined;
+      const onLogout = failed.canLogout ? () => { store.logout().finally(() => location.reload()); } : undefined;
       res = await new Promise((resolve) => showFatal(failed.message, async () => { $("#boot").hidden = false; const r = await store.init(); $("#boot").hidden = true; resolve(r); }, onLogout));
     }
   }

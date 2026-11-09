@@ -126,7 +126,7 @@ export async function resync() {
 /** Vor dem Abmelden: Abo dieses Geräts beim Server entfernen (ein anderes Konto soll nicht dessen Nachrichten erhalten); der Merker bleibt */
 export async function detach() {
   try {
-    if (!supported() || !api.getToken()) return;
+    if (!supported() || !api.hasSession()) return;
     const { sub } = await currentSub();
     if (!sub) return;
     await Promise.race([api.pushUnsubscribe(sub.endpoint), new Promise((r) => setTimeout(r, 3000))]);

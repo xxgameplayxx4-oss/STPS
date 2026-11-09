@@ -5,10 +5,11 @@
 //      Blob «platform/outlook»). Ein Client-Secret ist OPTIONAL (OUTLOOK_CLIENT_SECRET / MS_CLIENT_SECRET, nur zusammen mit der Client-ID aus der
 //      Umgebung): ohne Secret läuft der Code-Flow als öffentlicher Client (PKCE, Token-Abruf ohne client_secret). Mandant: MS_TENANT_ID bzw.
 //      Einstellung, sonst «common» (Einstellung) bzw. «organizations» (Client-ID aus der Umgebung). Rückleit-Adresse /api/outlook/callback: APP_URL,
-//      sonst die Adresse der Anfrage (origin), sonst SITE_URL/URL.
+//      sonst (nur lokal, NICHT in Produktion/auf Netlify) die Adresse der Anfrage (origin), sonst SITE_URL/URL. In Produktion Pflicht: APP_URL bzw. Netlify-URL.
 // Für Tests sind `fetch` und `sleep` injizierbar.
 import { createHash, randomBytes } from "node:crypto";
 import { GraphError } from "./graph.mjs";
+import { isDeployedEnv } from "./runtime-env.mjs";
 
 export const GRAPH_URL = "https://graph.microsoft.com/v1.0";
 const LOGIN = "https://login.microsoftonline.com";
@@ -42,7 +43,12 @@ export function outlookConfig(env, opts = {}) {
   const clientId = envId || (CLIENT_ID_RE.test(setId) ? setId : "");
   const source = envId ? "env" : clientId ? "app" : "";
   const secret = source === "env" ? val(env, "OUTLOOK_CLIENT_SECRET", "MS_CLIENT_SECRET") : ""; // das Secret gehört zur App der Umgebung, nie zu einer App-ID aus der Einstellung
-  const base = httpsBase(val(env, "APP_URL")) || httpsBase(opts.origin) || httpsBase(val(env, "SITE_URL", "URL"));
+  // Produktion (NODE_ENV=production / VPS) bzw. bereitgestellte Netlify-Site: die Rückleit-Adresse kommt NIE aus dem Host-Header der Anfrage
+  // (sonst liesse sie sich per gefälschtem Host umlenken), sondern nur aus APP_URL bzw. der von Netlify gesetzten URL.
+  const prod = isDeployedEnv(env);
+  const base = prod
+    ? httpsBase(val(env, "APP_URL")) || httpsBase(val(env, "SITE_URL", "URL"))
+    : httpsBase(val(env, "APP_URL")) || httpsBase(opts.origin) || httpsBase(val(env, "SITE_URL", "URL"));
   const envTenant = val(env, "MS_TENANT_ID");
   const setTenant = String(opts.setting?.tenant ?? "").trim();
   const tenantRaw = (source === "env" ? envTenant : "") || (source === "app" ? setTenant : "") || (source === "app" ? "common" : "organizations");
@@ -50,7 +56,7 @@ export function outlookConfig(env, opts = {}) {
   const missing = [];
   if (!clientId) missing.push("clientId");
   if (String(env?.CRM_SECRET ?? "").length < 16) missing.push("CRM_SECRET");
-  return { configured: missing.length === 0, missing, clientId, source, secret, publicClient: !secret, tenant, base, redirectUri: base ? base + CALLBACK_PATH : "" };
+  return { configured: missing.length === 0, missing, clientId, source, secret, publicClient: !secret, tenant, base, redirectUri: base ? base + CALLBACK_PATH : "", appUrlRequired: prod && !base };
 }
 
 /** Entfernt das Client-Secret aus Texten, die gespeichert oder angezeigt werden. */
