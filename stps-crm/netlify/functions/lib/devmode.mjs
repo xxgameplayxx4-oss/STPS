@@ -30,10 +30,19 @@ export const DEV_USERS = [
 ];
 export const DEFAULT_DEV_KEY = "pascal";
 
-/** Nur anhand der Umgebung: darf der Entwicklungsmodus überhaupt gelten? (Ausdrücklich lokal, nie Produktion/bereitgestellte Site, CRM_PASSWORD nicht gesetzt, nicht «off») */
+/** Loopback-Adresse (127.0.0.0/8, ::1, ::ffff:127.x, localhost)? */
+export const isLoopbackHost = (h) => {
+  const t = String(h ?? "").trim().toLowerCase().replace(/^\[|\]$/g, "");
+  return t === "localhost" || t === "::1" || /^(::ffff:)?127\.\d+\.\d+\.\d+$/.test(t);
+};
+
+/** Nur anhand der Umgebung: darf der Entwicklungsmodus überhaupt gelten? (Ausdrücklich lokal, nie Produktion/bereitgestellte Site, CRM_PASSWORD nicht gesetzt, nicht «off», nicht an eine öffentliche Adresse gebunden) */
 export function devEnvEnabled(env) {
   const mode = String(env?.CRM_DEV_MODE ?? "").trim().toLowerCase();
   if (mode === "off") return false;
+  // Bindeadresse (HOST) gesetzt und nicht Loopback (z. B. 0.0.0.0): aus dem Netz erreichbar → nie Entwicklungsmodus
+  const penvHost = typeof process !== "undefined" && process.env ? process.env.HOST : "";
+  for (const h of [env?.HOST, penvHost]) if (String(h ?? "").trim() && !isLoopbackHost(h)) return false;
   if (isProductionEnv(env) || isDeployedNetlify(env)) return false;
   if (String(env?.CRM_PASSWORD ?? "").trim()) return false;
   return mode === "on" || isNetlifyLocalDev(env);

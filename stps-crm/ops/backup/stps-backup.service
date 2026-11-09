@@ -9,7 +9,7 @@ Type=oneshot
 User=stps-backup
 # DB_HOST, DB_NAME, DB_USER, DB_PASSWORD, BACKUP_DIR, AGE_RECIPIENT, SYNC_TARGET ... (chmod 600, Besitzer stps-backup)
 EnvironmentFile=/etc/stps-backup.env
-ExecStart=/opt/stps-crm/ops/backup/backup.sh
+ExecStart=/opt/stps/stps-crm/ops/backup/backup.sh
 # Fehlermeldung per E-Mail: siehe docs/crm-plan/08-monitoring-audit.md (OnFailure)
 OnFailure=stps-notify@%n.service
 Nice=10

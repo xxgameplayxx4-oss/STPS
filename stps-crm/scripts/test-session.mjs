@@ -8,6 +8,7 @@ import { verifySessionToken } from "../netlify/functions/lib/session.mjs";
 import { LOCK_MS, SOFT_MAX_MS, MAX_FAILS } from "../netlify/functions/lib/login-throttle.mjs";
 import { outlookConfig } from "../netlify/functions/lib/outlook-graph.mjs";
 import { REVOKE_KEY } from "../netlify/functions/lib/revocations.mjs";
+import { tokenOf } from "./lib/session-token.mjs";
 
 let clock = Date.parse("2026-11-05T09:00:00Z");
 const env = { CRM_SECRET: "s".repeat(32), CRM_PASSWORD: "Start-Passwort-123", CRM_ADMIN_USER: "root" };
@@ -44,13 +45,14 @@ assert.equal((await login(GOOD, "")).status, 200, "ohne IP nie ausgesperrt (nur 
 for (let i = 0; i < 30; i++) await login("x", "192.0.2.77", `user${i}`);
 assert.equal((await login(GOOD, "192.0.2.77")).status, 429, "IP-weite Sperre");
 // Falsches Passwort beim Passwortwechsel sperrt die Anmeldung nie
-const t0 = real.body.token;
+const t0 = tokenOf(real);
 for (let i = 0; i < 6; i++) await call("POST", "/me/password", { token: t0, body: { current: "nope", new: "Neues-Passwort-123" } });
 assert.equal((await login(GOOD, "198.51.100.21")).status, 200);
 
 // ---------- 3) Cookie
 const r1 = await login(GOOD, "198.51.100.30");
 assert.equal(r1.status, 200);
+assert.equal(r1.body.token, undefined, "kein Token im Body");
 const sc = r1.setCookie;
 assert.equal(sc.length, 1);
 assert.match(sc[0], /^__Host-stps_session=v2\.[\w.-]+; Max-Age=604800; Path=\/; HttpOnly; SameSite=Strict; Secure$/);
@@ -59,7 +61,7 @@ assert.equal((await call("GET", "/me", { cookie: cookieHdr })).status, 200, "Coo
 assert.equal((await call("GET", "/me", { cookie: "foo=bar; " + cookieHdr + "; x=y" })).status, 200);
 assert.equal((await call("GET", "/me")).status, 401);
 assert.equal((await call("GET", "/me", { cookie: cookieHdr.replace("__Host-", "") })).status, 401, "Name ohne __Host- gilt bei https nicht");
-assert.equal((await call("GET", "/me", { token: r1.body.token })).status, 200, "Bearer bleibt für Skripte");
+assert.equal((await call("GET", "/me", { token: tokenOf(r1) })).status, 200, "Bearer bleibt für Skripte");
 assert.equal((await call("GET", "/me", { token: "v2.x.y", cookie: cookieHdr })).status, 401, "ungültiger Bearer fällt nicht auf das Cookie zurück");
 // localhost über http: kein Secure, einfacher Name
 const lh = await call("POST", "/login", { origin: "http://localhost:8888", ip: "198.51.100.31", body: { username: "root", password: GOOD } });
@@ -92,23 +94,23 @@ assert.equal(csrfOk("POST", { authorization: "Bearer abc" }), true);
 const a = await login(GOOD, "198.51.100.40");
 const b = await login(GOOD, "198.51.100.41");
 const ca = a.setCookie[0].split(";")[0];
-const claimsA = verifySessionToken(a.body.token, env, clock);
-const claimsB = verifySessionToken(b.body.token, env, clock);
+const claimsA = verifySessionToken(tokenOf(a), env, clock);
+const claimsB = verifySessionToken(tokenOf(b), env, clock);
 assert.match(claimsA.sid, /^[0-9a-f]{32}$/); assert.notEqual(claimsA.sid, claimsB.sid);
-assert.equal((await call("GET", "/me", { token: a.body.token })).status, 200);
+assert.equal((await call("GET", "/me", { token: tokenOf(a) })).status, 200);
 const out = await call("POST", "/logout", { cookie: ca });
 assert.equal(out.status, 200);
 assert.equal(out.setCookie.length, 2);
 assert.ok(out.setCookie.every((c) => /Max-Age=0/.test(c) && /HttpOnly/.test(c)));
-assert.equal((await call("GET", "/me", { token: a.body.token })).status, 401, "abgemeldetes Token (Bearer) ist widerrufen");
+assert.equal((await call("GET", "/me", { token: tokenOf(a) })).status, 401, "abgemeldetes Token (Bearer) ist widerrufen");
 assert.equal((await call("GET", "/me", { cookie: ca })).status, 401, "…und als Cookie");
-assert.equal((await call("GET", "/me", { token: b.body.token })).status, 200, "andere Sitzung bleibt gültig");
+assert.equal((await call("GET", "/me", { token: tokenOf(b) })).status, 200, "andere Sitzung bleibt gültig");
 const rec = (await store.read(REVOKE_KEY)).value.revoked;
 assert.equal(rec[claimsA.sid], claimsA.exp, "Eintrag läuft mit dem Token ab");
 // Abgelaufene Einträge werden beim nächsten Widerruf entfernt
 clock += 8 * 24 * 3600 * 1000;
 const c = await login(GOOD, "198.51.100.42");
-await call("POST", "/logout", { token: c.body.token });
+await call("POST", "/logout", { token: tokenOf(c) });
 const rec2 = (await store.read(REVOKE_KEY)).value.revoked;
 assert.equal(Object.keys(rec2).length, 1); assert.ok(!(claimsA.sid in rec2));
 // Token ohne Sitzungs-ID (ältere Version) wird nicht mehr angenommen
@@ -123,10 +125,10 @@ assert.equal(Object.keys(rec2).length, 1); assert.ok(!(claimsA.sid in rec2));
 // "Überall abmelden" (Token-Version) funktioniert weiterhin: Passwortwechsel macht andere Tokens ungültig
 {
   const d = await login(GOOD, "198.51.100.50");
-  const chg = await call("POST", "/me/password", { token: d.body.token, body: { current: GOOD, new: "Ganz-Neues-Passwort-9" } });
+  const chg = await call("POST", "/me/password", { token: tokenOf(d), body: { current: GOOD, new: "Ganz-Neues-Passwort-9" } });
   assert.equal(chg.status, 200); assert.ok(chg.setCookie?.length === 1);
-  assert.equal((await call("GET", "/me", { token: d.body.token })).status, 401);
-  assert.equal((await call("GET", "/me", { token: chg.body.token })).status, 200);
+  assert.equal((await call("GET", "/me", { token: tokenOf(d) })).status, 401);
+  assert.equal((await call("GET", "/me", { token: tokenOf(chg) })).status, 200);
 }
 
 // ---------- 5) APP_URL in Produktion

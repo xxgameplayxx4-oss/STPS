@@ -579,6 +579,7 @@ async function afterAuth() {
     return errorState(e.message || t("store.loadFailed"));
   }
   applyMe(r);
+  try { const p = await api.pingAuth(); if (p?.backend) S.backend = p.backend === "mysql" ? "mysql" : "blobs"; } catch { /* Anzeige nur */ }
   if (r.mustChangePassword) return { state: "change-password" };
   if (S.noTeam) { db = emptyDb(); rev++; setStatus("saved"); return { state: "ready" }; }
   return loadServer();
@@ -594,9 +595,9 @@ export async function init() {
 
   if (info) {
     S.mode = "server";
-    S.backend = info.backend === "mysql" ? "mysql" : "blobs";
+    S.backend = info.backend === "mysql" ? "mysql" : "blobs"; // unauthentifiziert nicht mehr enthalten; wird in afterAuth() nachgeladen
     if (info.dev) return initDev();
-    if (!info.configured) return { state: "error", message: errorText({ error: "not_configured", reason: "secret", message: info.message }) || t("err.not_configured.secret") };
+    if (info.configured === false) return { state: "error", message: errorText({ error: "not_configured", reason: "secret", message: info.message }) || t("err.not_configured.secret") };
     if (!api.hasSession()) return { state: "login" };
     return afterAuth();
   }
@@ -681,7 +682,8 @@ export function logout() {
   const done = api.hasSession() ? api.logout().catch(() => {}) : Promise.resolve();
   api.setSession(false);
   api.setTeamId("");
-  if (!wasDirty) lsSet(cacheKey(), "null");
+  try { for (let i = localStorage.length - 1; i >= 0; i--) { const k = localStorage.key(i); if (k && k.startsWith(`${LS.cache}:`)) localStorage.removeItem(k); } } catch { /* Speicher gesperrt */ }
+  lsSet(cacheKey(), "null"); // Offline-Cache immer leeren (kein Klartext-Datenbestand auf dem Gerät); ungespeicherte Änderungen wurden vor «Trotzdem abmelden» bestätigt
   lsSet(LS.me, "null");
   me = null;
   team = null;

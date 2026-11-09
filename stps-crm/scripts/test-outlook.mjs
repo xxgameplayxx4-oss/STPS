@@ -7,6 +7,7 @@ import { createHash } from "node:crypto";
 import { handleApi, createMemoryStore } from "../netlify/functions/lib/core.mjs";
 import * as OL from "../netlify/functions/lib/outlook.mjs";
 import * as G from "../netlify/functions/lib/outlook-graph.mjs";
+import { withSessionToken } from "./lib/session-token.mjs";
 
 // ---------------------------------------------------------------- Simulierter Microsoft-Dienst
 let clock = Date.parse("2026-10-25T08:00:00Z");
@@ -131,10 +132,12 @@ const baseEnv = { CRM_SECRET: "x".repeat(32), CRM_PASSWORD: "Start-Passwort-123"
 const outlookEnv = { OUTLOOK_CLIENT_ID: "cid-1234", OUTLOOK_CLIENT_SECRET: "csecret-xyz", MS_TENANT_ID: "tenant-1", APP_URL: "https://crm.example.org" };
 let env = { ...baseEnv };
 const deps = () => ({ env, store, now: () => clock, clock: () => clock, delay: async () => {}, sleep: async () => {}, scryptParams: { N: 1024 }, userCacheMs: 0, fetch: msFetch });
-async function api(method, path, { token, team, body, query } = {}) {
+async function rawApi(method, path, { token, team, body, query } = {}) {
   const headers = { ...(token ? { authorization: `Bearer ${token}` } : {}), ...(team ? { "x-crm-team": team } : {}) };
   return handleApi({ method, path: "/api" + path, query: new URLSearchParams(query || {}), headers, bodyText: body === undefined ? "" : JSON.stringify(body) }, deps());
 }
+// Sitzungs-Token kommt nur noch per Set-Cookie (nicht im Body): für Bearer-Aufrufe der Tests aus dem Cookie übernehmen
+const api = async (method, path, opts) => { const r = await rawApi(method, path, opts); return /^\/(login|me\/password)$/.test(path) ? withSessionToken(r) : r; };
 const ok = (r, status = 200) => { assert.equal(r.status, status, JSON.stringify(r.body)); return r.body; };
 
 const su = ok(await api("POST", "/login", { body: { username: "root", password: baseEnv.CRM_PASSWORD } }));

@@ -88,7 +88,7 @@ const ok = (r, s = 200) => { assert.equal(r.status, s, JSON.stringify(r.body)); 
   assert.equal((await api("GET", "/me", { token: forged })).status, 401);
   // Ohne CRM_SECRET: weiterhin Konfigurationsfehler (kein Dev-Schlüssel)
   const noSecret = ok(await mk({ CRM_PASSWORD: "abc" }, createMemoryStore())("GET", "/ping"));
-  assert.equal(noSecret.configured, false);
+  assert.deepEqual(noSecret, { ok: true }, "keine Konfigurationsdetails unauthentifiziert");
   assert.equal((await mk({ CRM_PASSWORD: "abc" }, createMemoryStore())("GET", "/me")).status, 500);
 }
 
@@ -103,7 +103,7 @@ const ok = (r, s = 200) => { assert.equal(r.status, s, JSON.stringify(r.body)); 
   assert.equal((await api("GET", "/dev/session")).status, 404);
   // ausdrücklich abgeschaltet
   const off = mk({ CRM_DEV_MODE: "off" }, createMemoryStore());
-  assert.equal(ok(await off("GET", "/ping")).configured, false);
+  assert.deepEqual(ok(await off("GET", "/ping")), { ok: true });
 }
 
 // ================= C2) Dev-Modus nur ausdrücklich lokal (CRM_DEV_MODE=on bzw. netlify dev), nie auf bereitgestellten Hosts =================
@@ -135,8 +135,10 @@ const ok = (r, s = 200) => { assert.equal(r.status, s, JSON.stringify(r.body)); 
   assert.throws(() => sess.createSessionToken({ CRM_SECRET: DEV_SECRET }, { id: "u_1" }, clock), /CRM_SECRET/);
   assert.equal(sess.getSecret({ CRM_SECRET: DEV_SECRET }), null);
   const prodPing = ok(await mk({ CRM_SECRET: DEV_SECRET }, createMemoryStore())("GET", "/ping"));
-  assert.equal(prodPing.configured, false, "ohne eigenes Secret: nicht konfiguriert (klare Fehlermeldung)");
-  assert.match(prodPing.message, /CRM_SECRET/);
+  assert.deepEqual(prodPing, { ok: true }, "ping verrät die Fehlkonfiguration nicht mehr");
+  const prodLogin = await mk({ CRM_SECRET: DEV_SECRET }, createMemoryStore())("POST", "/login", { body: { username: "a", password: "b" } });
+  assert.equal(prodLogin.status, 500, "ohne eigenes Secret: nicht konfiguriert");
+  assert.match(prodLogin.body.message, /CRM_SECRET/, "klare Fehlermeldung (Anmeldung)");
   assert.equal((await mk({}, createMemoryStore())("GET", "/db")).status, 500, "fail-closed: nicht konfiguriert");
   // Im Dev-Modus mit Dev-Schlüssel signierte Tokens gelten nicht mehr, sobald der Dev-Modus aus ist
   const devApi = mk({ CRM_DEV_MODE: "on" }, createMemoryStore());

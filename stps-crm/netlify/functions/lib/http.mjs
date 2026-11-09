@@ -97,6 +97,18 @@ const ipOf = (v) => { const t = String(v || "").trim(); return IP_RE.test(t) ? t
  * TRUST_PROXY=1 (VPS hinter nginx): nur X-Real-IP bzw. erster X-Forwarded-For-Eintrag, die nginx selbst setzt; der Netlify-Header wird ignoriert (fälschbar).
  * Sonst (Netlify): nur x-nf-client-connection-ip.
  */
+/**
+ * TRUST_PROXY muss in Produktion (NODE_ENV/CRM_ENV=production oder DB_DRIVER gesetzt) ausdrücklich gesetzt sein:
+ * "1" (hinter nginx) oder "off"/"0"/"false"/"no" (bewusst keine IP-Sperre). Gibt eine Fehlermeldung zurück oder null.
+ */
+export function trustProxyProblem(env = typeof process !== "undefined" ? process.env : {}) {
+  const prod = String(env?.NODE_ENV ?? "").trim().toLowerCase() === "production" || String(env?.CRM_ENV ?? "").trim().toLowerCase() === "production" || Boolean(String(env?.DB_DRIVER ?? "").trim());
+  if (!prod) return null;
+  const v = String(env?.TRUST_PROXY ?? "").trim().toLowerCase();
+  if (v === "1" || ["off", "0", "false", "no"].includes(v)) return null;
+  return v ? `TRUST_PROXY="${env.TRUST_PROXY}" ist ungültig (erlaubt: 1 oder off)` : "TRUST_PROXY ist nicht gesetzt";
+}
+
 export function clientIp(headers, env = typeof process !== "undefined" ? process.env : {}) {
   if (String(env?.TRUST_PROXY ?? "").trim() === "1") {
     return ipOf(headerOf(headers, "x-real-ip")) || ipOf(String(headerOf(headers, "x-forwarded-for")).split(",")[0]);

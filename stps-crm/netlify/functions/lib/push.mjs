@@ -18,8 +18,8 @@ export const MAIL_THROTTLE_MS = 30 * 60 * 1000;
 const SEND_DEADLINE_MS = 8000;
 const PUSH_TTL_S = 60 * 60;
 const B64U = /^[A-Za-z0-9_-]+={0,2}$/;
-/** Hostnamen der Push-Dienste: Chrome/Android (FCM), Firefox, Edge/Windows (WNS), Safari/Apple */
-const PUSH_HOSTS = /(^|\.)(googleapis\.com|push\.services\.mozilla\.com|mozilla\.com|notify\.windows\.com|windows\.com|push\.apple\.com|apple\.com)$/i;
+/** Hostnamen der Push-Dienste: Chrome/Android (FCM), Firefox, Edge/Windows (WNS), Safari/Apple – nur genau diese Hosts */
+const PUSH_HOSTS = /^(fcm\.googleapis\.com|updates\.push\.services\.mozilla\.com|([a-z0-9-]+\.)+push\.apple\.com|([a-z0-9-]+\.)+notify\.windows\.com)$/i;
 
 const UID_RE = /^u_[0-9a-f]{16}$/;
 const pushKey = (uid) => {

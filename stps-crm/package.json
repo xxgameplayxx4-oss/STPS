@@ -21,6 +21,8 @@
     "test:devmode": "node scripts/test-devmode.mjs",
     "test:security": "node scripts/test-security.mjs",
     "test:session": "node scripts/test-session.mjs",
+    "test:audit-fixes": "node scripts/test-audit-fixes.mjs",
+    "test:audit-data": "node scripts/test-audit-data.mjs",
     "test:sample": "node scripts/test-sample.mjs",
     "test:fx": "node scripts/test-fx-rates.mjs",
     "test:shipments": "node scripts/test-shipments.mjs",

@@ -70,6 +70,8 @@ async function request(method, path, body, { auth = true, timeout = 20000, raw, 
 }
 
 export const ping = () => request("GET", "/ping", undefined, { auth: false, timeout: 6000 });
+/** Mit Sitzung: zusätzlich Backend-Typ (für die Anzeige in den Einstellungen) */
+export const pingAuth = () => request("GET", "/ping", undefined, { timeout: 6000 });
 export const login = (username, password) => request("POST", "/login", { username, password }, { auth: false });
 /** Entwicklungsmodus (Server ohne CRM_PASSWORD): Sitzung für ein Beispielkonto – as: admin | pascal | liz | marco */
 export const devSession = (as) => request("POST", "/dev/session", { as }, { auth: false, timeout: 15000 });

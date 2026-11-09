@@ -18,7 +18,7 @@ Abgeleitet aus der Excel-Vorlage `STPS_CRM_v.1.0` (Kunden, Angebote, Lieferanten
 1. **Add new site → Import from Git**, Branch `claude/stps-crm`.
 2. **Base directory:** `stps-crm` (Build command leer lassen; Publish `.` und Functions `netlify/functions` kommen aus `netlify.toml`).
 3. **Environment variables** (Site configuration → Environment variables):
-   - `CRM_SECRET` – **Pflicht**, langer Zufallswert (mindestens 16 Zeichen, z. B. `openssl rand -hex 32`) zum Signieren der Login-Tokens. Fehlt er oder ist er zu kurz, antwortet die API mit einer Fehlermeldung (es gibt keinen Ersatzschlüssel mehr).
+   - `CRM_SECRET` – **Pflicht**, langer Zufallswert (mindestens 32 Zeichen, z. B. `openssl rand -hex 32`) zum Signieren der Login-Tokens. Fehlt er oder ist er zu kurz, antwortet die API mit einer Fehlermeldung (es gibt keinen Ersatzschlüssel mehr).
    - `CRM_PASSWORD` – Passwort für die **Erst-Anmeldung des Superadmins**. Wird nur gebraucht, solange es noch keine Benutzer gibt; danach hat es keine Wirkung mehr und kann aus Netlify entfernt werden – ausser für die Notfall-Wiederherstellung unter «Superadmin-Passwort vergessen».
    - `CRM_ADMIN_USER` – *optional*, Benutzername des Superadmins (Standard `admin`).
    - `CRM_ADMIN_RESET` – *optional, nur im Notfall:* Zufallswert, mit dem das Superadmin-Passwort zurückgesetzt werden kann (siehe «Superadmin-Passwort vergessen»). Normalerweise nicht gesetzt.
@@ -43,7 +43,7 @@ Lokal soll das CRM **kein Passwort** verlangen. Der Entwicklungsmodus (Code: `ne
 - **Sitzung:** Das Token liegt in einem `HttpOnly`-Cookie (`__Host-stps_session`; `SameSite=Strict`, `Path=/`, `Secure` – nur bei `http://localhost` ohne Secure und ohne Präfix), nicht im Browser-Speicher. `Authorization: Bearer …` gilt weiterhin für Skripte.
 - **CSRF:** Ändernde Anfragen (POST/PUT/PATCH/DELETE) brauchen den Header `X-Requested-With: stps-crm` (das Frontend sendet ihn immer) oder `Authorization: Bearer`; sonst 403.
 - **Abmelden** widerruft genau diese Sitzung (Sitzungs-ID in der Liste `session-revocations` bis zum Ablauf des Tokens) und löscht das Cookie. «Überall abmelden» (Passwortwechsel, Deaktivieren) wirkt weiter über die Token-Version. Nach dem Update müssen sich alle einmal neu anmelden (alte Tokens ohne Sitzungs-ID gelten nicht mehr).
-- **Login-Sperre:** hart nur je IP (5 Fehlversuche je IP + Benutzername, 30 je IP insgesamt → 15 Minuten); je Benutzername nur eine wachsende Wartezeit (nie eine Sperre). Hinter nginx `TRUST_PROXY=1` setzen (siehe `ops/deploy/.env.example`), sonst ist die IP unbekannt (der Server warnt beim Start).
+- **Login-Sperre:** hart nur je IP (5 Fehlversuche je IP + Benutzername, 30 je IP insgesamt → 15 Minuten); je Benutzername nur eine wachsende Wartezeit (nie eine Sperre). Hinter nginx `TRUST_PROXY=1` setzen (siehe `ops/deploy/.env.example`): In Produktion ist `TRUST_PROXY` **Pflicht** – ohne den Wert verweigert der Server den Start (sonst wäre die Client-IP unbekannt).
 - **`APP_URL`:** In Produktion (und auf Netlify) Pflicht für «Outlook verbinden»; die Rückleit-Adresse wird nie aus dem Host-Header abgeleitet (auf Netlify genügt die automatisch gesetzte `URL`).
 
 ## Erste Einrichtung
@@ -129,7 +129,7 @@ npm install
 npx netlify dev          # statische Seite + /api/* mit lokalem Blobs-Sandbox
 ```
 
-`CRM_SECRET` (mindestens 16 Zeichen) und `CRM_PASSWORD` dafür in einer `.env`-Datei (ist in `.gitignore`) oder per `netlify env:set` setzen; die erste Anmeldung läuft wie unter «Erste Einrichtung».
+`CRM_SECRET` (mindestens 32 Zeichen) und `CRM_PASSWORD` dafür in einer `.env`-Datei (ist in `.gitignore`) oder per `netlify env:set` setzen; die erste Anmeldung läuft wie unter «Erste Einrichtung».
 
 Ohne API (z. B. `python3 -m http.server` oder `npx serve`) startet die App im **Lokalen Modus**: Daten liegen nur im `localStorage` dieses Browsers, ein gelbes Banner weist darauf hin.
 

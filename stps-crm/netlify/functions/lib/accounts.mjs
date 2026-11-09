@@ -18,7 +18,7 @@ import * as BR from "./branding.mjs";
 import * as DEV from "./devmode.mjs";
 import { scrubStamp } from "./hide-super.mjs";
 import { mutateDoc } from "./kv.mjs";
-import { checkLock, recordFailure, clearFailures, softDelayMs, throttleKeys, lockMessage } from "./login-throttle.mjs";
+import { checkLock, recordFailure, clearFailures, softDelayMs, throttleKeys, lockMessage, reserveAttempt, releaseAttempt, withScryptSlot } from "./login-throttle.mjs";
 
 export const GENERIC_LOGIN_ERROR = "Benutzername oder Passwort falsch";
 const FAIL_DELAY_MS = 500;
@@ -28,7 +28,7 @@ const TEAM_PATH = /^\/teams\/(tm_[0-9a-f]{12})(\/enter|\/branding)?$/;
 // ---------------------------------------------------------------- Konfiguration
 
 export const isConfigured = (env) => Boolean(getSecret(env));
-export const configProblem = (env) => (getSecret(env) ? null : "CRM_SECRET nicht gesetzt (mindestens 16 Zeichen, z. B. openssl rand -hex 32)");
+export const configProblem = (env) => (getSecret(env) ? null : "CRM_SECRET nicht gesetzt (mindestens 32 Zeichen, z. B. openssl rand -hex 32)");
 
 /** Benutzername des Superadmins bei der Erst-Anmeldung (CRM_ADMIN_USER, Standard «admin»). */
 export function bootstrapName(env) {
@@ -104,13 +104,15 @@ export function login(req, deps, method) {
     const username = U.looseUsername(body.username);
     const password = typeof body.password === "string" ? body.password.slice(0, 1024) : "";
     const tk = throttleKeys(username, clientIp(req.headers));
-    const keys = [...tk.hard, tk.soft]; // Fehlversuche werden unter allen Schlüsseln gezählt; hart gesperrt wird nur je IP (siehe login-throttle.mjs)
 
     const lock = await checkLock(store, tk.hard, now);
     if (lock.locked) return json(429, { error: "locked", message: lockMessage(lock.retryAfterMs), retryAfter: Math.ceil(lock.retryAfterMs / 1000) });
     // Weiche Bremse je Benutzername (nie eine Sperre): wachsende Wartezeit nach mehreren Fehlversuchen, auch von anderen Adressen
     const wait = await softDelayMs(store, username, now);
     if (wait) await delay(wait);
+    // Versuch VOR der Prüfung atomar zählen (Burst-Schutz); bei Erfolg wird er unten wieder freigegeben
+    const reserved = await reserveAttempt(store, tk.hard, [tk.soft], now);
+    if (reserved.locked) return json(429, { error: "locked", message: lockMessage(reserved.retryAfterMs), retryAfter: Math.ceil(reserved.retryAfterMs / 1000) });
 
     let users = await U.loadUsers(store, fresh(now));
     let user = null;
@@ -147,10 +149,16 @@ export function login(req, deps, method) {
     }
     if (!ok) {
       user = U.findByUsername(users, username);
-      ok = await U.verifyPassword(password, user?.passwordHash); // auch bei unbekanntem Benutzer gleich viel Rechenzeit
+      // höchstens wenige gleichzeitige scrypt-Prüfungen; sonst 429 (der Versuch zählt dann nicht)
+      const slot = await withScryptSlot(() => U.verifyPassword(password, user?.passwordHash)); // auch bei unbekanntem Benutzer gleich viel Rechenzeit
+      if (!slot) {
+        await releaseAttempt(store, tk.hard, [tk.soft], now);
+        return json(429, { error: "busy", message: "Server ausgelastet. Bitte in einigen Sekunden erneut versuchen.", retryAfter: 2 });
+      }
+      ok = slot.value;
     }
+    if (ok && user) await releaseAttempt(store, tk.hard, [tk.soft], now); // Passwort stimmt: der reservierte Versuch war kein Fehlversuch
     if (!ok || !user) {
-      await recordFailure(store, keys, now);
       await delay(FAIL_DELAY_MS);
       return json(401, { error: "invalid_credentials", message: GENERIC_LOGIN_ERROR });
     }
@@ -160,11 +168,10 @@ export function login(req, deps, method) {
       team = T.teamById(await T.loadTeams(store, fresh(now)), user.teamId);
       if (!team || team.active === false) return json(403, { error: "team_inactive", message: `Das Team${team ? ` «${team.name}»` : ""} ist deaktiviert. Bitte wenden Sie sich an den Plattform-Administrator.`, ...(team ? { team: team.name } : { reason: "unknown" }) });
     }
-    await clearFailures(store, [...tk.hard.filter((k) => k.startsWith("ipu:")), tk.soft], now); // die IP-weite Zählung bleibt (sonst liesse sie sich mit einem eigenen Konto zurücksetzen)
     await U.recordLogin(store, user.id, now);
     const token = createSessionToken(env, user, now);
     return withCookies(json(200, {
-      token, expiresAt: now + SESSION_TTL_MS,
+      expiresAt: now + SESSION_TTL_MS,
       user: U.publicUser({ ...user, lastLoginAt: new Date(now).toISOString() }), team: teamInfo(team), mustChangePassword: Boolean(user.mustChangePassword),
     }), [sessionCookie(token, { origin: req.origin, dev: deps.dev, maxAgeSec: SESSION_TTL_MS / 1000 })]);
   });
@@ -275,7 +282,9 @@ export function route(path, method, req, deps, ctx) {
       const keys = [`pw:${user.id}`]; // eigener Schlüssel: sperrt nur den Passwortwechsel, nie die Anmeldung
       const lock = await checkLock(root, keys, now);
       if (lock.locked) return json(429, { error: "locked", message: lockMessage(lock.retryAfterMs), retryAfter: Math.ceil(lock.retryAfterMs / 1000) });
-      if (typeof body.current !== "string" || !(await U.verifyPassword(body.current, user.passwordHash))) {
+      const slot = typeof body.current === "string" ? await withScryptSlot(() => U.verifyPassword(body.current, user.passwordHash)) : { value: false };
+      if (!slot) return json(429, { error: "busy", message: "Server ausgelastet. Bitte in einigen Sekunden erneut versuchen.", retryAfter: 2 });
+      if (!slot.value) {
         await recordFailure(root, keys, now);
         await deps.delay(FAIL_DELAY_MS);
         return json(403, { error: "wrong_password", message: "Das aktuelle Passwort ist falsch" });
@@ -284,7 +293,7 @@ export function route(path, method, req, deps, ctx) {
       const updated = await U.setOwnPassword(root, user.id, user.tokenVersion || 0, body.new, { scryptParams: deps.scryptParams });
       await clearFailures(root, keys, now);
       const token = createSessionToken(env, updated, now);
-      return withCookies(json(200, { ok: true, token, expiresAt: now + SESSION_TTL_MS, user: U.publicUser(updated) }), [sessionCookie(token, { origin: req.origin, dev: deps.dev, maxAgeSec: SESSION_TTL_MS / 1000 })]);
+      return withCookies(json(200, { ok: true, expiresAt: now + SESSION_TTL_MS, user: U.publicUser(updated) }), [sessionCookie(token, { origin: req.origin, dev: deps.dev, maxAgeSec: SESSION_TTL_MS / 1000 })]);
     }
 
     // ---- Plattform (nur Superadmin)

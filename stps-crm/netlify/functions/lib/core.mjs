@@ -78,7 +78,13 @@ export async function handleApi(req, deps) {
   }
 
   if (path === "/ping" && method === "GET") {
-    return json(200, { ok: true, app: "stps-crm", backend: String(rootEnv.DB_DRIVER || "").toLowerCase() === "mysql" ? "mysql" : "blobs", configured: accounts.isConfigured(env), ...(devActive ? { dev: true } : {}), ...(accounts.isConfigured(env) ? {} : { message: accounts.configProblem(env) }) });
+    // Unauthentifiziert nur «ok» (Verfügbarkeit). Backend/Konfiguration gibt es nur mit gültiger Sitzung; «dev» nur im lokalen Entwicklungsmodus (nie in Produktion), damit die Oberfläche dort ohne Login startet.
+    if (devActive) return json(200, { ok: true, dev: true, backend: String(rootEnv.DB_DRIVER || "").toLowerCase() === "mysql" ? "mysql" : "blobs", configured: true });
+    if (!accounts.configProblem(env)) {
+      const a = await accounts.authenticate(req, deps, now);
+      if (a.ok) return json(200, { ok: true, app: "stps-crm", backend: String(rootEnv.DB_DRIVER || "").toLowerCase() === "mysql" ? "mysql" : "blobs", configured: true });
+    }
+    return json(200, { ok: true });
   }
 
   // /api/dev/* gibt es nur im Entwicklungsmodus – sonst nicht einmal ein Hinweis darauf (404)
@@ -203,10 +209,16 @@ async function putDb(req, deps, now, ctx) {
   const curVersion = cur ? cur.value.version : 0;
   if (baseVersion !== curVersion) return conflict(cur);
 
-  // Die Warengruppen (Nummernbereiche der Artikel) dürfen nur Team-Admins ändern; Mitglieder lesen sie nur.
-  const oldWg = cur?.value.data?.settings?.billing?.warengruppen;
-  if (!ctx.isAdmin && !ctx.isSuper && oldWg !== undefined && JSON.stringify(oldWg) !== JSON.stringify(data.settings?.billing?.warengruppen)) {
-    return json(403, { error: "forbidden", message: "Nur Admins dürfen die Warengruppen ändern", reason: "warengruppen_admins_only" });
+  // Die Warengruppen (Nummernbereiche der Artikel) und alle übrigen Einstellungen (Bankkonten/IBAN, Firmendaten, Rechnungs-Einstellungen)
+  // dürfen nur Team-Admins ändern; Mitglieder lesen sie nur. Verglichen wird der gespeicherte mit dem eingehenden Stand.
+  if (!ctx.isAdmin && !ctx.isSuper) {
+    const oldWg = cur?.value.data?.settings?.billing?.warengruppen;
+    if (oldWg !== undefined && JSON.stringify(oldWg) !== JSON.stringify(data.settings?.billing?.warengruppen)) {
+      return json(403, { error: "forbidden", message: "Nur Admins dürfen die Warengruppen ändern", reason: "warengruppen_admins_only" });
+    }
+    if (cur && JSON.stringify(cur.value.data?.settings ?? null) !== JSON.stringify(data.settings ?? null)) {
+      return json(403, { error: "forbidden", message: "Nur Admins dürfen die Einstellungen (Bankkonten, Firmendaten) ändern", reason: "settings_admins_only" });
+    }
   }
 
   // Stempel (erstellt/geändert von/am) setzt der Server aus dem Konto; die Änderungen kommen ins Protokoll.

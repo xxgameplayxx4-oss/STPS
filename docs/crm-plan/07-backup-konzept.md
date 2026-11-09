@@ -70,7 +70,7 @@ SYNC_TARGET=backup@zweiter-standort.example:/srv/stps-backup/
 HEALTHCHECK_URL=
 ```
 
-Einrichtung: Skripte nach `/opt/stps-crm/ops/backup/`, `stps-backup.service` und `.timer` nach `/etc/systemd/system/`, `systemctl enable --now stps-backup.timer`, Status mit `systemctl list-timers stps-backup.timer` und `journalctl -u stps-backup`.
+Einrichtung: Skripte nach `/opt/stps/stps-crm/ops/backup/`, `stps-backup.service` und `.timer` nach `/etc/systemd/system/`, `systemctl enable --now stps-backup.timer`, Status mit `systemctl list-timers stps-backup.timer` und `journalctl -u stps-backup`.
 
 ## 5. Restore-Runbook
 

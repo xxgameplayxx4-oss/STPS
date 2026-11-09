@@ -49,12 +49,12 @@ for (const s of ["Gesendet", "Bezahlt", "Storniert"]) assert.equal(B.isRetainedI
   assert.deepEqual(B.positionsFromDeal({}), []);
 }
 
-// /api/ping meldet das Speicher-Backend
+// /api/ping verrät unauthentifiziert nichts über das Speicher-Backend (Details nur mit Sitzung, siehe test-audit-data.mjs)
 {
   const { handleApi, createMemoryStore } = await import("../netlify/functions/lib/core.mjs");
   const ping = async (env) => (await handleApi({ method: "GET", path: "/api/ping", query: new URLSearchParams(), headers: {}, bodyText: "" }, { env, store: createMemoryStore() })).body;
-  assert.equal((await ping({})).backend, "blobs");
-  assert.equal((await ping({ DB_DRIVER: "mysql" })).backend, "mysql");
-  assert.equal((await ping({ DB_DRIVER: "MySQL" })).backend, "mysql");
+  assert.deepEqual(await ping({}), { ok: true });
+  assert.deepEqual(await ping({ DB_DRIVER: "mysql" }), { ok: true });
+  assert.deepEqual(await ping({ DB_DRIVER: "MySQL" }), { ok: true });
 }
 console.log("test-billing-docs: OK");

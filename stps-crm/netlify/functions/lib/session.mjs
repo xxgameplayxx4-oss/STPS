@@ -4,7 +4,7 @@
 import { createHmac, timingSafeEqual, randomBytes } from "node:crypto";
 
 export const SESSION_TTL_MS = 7 * 24 * 60 * 60 * 1000;
-export const MIN_SECRET_LENGTH = 16;
+export const MIN_SECRET_LENGTH = 32;
 const PREFIX = "v2";
 const b64u = (buf) => Buffer.from(buf).toString("base64url");
 

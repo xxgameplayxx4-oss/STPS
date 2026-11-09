@@ -16,6 +16,12 @@ import { ApiFail, json, fail, queryOf } from "./http.mjs";
 import { canManage } from "./roles.mjs";
 
 export const MAX_FILE_BYTES = 10 * 1024 * 1024;
+/** Kontingent je Team in MB (FILES_QUOTA_MB, Standard 500); 0 oder ungültig = Standard */
+export const DEFAULT_QUOTA_MB = 500;
+export const quotaBytes = (env) => {
+  const mb = Number(env?.FILES_QUOTA_MB);
+  return (Number.isFinite(mb) && mb > 0 ? mb : DEFAULT_QUOTA_MB) * 1024 * 1024;
+};
 export const FILE_SCOPES = ["team", "mgmt"];
 export const FILE_TYPES = { "application/pdf": "pdf", "image/png": "png", "image/jpeg": "jpg", "image/webp": "webp" };
 export const FILE_ID_RE = /^f_[0-9a-f]{20}$/;
@@ -75,13 +81,18 @@ const pub = (m) => ({ id: m.id, name: m.name, type: m.type, size: m.size, scope:
  * Datei speichern. Wirft ApiFail bei zu gross/leer/unerlaubtem Typ/Bereich ohne Berechtigung.
  * @returns öffentliche Angaben {id,name,type,size,scope}
  */
-export async function saveFile(store, { buffer, name, scope = "team", user, isSuper = false, now }) {
+export async function saveFile(store, { buffer, name, scope = "team", user, isSuper = false, now, env = {} }) {
   if (!FILE_SCOPES.includes(scope)) throw fail(400, "file_scope", "Unbekannter Bereich");
   if (scope === "mgmt" && !canManage(user, isSuper)) throw fail(403, "files_forbidden", "Kein Zugriff auf Dateien der Geschäftsleitung");
   if (!buffer || !buffer.length) throw fail(400, "file_empty", "Die Datei ist leer");
   if (buffer.length > MAX_FILE_BYTES) throw fail(413, "file_too_large", "Die Datei ist zu gross (höchstens 10 MB)", { max: MAX_FILE_BYTES });
   const type = sniffType(buffer);
   if (!type) throw fail(415, "file_type", "Dateityp nicht erlaubt (erlaubt: PDF, PNG, JPG, WEBP)");
+  // Kontingent je Team: Summe der gespeicherten Dateigrössen (Namensraum des Teams) + diese Datei
+  const quota = quotaBytes(env);
+  let used = 0;
+  for (const k of await store.list("fmeta/")) used += Number((await store.read(k))?.value?.size) || 0;
+  if (used + buffer.length > quota) throw fail(413, "files_quota", `Das Datei-Kontingent des Teams ist erschöpft (${Math.round(quota / 1048576)} MB)`, { quota });
   const id = newId();
   const meta = { id, name: safeFilename(name, type), type, size: buffer.length, scope, by: user.id, at: new Date(now).toISOString() };
   await store.writeBin(binKey(id), buffer);
@@ -104,14 +115,14 @@ const wrongMethod = () => json(405, { error: "method_not_allowed", message: "Met
 /** @returns Antwort, oder null wenn der Pfad nicht zu den Dateien gehört */
 export async function route(path, method, req, deps, ctx) {
   if (path !== "/files" && !path.startsWith("/files/")) return null;
-  const { store } = deps;
+  const { store, env } = deps;
   const user = ctx.user;
   try {
     if (path === "/files") {
       if (method !== "POST") return wrongMethod();
       const q = queryOf(req);
       const buffer = req.bodyBuffer ? Buffer.from(req.bodyBuffer) : Buffer.alloc(0);
-      const file = await saveFile(store, { buffer, name: q.get("name") || "", scope: q.get("scope") || "team", user, isSuper: ctx.isSuper, now: deps.now });
+      const file = await saveFile(store, { buffer, name: q.get("name") || "", scope: q.get("scope") || "team", user, isSuper: ctx.isSuper, now: deps.now, env });
       return json(201, { file });
     }
     const id = path.slice("/files/".length);

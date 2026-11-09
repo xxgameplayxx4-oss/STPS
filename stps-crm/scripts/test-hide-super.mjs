@@ -2,6 +2,7 @@
 // Prüft, dass der Superadmin für Team-Mitglieder unsichtbar ist (serverseitig gefilterte Antworten) – Aufruf: node scripts/test-hide-super.mjs  (npm run test:hide-super)
 import assert from "node:assert/strict";
 import { handleApi, createMemoryStore } from "../netlify/functions/lib/core.mjs";
+import { withSessionToken } from "./lib/session-token.mjs";
 
 const store = createMemoryStore();
 const baseEnv = { CRM_SECRET: "x".repeat(32), CRM_PASSWORD: "Start-Passwort-123", CRM_ADMIN_USER: "root" };
@@ -12,13 +13,15 @@ const mails = [];
 const webpush = { async sendNotification(sub, payload) { pushed.push({ endpoint: sub.endpoint, payload: JSON.parse(payload) }); } };
 const fetchMock = async (url, init) => { mails.push({ body: JSON.parse(init.body) }); return { ok: true, status: 200 }; };
 let env = { ...baseEnv };
-async function api(method, path, { token, team, body, query } = {}) {
+async function rawApi(method, path, { token, team, body, query } = {}) {
   const headers = { ...(token ? { authorization: `Bearer ${token}` } : {}), ...(team ? { "x-crm-team": team } : {}) };
   return handleApi(
     { method, path: "/api" + path, query: new URLSearchParams(query || {}), headers, bodyText: body === undefined ? "" : JSON.stringify(body) },
     { env, store, now: () => clock, delay: async () => {}, scryptParams: { N: 1024 }, userCacheMs: 0, fetch: fetchMock, webpush },
   );
 }
+// Sitzungs-Token kommt nur noch per Set-Cookie (nicht im Body): für Bearer-Aufrufe der Tests aus dem Cookie übernehmen
+const api = async (method, path, opts) => { const r = await rawApi(method, path, opts); return /^\/(login|me\/password)$/.test(path) ? withSessionToken(r) : r; };
 const ok = (r, status = 200) => { assert.equal(r.status, status, JSON.stringify(r.body)); return r.body; };
 const dump = (x) => JSON.stringify(x);
 

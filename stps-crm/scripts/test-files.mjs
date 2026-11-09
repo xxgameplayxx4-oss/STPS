@@ -5,6 +5,7 @@ import { handleApi, createMemoryStore } from "../netlify/functions/lib/core.mjs"
 import { MAX_FILE_BYTES, sniffType, safeFilename, contentDisposition } from "../netlify/functions/lib/files.mjs";
 import { dueAlerts, runCertAlerts, SENT_KEY } from "../netlify/functions/lib/cert-alerts.mjs";
 import { addMonths, proposeDue, renewDoc, certAlerts, certSummary, activeDocs, archivedDocs } from "../js/certs.js";
+import { withSessionToken } from "./lib/session-token.mjs";
 
 const store = createMemoryStore();
 const baseEnv = { CRM_SECRET: "x".repeat(32), CRM_PASSWORD: "Start-Passwort-123", CRM_ADMIN_USER: "root" };
@@ -17,10 +18,12 @@ const fetchMock = async (url, init) => { mails.push(JSON.parse(init.body)); retu
 let env = { ...baseEnv };
 const deps = () => ({ env, store, now: () => clock, delay: async () => {}, scryptParams: { N: 1024 }, userCacheMs: 0, fetch: fetchMock, webpush });
 
-async function api(method, path, { token, team, body, query, bytes } = {}) {
+async function rawApi(method, path, { token, team, body, query, bytes } = {}) {
   const headers = { ...(token ? { authorization: `Bearer ${token}` } : {}), ...(team ? { "x-crm-team": team } : {}), ...(bytes ? { "content-type": "application/octet-stream" } : {}) };
   return handleApi({ method, path: "/api" + path, query: new URLSearchParams(query || {}), headers, bodyText: body === undefined ? "" : JSON.stringify(body), ...(bytes ? { bodyBuffer: bytes } : {}) }, deps());
 }
+// Sitzungs-Token kommt nur noch per Set-Cookie (nicht im Body): für Bearer-Aufrufe der Tests aus dem Cookie übernehmen
+const api = async (method, path, opts) => { const r = await rawApi(method, path, opts); return /^\/(login|me\/password)$/.test(path) ? withSessionToken(r) : r; };
 const ok = (r, status = 200) => { assert.equal(r.status, status, JSON.stringify(r.body)); return r.body; };
 
 const PDF = Buffer.concat([Buffer.from("%PDF-1.4\n"), Buffer.from("x".repeat(200))]);

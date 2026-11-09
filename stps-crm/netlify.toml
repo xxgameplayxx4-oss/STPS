@@ -61,6 +61,61 @@
   status = 404
   force = true
 
+# Weitere interne Verzeichnisse/Dateien (Betriebsskripte, Server, DB-Schema, Beispieldaten, Umgebungsdateien) ebenfalls sperren.
+[[redirects]]
+  from = "/ops/*"
+  to = "/404.html"
+  status = 404
+  force = true
+
+[[redirects]]
+  from = "/server/*"
+  to = "/404.html"
+  status = 404
+  force = true
+
+[[redirects]]
+  from = "/db/*"
+  to = "/404.html"
+  status = 404
+  force = true
+
+[[redirects]]
+  from = "/sample/*"
+  to = "/404.html"
+  status = 404
+  force = true
+
+[[redirects]]
+  from = "/node_modules/*"
+  to = "/404.html"
+  status = 404
+  force = true
+
+[[redirects]]
+  from = "/.env"
+  to = "/404.html"
+  status = 404
+  force = true
+
+[[redirects]]
+  from = "/.env.example"
+  to = "/404.html"
+  status = 404
+  force = true
+
+[[redirects]]
+  from = "/.env.local"
+  to = "/404.html"
+  status = 404
+  force = true
+
+[[redirects]]
+  from = "/.git/*"
+  to = "/404.html"
+  status = 404
+  force = true
+
 # Sicherheits-Header + privates Tool (nicht indexieren). API-Antworten setzen «Cache-Control: no-store» selbst (api.mjs).
 [[headers]]
   for = "/*"

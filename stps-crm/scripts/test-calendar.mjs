@@ -4,6 +4,7 @@
 import assert from "node:assert/strict";
 import { handleApi, createMemoryStore } from "../netlify/functions/lib/core.mjs";
 import * as CAL from "../netlify/functions/lib/calendar.mjs";
+import { withSessionToken } from "./lib/session-token.mjs";
 
 const iso = (s) => Date.parse(s);
 
@@ -80,10 +81,12 @@ const realError = console.error;
 console.error = (...a) => { if (!String(a[0]).includes("Web-Push senden")) realError(...a); }; // erwartete Fehler des simulierten Push-Dienstes
 let env = { ...baseEnv };
 const deps = () => ({ env, store, now: () => clock, delay: async () => {}, scryptParams: { N: 1024 }, userCacheMs: 0, fetch: fetchMock, webpush });
-async function api(method, path, { token, team, body, query } = {}) {
+async function rawApi(method, path, { token, team, body, query } = {}) {
   const headers = { ...(token ? { authorization: `Bearer ${token}` } : {}), ...(team ? { "x-crm-team": team } : {}) };
   return handleApi({ method, path: "/api" + path, query: new URLSearchParams(query || {}), headers, bodyText: body === undefined ? "" : JSON.stringify(body) }, deps());
 }
+// Sitzungs-Token kommt nur noch per Set-Cookie (nicht im Body): für Bearer-Aufrufe der Tests aus dem Cookie übernehmen
+const api = async (method, path, opts) => { const r = await rawApi(method, path, opts); return /^\/(login|me\/password)$/.test(path) ? withSessionToken(r) : r; };
 const ok = (r, status = 200) => { assert.equal(r.status, status, JSON.stringify(r.body)); return r.body; };
 
 const su = ok(await api("POST", "/login", { body: { username: "root", password: baseEnv.CRM_PASSWORD } }));

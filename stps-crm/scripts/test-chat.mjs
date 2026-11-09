@@ -2,6 +2,7 @@
 // Prüft Team-Chat, Push und E-Mail-Ersatz gegen den In-Memory-Store (ohne Netzwerk) – Aufruf: node scripts/test-chat.mjs  (npm run test:chat)
 import assert from "node:assert/strict";
 import { handleApi, createMemoryStore } from "../netlify/functions/lib/core.mjs";
+import { withSessionToken } from "./lib/session-token.mjs";
 
 const store = createMemoryStore();
 const baseEnv = { CRM_SECRET: "x".repeat(32), CRM_PASSWORD: "Start-Passwort-123", CRM_ADMIN_USER: "root" };
@@ -18,7 +19,7 @@ const webpush = {
 const fetchMock = async (url, init) => { mails.push({ url, body: JSON.parse(init.body), auth: init.headers.authorization }); return { ok: true, status: 200 }; };
 
 let env = { ...baseEnv };
-async function api(method, path, { token, team, body, query } = {}) {
+async function rawApi(method, path, { token, team, body, query } = {}) {
   const headers = { ...(token ? { authorization: `Bearer ${token}` } : {}), ...(team ? { "x-crm-team": team } : {}) };
   const res = await handleApi(
     { method, path: "/api" + path, query: new URLSearchParams(query || {}), headers, bodyText: body === undefined ? "" : JSON.stringify(body) },
@@ -26,6 +27,8 @@ async function api(method, path, { token, team, body, query } = {}) {
   );
   return res;
 }
+// Sitzungs-Token kommt nur noch per Set-Cookie (nicht im Body): für Bearer-Aufrufe der Tests aus dem Cookie übernehmen
+const api = async (method, path, opts) => { const r = await rawApi(method, path, opts); return /^\/(login|me\/password)$/.test(path) ? withSessionToken(r) : r; };
 const ok = (r, status = 200) => { assert.equal(r.status, status, JSON.stringify(r.body)); return r.body; };
 
 // ---- Konten: Superadmin, zwei Teams, je zwei Mitglieder
