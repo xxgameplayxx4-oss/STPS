@@ -1,0 +1,71 @@
+/* Kunden-Verzeichnis (Master-Detail). Nur Token aus app.css; keine Inline-Stile (CSP). */
+.dir { display: grid; grid-template-columns: minmax(280px, 360px) minmax(0, 1fr); gap: 0; height: calc(100dvh - 262px); min-height: 480px; background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; }
+.dir-side { display: flex; flex-direction: column; min-height: 0; border-right: 1px solid var(--line); background: var(--subtle); }
+.dir-tools { display: grid; gap: 10px; padding: 12px; border-bottom: 1px solid var(--line); background: var(--card); }
+.dir-tools .search { max-width: none; flex-basis: auto; }
+.dir-tools .search input { width: 100%; padding-left: 36px; }
+.dir-toggle { display: inline-flex; gap: 2px; padding: 2px; border: 1px solid var(--line-strong); border-radius: var(--r-sm); justify-self: start; background: var(--subtle); }
+.dir-tog { border: 0; background: transparent; color: var(--muted); font: inherit; font-size: 13px; font-weight: 500; padding: 4px 12px; border-radius: var(--r-xs); cursor: pointer; min-height: 28px; }
+.dir-tog:hover { background: var(--hover); color: var(--text); }
+.dir-tog[aria-pressed="true"] { background: var(--accent); color: var(--on-accent); }
+.dir-scroll { flex: 1; min-height: 0; overflow-y: auto; overscroll-behavior: contain; }
+.dir-list, .dir-locs { list-style: none; margin: 0; padding: 0; }
+.dir-item { display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-left: 3px solid transparent; border-bottom: 1px solid var(--line); color: var(--text); text-decoration: none; min-height: 56px; }
+.dir-item:hover { background: var(--hover); text-decoration: none; }
+.dir-item.is-sel { background: var(--accent-50); border-left-color: var(--accent); }
+.dir-item:focus-visible { outline-offset: -2px; }
+.dir-av { width: 36px; height: 36px; border-radius: 50%; font-size: 13px; }
+.dir-av.xl { width: 64px; height: 64px; font-size: 22px; border-radius: var(--r-md); background: var(--accent-50); color: var(--accent-600); }
+.dir-item-txt { display: grid; min-width: 0; flex: 1; }
+.dir-name { font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.dir-sub { font-size: 12px; color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.dir-nr { font-family: var(--mono); font-size: 12px; color: var(--muted); }
+.dir-group-h { display: flex; align-items: center; gap: 8px; margin: 0; padding: 10px 12px 6px; font-size: 12px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; color: var(--muted); }
+.dir-locs-li { background: var(--card); border-bottom: 1px solid var(--line); }
+.dir-loc { display: flex; gap: 10px; align-items: baseline; padding: 6px 12px 6px 63px; font-size: 13px; color: var(--muted); text-decoration: none; }
+.dir-loc:hover { background: var(--hover); color: var(--text); text-decoration: none; }
+.dir-loc-nr { font-family: var(--mono); font-size: 12px; }
+.dir-none { margin: 0; }
+.dir-main { min-width: 0; min-height: 0; overflow-y: auto; padding: 24px; display: block; }
+.dir-detail > * + * { margin-top: 16px; }
+.dir-back { display: none; margin-bottom: 16px; }
+.dir-head { display: flex; flex-wrap: wrap; align-items: flex-start; gap: 16px 20px; padding-bottom: 20px; border-bottom: 1px solid var(--line); }
+.dir-head-main { flex: 1 1 260px; min-width: 0; }
+.dir-title { margin: 0; font-size: 1.5rem; outline: 0; overflow-wrap: anywhere; }
+.dir-head .nr-pill { margin-left: 0; }
+.dir-place { margin: 8px 0 0; display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.dir-actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; flex: 0 1 auto; }
+.dir-cards { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; align-items: start; }
+.dir-cards > .card { min-width: 0; }
+.dir-cards .dl > div { grid-template-columns: 38% minmax(0, 1fr); }
+.dir-cards .cat-chips { display: flex; flex-wrap: wrap; gap: 4px 12px; }
+.dir-cards .cat-chips .badge { white-space: normal; }
+.dir-notes-text { display: block; width: 100%; text-align: left; border: 0; background: transparent; font: inherit; color: var(--text); padding: 12px 20px 16px; cursor: text; min-height: 48px; }
+.dir-notes-text:hover { background: var(--hover); }
+.dir-notes-edit { padding: 12px 20px 16px; display: grid; gap: 10px; }
+.dir-notes-edit textarea { width: 100%; }
+.dir-notes-edit .notes-actions { display: flex; gap: 8px; align-items: center; justify-content: flex-end; flex-wrap: wrap; }
+.dir-hint { margin-right: auto; font-size: 12px; }
+.dir-rel-list { list-style: none; margin: 0; padding: 0; }
+.dir-rel-list > li + li { border-top: 1px solid var(--line); }
+.dir-rel-row { display: flex; align-items: center; gap: 12px; width: 100%; padding: 10px 20px; border: 0; background: transparent; font: inherit; color: var(--text); text-align: left; text-decoration: none; cursor: pointer; min-height: 44px; }
+.dir-rel-row:hover { background: var(--hover); text-decoration: none; }
+.dir-rel-main { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.dir-rel-row .nr { font-family: var(--mono); color: var(--muted); min-width: 56px; }
+.dir-rel-row .num { margin-left: auto; text-align: right; white-space: nowrap; }
+.dir-empty { text-align: center; }
+@media (max-width: 1599px) { .dir-cards { grid-template-columns: minmax(0, 1fr); } }
+@media (max-width: 900px) {
+  .dir { display: block; height: auto; min-height: 0; overflow: visible; border: 0; background: transparent; }
+  .dir-side { border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; }
+  .dir-scroll { overflow: visible; }
+  .dir-main { padding: 0; overflow: visible; }
+  .dir[data-pane="list"] .dir-main { display: none; }
+  .dir[data-pane="detail"] .dir-side { display: none; }
+  .dir-back { display: inline-flex; }
+  .dir-actions { width: 100%; }
+  .dir-cards .dl > div { grid-template-columns: 1fr; }
+  .dir-item { min-height: 64px; }
+}
+@media (prefers-reduced-motion: no-preference) { .dir-item { transition: background var(--t-fast) var(--ease); } }
+@media (forced-colors: active) { .dir-item.is-sel { outline: 2px solid; outline-offset: -2px; } .dir-tog[aria-pressed="true"] { outline: 2px solid; } }

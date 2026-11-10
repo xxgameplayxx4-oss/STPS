@@ -6,11 +6,11 @@
 // - Push: Chat zeigt «<Absender>: <Text>», eine Kalender-Erinnerung «<Titel>» mit Zeit und Ort; ein Klick öffnet die Seite dazu
 //   (Chat bzw. den Termin #/kalender/<id>; bestehendes Fenster, sonst ein neues). Ziele sind auf diese Seiten beschränkt (GOTO).
 // Version erhöhen, wenn sich das Format des Zwischenspeichers ändert (alte werden beim Aktivieren gelöscht).
-const CACHE = "crm-shell-v3";
+const CACHE = "crm-shell-v4";
 const SHELL = [
   "./",
   "index.html",
-  "app.css", "cmdk.css", "kanban.css", "board.css", "slideover.css", "chat.css", "calendar.css", "docs.css", "shipments.css",
+  "app.css", "cmdk.css", "kanban.css", "board.css", "slideover.css", "chat.css", "calendar.css", "docs.css", "shipments.css", "directory.css",
   "js/app.js",
   "fonts/instrument-sans-400.woff2", "fonts/instrument-sans-700.woff2", "fonts/plex-serif-400.woff2", "fonts/plex-mono-400.woff2",
   "favicon.svg", "logo-full.svg", "kgc-favicon.svg", "kgc-logo-full.svg", "kgc-logo-symbol-white.svg",
