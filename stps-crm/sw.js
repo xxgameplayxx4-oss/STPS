@@ -6,7 +6,7 @@
 // - Push: Chat zeigt «<Absender>: <Text>», eine Kalender-Erinnerung «<Titel>» mit Zeit und Ort; ein Klick öffnet die Seite dazu
 //   (Chat bzw. den Termin #/kalender/<id>; bestehendes Fenster, sonst ein neues). Ziele sind auf diese Seiten beschränkt (GOTO).
 // Version erhöhen, wenn sich das Format des Zwischenspeichers ändert (alte werden beim Aktivieren gelöscht).
-const CACHE = "crm-shell-v5";
+const CACHE = "crm-shell-v6";
 const SHELL = [
   "./",
   "index.html",

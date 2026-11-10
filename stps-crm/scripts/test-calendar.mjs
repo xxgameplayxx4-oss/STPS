@@ -63,7 +63,7 @@ const iso = (s) => Date.parse(s);
 
 // ---------------------------------------------------------------- Umgebung: Konten, Teams
 const store = createMemoryStore();
-const baseEnv = { CALENDAR_ENABLED: "1", CRM_SECRET: "x".repeat(32), CRM_PASSWORD: "Start-Passwort-123", CRM_ADMIN_USER: "root" };
+const baseEnv = { CRM_SECRET: "x".repeat(32), CRM_PASSWORD: "Start-Passwort-123", CRM_ADMIN_USER: "root" };
 const vapid = { VAPID_PUBLIC_KEY: "B".repeat(87), VAPID_PRIVATE_KEY: "c".repeat(43), VAPID_SUBJECT: "mailto:admin@example.org" };
 const mailEnv = { RESEND_API_KEY: "re_test", MAIL_FROM: "CRM <crm@example.org>", APP_URL: "https://crm.example.org" };
 let clock = Date.parse("2026-10-25T08:00:00Z");
@@ -402,10 +402,10 @@ reset();
 assert.deepEqual(await run(), { teams: 0, due: 0, sent: 0 });
 assert.equal(pushed.length + mails.length, 0);
 
-// ---- Feature-Schalter: CALENDAR_ENABLED aus (Standard) → Kalender/Outlook-Pfade 404, Erinnerungen und Abgleich tun nichts, Daten bleiben
+// ---- Feature-Schalter: CALENDAR_ENABLED explizit aus → Kalender/Outlook-Pfade 404, Erinnerungen und Abgleich tun nichts, Daten bleiben
 {
   const before = JSON.stringify((await store.read(`t/${teamA.id}/cal/events`))?.value ?? null);
-  for (const off of [undefined, "0", ""]) {
+  for (const off of ["0", "off", "false", "no"]) {
     env = { ...baseEnv, CALENDAR_ENABLED: off };
     assert.equal((await api("GET", "/calendar", { token: anna.token, query: { from: "2026-01-01", to: "2026-12-31" } })).status, 404, "Kalender aus: GET /calendar 404");
     assert.equal((await api("POST", "/calendar/events", { token: anna.token, body: {} })).status, 404, "Kalender aus: POST 404");
