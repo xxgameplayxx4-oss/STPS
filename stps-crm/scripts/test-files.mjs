@@ -8,7 +8,7 @@ import { addMonths, proposeDue, renewDoc, certAlerts, certSummary, activeDocs, a
 import { withSessionToken } from "./lib/session-token.mjs";
 
 const store = createMemoryStore();
-const baseEnv = { CRM_SECRET: "x".repeat(32), CRM_PASSWORD: "Start-Passwort-123", CRM_ADMIN_USER: "root" };
+const baseEnv = { CHAT_ENABLED: "1", CRM_SECRET: "x".repeat(32), CRM_PASSWORD: "Start-Passwort-123", CRM_ADMIN_USER: "root" };
 const vapid = { VAPID_PUBLIC_KEY: "B".repeat(87), VAPID_PRIVATE_KEY: "c".repeat(43), VAPID_SUBJECT: "mailto:admin@example.org" };
 let clock = Date.parse("2026-11-07T08:00:00Z");
 const pushed = [];

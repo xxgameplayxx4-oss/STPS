@@ -5,7 +5,7 @@ import { handleApi, createMemoryStore } from "../netlify/functions/lib/core.mjs"
 import { withSessionToken } from "./lib/session-token.mjs";
 
 const store = createMemoryStore();
-const baseEnv = { CRM_SECRET: "x".repeat(32), CRM_PASSWORD: "Start-Passwort-123", CRM_ADMIN_USER: "root" };
+const baseEnv = { CHAT_ENABLED: "1", CALENDAR_ENABLED: "1", CRM_SECRET: "x".repeat(32), CRM_PASSWORD: "Start-Passwort-123", CRM_ADMIN_USER: "root" };
 const vapid = { VAPID_PUBLIC_KEY: "B".repeat(87), VAPID_PRIVATE_KEY: "c".repeat(43), VAPID_SUBJECT: "mailto:admin@example.org" };
 let clock = Date.parse("2026-10-25T10:00:00Z");
 const pushed = [];
@@ -226,6 +226,22 @@ assert.equal((await store.read(`t/${teamA.id}/push/${ben.id}`)).value.subs.lengt
   ok(await api("PATCH", `/users/${ben.id}`, { token: ada.token, body: { role: "member" } }));
   assert.equal((await api("GET", "/chat", { token: ben.token, query: MG })).status, 403);
   assert.ok((await store.read(`t/${teamA.id}/chatm/meta`)).value.head >= 1, "GL-Kanal liegt unter eigenem Präfix im Team-Namensraum");
+}
+
+// ---- Feature-Schalter: CHAT_ENABLED aus (Standard) → Chat-API 404, Push-Routen und gespeicherte Daten bleiben unberührt
+{
+  const before = (await store.read(`t/${teamA.id}/chat/meta`)).value;
+  assert.ok(before.head >= 1);
+  for (const off of [{}, { CHAT_ENABLED: "0" }, { CHAT_ENABLED: "" }]) {
+    env = { ...baseEnv, ...vapid, ...off, CHAT_ENABLED: off.CHAT_ENABLED ?? undefined };
+    assert.equal((await api("GET", "/chat", { token: anna.token })).status, 404, "Chat aus: GET 404");
+    assert.equal((await api("POST", "/chat", { token: anna.token, body: { text: "x" } })).status, 404, "Chat aus: POST 404");
+    assert.equal((await api("POST", "/chat/read", { token: anna.token, body: { upTo: 1 } })).status, 404, "Chat aus: read 404");
+    assert.equal((await api("GET", "/push/config", { token: anna.token })).status, 200, "Push bleibt (Kalender)");
+  }
+  env = { ...baseEnv, ...vapid };
+  assert.deepEqual((await store.read(`t/${teamA.id}/chat/meta`)).value, before, "Daten unverändert");
+  assert.equal((await api("GET", "/chat", { token: anna.token })).status, 200, "wieder an: 200");
 }
 
 console.log("Chat-Tests: alle bestanden");

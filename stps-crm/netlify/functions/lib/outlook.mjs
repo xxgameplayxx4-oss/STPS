@@ -13,6 +13,7 @@
 // Schleifen-Schutz: Von uns geschriebene Outlook-Termine tragen die Kategorie «STPS CRM» und im CRM-Termin steht outlook.{userId,outlookId,etag}.
 // Ein Delta-Eintrag mit unverändertem eTag wird ignoriert; Änderungen aus Outlook an einem verknüpften CRM-Termin werden direkt im Termin-Dokument
 // übernommen (nie über die Route, daher kein Zurückschreiben). Bei Konflikten gewinnt der spätere Zeitstempel (lastModified).
+import { calendarEnabled } from "./features.mjs";
 import { createCipheriv, createDecipheriv, createHash, createHmac, hkdfSync, randomBytes, timingSafeEqual } from "node:crypto";
 import { mutateDoc } from "./kv.mjs";
 import { ApiFail, json, fail, parseBody, queryOf, logError } from "./http.mjs";
@@ -303,6 +304,7 @@ export async function importedEvents(deps, store, viewerId) {
 
 /** Gibt es im Team eine Outlook-Verbindung (Filter «Outlook anzeigen» im Kalender)? */
 export async function outlookEnabled(deps, store, viewerId) {
+  if (!calendarEnabled(deps.env)) return { ...out, skipped: "disabled" }; // CALENDAR_ENABLED aus
   if (!(await cfgOf(deps)).configured) return { enabled: false, mine: false };
   const keys = await store.list("cal/ol/conn/");
   return { enabled: keys.length > 0, mine: keys.includes(connKey(viewerId)) };

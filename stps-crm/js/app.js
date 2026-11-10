@@ -1,6 +1,6 @@
 // Start der Anwendung: Daten laden, Anmeldung, Navigation (Hash-Router), Statusanzeige.
 import * as store from "./store.js";
-import { NAV, navLabel } from "./config.js";
+import { NAV, navLabel, CHAT_ENABLED, CALENDAR_ENABLED } from "./config.js";
 import { html, th, initials, fmtDateTime } from "./util.js";
 import { t, tn, has, initI18n, onLangChange } from "./i18n.js";
 import { icon, toast, confirmDialog, anyDialogOpen, onDialogsClosed } from "./ui.js";
@@ -89,9 +89,13 @@ function renderView(navigated) {
     location.replace(`${location.pathname}${location.search}#/${TL.ROUTE}?${qs}`);
     return;
   }
+  // Chat abgeschaltet (CHAT_ENABLED in js/config.js): #/chat führt zur Übersicht
+  if (!CHAT_ENABLED && route.route === "chat") { location.replace(`${location.pathname}${location.search}#/uebersicht`); return; }
+  // Kalender abgeschaltet (CALENDAR_ENABLED in js/config.js): #/kalender (auch Links aus alten Erinnerungen) führt zur Übersicht
+  if (!CALENDAR_ENABLED && route.route === "kalender") { location.replace(`${location.pathname}${location.search}#/uebersicht`); return; }
   const mod = VIEWS[route.route];
   const view = $("#view");
-  chat.setOpen(route.route === "chat"); // Chat-Seite offen: schneller Abfrage-Takt (js/chat.js)
+  if (CHAT_ENABLED) chat.setOpen(route.route === "chat"); // Chat-Seite offen: schneller Abfrage-Takt (js/chat.js)
   document.body.classList.toggle("print-view", route.route === "druck");
   const y = window.scrollY;
   const focusId = !navigated && document.activeElement?.id?.startsWith("q-") ? document.activeElement.id : null;
@@ -224,8 +228,8 @@ function updateNavBadges() {
   const over = TL.overdueCount(TL.unify({ tasks: store.all("tasks"), activities: store.all("activities") }), todayISO());
   const b = document.querySelector(`[data-badge="${TL.ROUTE}"]`);
   if (b) { b.hidden = !over; b.textContent = over; b.title = tn("nav.overdueBadge", over); }
-  const un = chat.unread();
-  const c = document.querySelector('[data-badge="chat"]');
+  const un = CHAT_ENABLED ? chat.unread() : 0;
+  const c = CHAT_ENABLED ? document.querySelector('[data-badge="chat"]') : null;
   if (c) { c.hidden = !un; c.textContent = un > 99 ? "99+" : un; c.title = tn("nav.chatBadge", un); }
 }
 
@@ -439,10 +443,12 @@ function start() {
   if (store.S.mode !== "local") {
     presence.subscribe(updateChips);
     presence.start({ describe: describePage });
-    chat.subscribe(updateNavBadges); // Zeichen «ungelesen» im Menü
-    chat.start();
+    if (CHAT_ENABLED) {
+      chat.subscribe(updateNavBadges); // Zeichen «ungelesen» im Menü
+      chat.start();
+    }
     push.resync(); // Push-Abo dieses Geräts erneuern, falls für dieses Konto eingeschaltet
-    push.listenSW({ onGoto: (hash) => { location.hash = hash; }, onPoll: () => chat.poll() });
+    push.listenSW({ onGoto: (hash) => { location.hash = hash; }, onPoll: () => { if (CHAT_ENABLED) chat.poll(); } });
     if (store.isSuper()) {
       loadTeamSwitch();
       document.addEventListener("crm:teams", (e) => fillTeamSwitch(e.detail));

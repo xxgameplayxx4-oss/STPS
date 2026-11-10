@@ -7,7 +7,10 @@
 // - Das Abo gehört zu Konto UND Gerät: beim Abmelden wird es entfernt, beim nächsten Start desselben Kontos (Merker in localStorage) erneuert.
 import * as api from "./api.js";
 import * as store from "./store.js";
-import { LS } from "./config.js";
+import { LS, CHAT_ENABLED, CALENDAR_ENABLED } from "./config.js";
+
+// Push dient nur Chat und Kalender-Erinnerungen: sind beide abgeschaltet, gibt es keine Einstellungskarte und kein Abo-Erneuern
+const PUSH_USED = CHAT_ENABLED || CALENDAR_ENABLED;
 import { html } from "./util.js";
 import { t } from "./i18n.js";
 import { icon, toast } from "./ui.js";
@@ -117,7 +120,7 @@ export async function disable() {
 /** Nach dem Start: war es für dieses Konto auf diesem Gerät eingeschaltet, das Abo beim Server erneuern (z. B. nach erneuter Anmeldung) */
 export async function resync() {
   try {
-    if (!getFlag() || !supported() || Notification.permission !== "granted") return;
+    if (!PUSH_USED || !getFlag() || !supported() || Notification.permission !== "granted") return;
     if (!(await config()).enabled) return;
     await subscribeNow();
   } catch (e) { console.warn("Push-Abo erneuern:", e?.message || e); }
@@ -179,6 +182,7 @@ export async function mount(root) {
 
 /** Karte für die Einstellungen (nur Servermodus, nicht für den Superadmin); verschwindet, wenn Push nicht eingerichtet ist */
 export function settingsCard() {
+  if (!PUSH_USED) return "";
   if (store.S.mode !== "server" || store.S.noTeam || store.isSuper()) return "";
   return html`<section class="card" data-push-card hidden>
     <div class="card-head"><h2>${t("push.title")}</h2></div>

@@ -17,6 +17,7 @@
 //  Outlook (lib/outlook.mjs): Termine verbundener Benutzer erscheinen zusätzlich (source «outlook», nur lesbar; private Termine anderer nur als «Beschäftigt»);
 //  gespeicherte CRM-Termine werden bei Richtung «both» nach Outlook geschrieben (Antwort-Feld «outlook»: pushed | skipped | error).
 //  Erinnerungen versendet die geplante Function calendar-reminders.mjs über runReminders() und den Versandweg aus push.mjs.
+import { calendarEnabled } from "./features.mjs";
 import { randomBytes } from "node:crypto";
 import { mutateDoc } from "./kv.mjs";
 import { ApiFail, json, fail, parseBody, cleanText, queryOf, logError } from "./http.mjs";
@@ -529,6 +530,7 @@ export function leadText(min) {
 export async function runReminders(deps) {
   const res = { teams: 0, due: 0, sent: 0 };
   const { env } = deps;
+  if (!calendarEnabled(env)) return res; // CALENDAR_ENABLED aus: keine Erinnerungen, Speicher wird nicht angefasst
   if (!PUSH.vapidConfig(env) && !PUSH.mailConfig(env)) return res; // kein Versandweg eingerichtet: nichts zu tun
   const now = deps.now ? deps.now() : Date.now();
   const root = deps.store;

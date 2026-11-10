@@ -6,6 +6,7 @@
 import * as api from "../api.js";
 import { html, th, fmtDateTime } from "../util.js";
 import { t, tryT } from "../i18n.js";
+import { CALENDAR_ENABLED } from "../config.js";
 import { icon, toast, confirmDialog } from "../ui.js";
 
 /** Zustand der Karte (überlebt das Neuzeichnen der Seite) */
@@ -160,7 +161,7 @@ function handleReturn() {
 }
 
 export function cardHtml({ server } = {}) {
-  if (!server) return "";
+  if (!server || !CALENDAR_ENABLED) return ""; // Kalender abgeschaltet: keine Outlook-Karte, keine Anfragen
   return html`<section class="card" data-ol-card hidden>
     <div class="card-head"><h2>${t("ol.title")}</h2><span data-ol-badge>${badge()}</span></div>
     <div class="pad sp-body" data-ol-body>${body()}</div>
@@ -170,7 +171,7 @@ export function cardHtml({ server } = {}) {
 const bound = new WeakSet(); // Wurzel-Elemente mit Ereignisbehandlung (die Plattform-Seite zeichnet sich mehrfach neu)
 
 export function bind(root, { server } = {}) {
-  if (!server) return;
+  if (!server || !CALENDAR_ENABLED) return;
   const justConnected = handleReturn();
   load({ force: justConnected }).then(() => { if (justConnected && ol.status?.connection?.status === "connected") syncNow(); });
   if (bound.has(root)) return;

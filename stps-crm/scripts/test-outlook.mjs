@@ -128,7 +128,7 @@ let rotate = false;
 const realError = console.error;
 console.error = (...a) => { if (!/Outlook: Termin nach Outlook|Outlook: Termin in Outlook/.test(String(a[0]))) realError(...a); }; // erwartete Fehler des simulierten Dienstes
 const store = createMemoryStore();
-const baseEnv = { CRM_SECRET: "x".repeat(32), CRM_PASSWORD: "Start-Passwort-123", CRM_ADMIN_USER: "root" };
+const baseEnv = { CALENDAR_ENABLED: "1", CRM_SECRET: "x".repeat(32), CRM_PASSWORD: "Start-Passwort-123", CRM_ADMIN_USER: "root" };
 const outlookEnv = { OUTLOOK_CLIENT_ID: "cid-1234", OUTLOOK_CLIENT_SECRET: "csecret-xyz", MS_TENANT_ID: "tenant-1", APP_URL: "https://crm.example.org" };
 let env = { ...baseEnv };
 const deps = () => ({ env, store, now: () => clock, clock: () => clock, delay: async () => {}, sleep: async () => {}, scryptParams: { N: 1024 }, userCacheMs: 0, fetch: msFetch });

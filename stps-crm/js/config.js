@@ -145,9 +145,16 @@ export const MAX_FOCUS = 10; // Blatt "Shopfloor": 10 Plätze im wöchentlichen 
 
 // ------------------------------------------------------------ Navigation
 
+// Feature-Schalter Team-Chat: vorübergehend aus (Umzug zu Microsoft Teams geplant). Zum Wiedereinschalten true setzen
+// UND auf dem Server CHAT_ENABLED=1 (siehe netlify/functions/lib/chat.mjs). Gespeicherte Chat-Daten bleiben erhalten.
+export const CHAT_ENABLED = false;
+// Feature-Schalter Team-Kalender (inkl. Erinnerungen und Outlook-Abgleich): ebenfalls vorübergehend aus. Wiedereinschalten: true setzen
+// UND auf dem Server CALENDAR_ENABLED=1 (siehe netlify/functions/lib/features.mjs). Gespeicherte Termine bleiben erhalten.
+export const CALENDAR_ENABLED = false;
+
 // server: nur im Servermodus (Konten/Team) · superOnly: nur für den Plattform-Administrator (Superadmin)
 // Beschriftung: navLabel(route) → nav.<route>
-export const NAV = [
+const ALL_NAV = [
   { route: "plattform", icon: "shield", superOnly: true },
   { route: "uebersicht", icon: "home" },
   { route: "kalender", icon: "calendar", server: true },
@@ -164,6 +171,7 @@ export const NAV = [
   { route: "team", icon: "team", server: true },
   { route: "einstellungen", icon: "gear" },
 ];
+export const NAV = ALL_NAV.filter((n) => (n.route !== "chat" || CHAT_ENABLED) && (n.route !== "kalender" || CALENDAR_ENABLED));
 export const navLabel = (route) => t(`nav.${route}`);
 
 // ------------------------------------------------------------ localStorage-Schlüssel

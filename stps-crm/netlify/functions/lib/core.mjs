@@ -10,6 +10,7 @@ import * as sp from "./sharepoint.mjs";
 import * as accounts from "./accounts.mjs";
 import * as chat from "./chat.mjs";
 import * as calendar from "./calendar.mjs";
+import { calendarEnabled, notFound } from "./features.mjs";
 import * as files from "./files.mjs";
 import * as outlook from "./outlook.mjs";
 import * as dev from "./devmode.mjs";
@@ -94,7 +95,7 @@ export async function handleApi(req, deps) {
   if (problem) return json(500, { error: "not_configured", message: problem, reason: "secret" });
 
   // Rückleitung von Microsoft nach «Outlook verbinden»: kein Token (Weiterleitung des Browsers); der Benutzer steckt im signierten «state»
-  if (path === "/outlook/callback" && method === "GET") return outlook.callback(req, { ...deps, now, rootEnv });
+  if (path === "/outlook/callback" && method === "GET") return !calendarEnabled(rootEnv) ? notFound() : outlook.callback(req, { ...deps, now, rootEnv });
 
   // Konten + Teams (lib/accounts.mjs): Login, Authentifizierung bei jeder Anfrage, Team-Kontext, /me /users /teams /team /audit /presence
   if (devActive && path === "/dev/session") return accounts.guard(() => dev.devSession(req, { ...deps, now }, method, parseBody));
@@ -107,7 +108,8 @@ export async function handleApi(req, deps) {
   if (account) return account;
 
   // Outlook: App-ID einrichten und Einrichtungsstand – nur Superadmin, auch ohne gewähltes Team (Wurzel-Speicher)
-  const olPlat = await outlook.platformRoute(path, method, req, { ...deps, now, rootEnv: env }, ctx);
+  const calOn = calendarEnabled(rootEnv); // CALENDAR_ENABLED: aus → Kalender- und Outlook-Pfade antworten 404
+  const olPlat = !calOn && (path === "/outlook/platform" || path === "/outlook/status") ? notFound() : await outlook.platformRoute(path, method, req, { ...deps, now, rootEnv: env }, ctx);
   if (olPlat) return olPlat;
 
   // Ab hier: Daten des Teams. Der Store kennt nur den Namensraum des eigenen Teams (Superadmin: das gewählte Team).
@@ -126,11 +128,11 @@ export async function handleApi(req, deps) {
   if (fileRes) return fileRes;
 
   // Team-Kalender (lib/calendar.mjs): Termine, Wiederholungen, Erinnerungen – ebenfalls nur im Namensraum des eigenen Teams
-  const calRes = await calendar.route(path, method, req, { ...deps, rootStore, rootEnv, now }, ctx);
+  const calRes = !calOn && (path === "/calendar" || path.startsWith("/calendar/")) ? notFound() : await calendar.route(path, method, req, { ...deps, rootStore, rootEnv, now }, ctx);
   if (calRes) return calRes;
 
   // Outlook-Verbindung des eigenen Benutzers (lib/outlook.mjs)
-  const olRes = await outlook.route(path, method, req, { ...deps, rootStore, rootEnv, now }, ctx);
+  const olRes = !calOn && (path === "/outlook" || path.startsWith("/outlook/")) ? notFound() : await outlook.route(path, method, req, { ...deps, rootStore, rootEnv, now }, ctx);
   if (olRes) return olRes;
 
   // Wechselkurse jetzt von der EZB holen (Button «Jetzt aktualisieren»); nur Team-Admins, nur im Modus «Automatisch»

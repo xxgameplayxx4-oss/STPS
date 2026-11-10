@@ -3,7 +3,7 @@ import * as store from "../store.js";
 import * as api from "../api.js";
 import { html, th, fmtDateTime, todayISO, fmtDate } from "../util.js";
 import { icon, toast, confirmDialog } from "../ui.js";
-import { DEFAULT_LISTS, APP, COLLECTIONS } from "../config.js";
+import { DEFAULT_LISTS, APP, COLLECTIONS, CHAT_ENABLED } from "../config.js";
 import { t, tv } from "../i18n.js";
 import { CSV_TABLES, exportCsv, downloadFile } from "../csv.js";
 import { loadSampleData } from "../seed.js";
@@ -261,6 +261,7 @@ const SAMPLE_CHAT = [
   "Ja bitte. Und die Export-Rechnungen nach Österreich im Auge behalten (EUR).",
 ];
 async function seedSampleChat() {
+  if (!CHAT_ENABLED) return; // Chat abgeschaltet: keine Anfragen an /api/chat
   try {
     const r = await api.chatList({ limit: 1 });
     if (r?.messages?.length) return;

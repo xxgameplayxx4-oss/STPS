@@ -6,7 +6,7 @@
 // - Push: Chat zeigt «<Absender>: <Text>», eine Kalender-Erinnerung «<Titel>» mit Zeit und Ort; ein Klick öffnet die Seite dazu
 //   (Chat bzw. den Termin #/kalender/<id>; bestehendes Fenster, sonst ein neues). Ziele sind auf diese Seiten beschränkt (GOTO).
 // Version erhöhen, wenn sich das Format des Zwischenspeichers ändert (alte werden beim Aktivieren gelöscht).
-const CACHE = "crm-shell-v4";
+const CACHE = "crm-shell-v5";
 const SHELL = [
   "./",
   "index.html",
@@ -56,7 +56,8 @@ self.addEventListener("fetch", (event) => {
 
 /** Erlaubte Ziele einer Benachrichtigung (Entsprechung: GOTO_RE in js/push.js) */
 const GOTO = /^\/#\/(?:chat|uebersicht|kalender(?:\/ev_[0-9a-f]{12}(?:\?o=[0-9A-Za-z%:.\-]{10,40})?)?)$/;
-const safeUrl = (u) => (typeof u === "string" && GOTO.test(u) ? u : "/#/chat");
+// Chat ist abgeschaltet (CHAT_ENABLED, siehe js/config.js): Ziel «chat» und Standard führen zur Übersicht; zum Wiedereinschalten wieder «/#/chat»
+const safeUrl = (u) => (typeof u === "string" && GOTO.test(u) && u !== "/#/chat" ? u : "/#/uebersicht");
 
 self.addEventListener("push", (event) => {
   let data = {};

@@ -18,6 +18,10 @@ import * as PUSH from "./push.mjs";
 import { scrubChat } from "./hide-super.mjs";
 import { canManage } from "./roles.mjs";
 import * as FILES from "./files.mjs";
+import { chatEnabled } from "./features.mjs";
+
+// Feature-Schalter: CHAT_ENABLED (siehe features.mjs). Push-Routen (/api/push/…) bleiben aktiv, sie dienen auch den Kalender-Erinnerungen.
+export { chatEnabled };
 
 export const META_KEY = "chat/meta";
 export const CHANNELS = ["team", "mgmt"];
@@ -228,6 +232,8 @@ const wrongMethod = () => json(405, { error: "method_not_allowed", message: "Met
  */
 export function route(path, method, req, deps, ctx) {
   if (path !== "/chat" && path !== "/chat/read" && !path.startsWith("/push/")) return null;
+  // Chat abgeschaltet: wie ein unbekannter Pfad (Authentifizierung ist bereits davor erfolgt, kein neuer Zugang)
+  if (!path.startsWith("/push/") && !chatEnabled(deps.env)) return Promise.resolve(json(404, { error: "not_found", message: "Nicht gefunden" }));
   return guard(async () => {
     const { store } = deps;
     const user = ctx.user;
