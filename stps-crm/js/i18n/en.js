@@ -687,7 +687,7 @@ export default {
   "set.sampleTitle": "Sample data",
   "set.sampleHelp": "Loads the sample set from the Excel template (customer 10000, supplier “nakaomi” 20000, an offer and an assignment). Only possible when the database is empty.",
   "set.sampleLoad": "Load sample data",
-  "set.sampleFullHelp": "Development mode only: replaces the team data with the full sample set (customers with delivery addresses, suppliers with certificates, articles, deals in all stages in CHF/EUR/USD, invoices incl. QR bill, RFQs).",
+  "set.sampleFullHelp": "Development mode only: replaces the team data with the full sample set (customers with delivery addresses, suppliers with certificates, articles, deals in all stages in CHF/EUR/USD, invoices incl. QR bill, RFQs and shipments, calendar events). «Delete all data» removes the records again (delete calendar events separately in the calendar).",
   "set.sampleFullLoad": "Load full sample data",
   "set.sampleFullLabel": "Full sample data (sample/beispieldaten.json)",
   "set.sampleNotEmpty": "The database already contains data",

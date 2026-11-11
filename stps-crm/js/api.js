@@ -75,6 +75,8 @@ export const pingAuth = () => request("GET", "/ping", undefined, { timeout: 6000
 export const login = (username, password) => request("POST", "/login", { username, password }, { auth: false });
 /** Entwicklungsmodus (Server ohne CRM_PASSWORD): Sitzung für ein Beispielkonto – as: admin | pascal | liz | marco */
 export const devSession = (as) => request("POST", "/dev/session", { as }, { auth: false, timeout: 15000 });
+/** Entwicklungsmodus: der vollständige Beispielsatz (sample/beispieldaten.json) */
+export const devSample = () => request("GET", "/dev/sample", undefined, { timeout: 15000 });
 export const logout = () => request("POST", "/logout", {}, { timeout: 5000 });
 export const me = () => request("GET", "/me");
 export const changePassword = (current, next) => request("POST", "/me/password", { current, new: next });

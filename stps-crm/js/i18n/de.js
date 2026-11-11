@@ -687,7 +687,7 @@ export default {
   "set.sampleTitle": "Beispieldaten",
   "set.sampleHelp": "Lädt den Beispielsatz aus der Excel-Vorlage (Kunde 10000, Lieferant «nakaomi» 20000, Angebot und Zuordnung). Nur bei leerer Datenbank möglich.",
   "set.sampleLoad": "Beispieldaten laden",
-  "set.sampleFullHelp": "Nur Entwicklungsmodus: ersetzt die Teamdaten durch den vollständigen Beispielsatz (Kunden mit Lieferadressen, Lieferanten mit Zertifikaten, Artikel, Deals in allen Phasen in CHF/EUR/USD, Rechnungen inkl. QR-Rechnung, Anfragen).",
+  "set.sampleFullHelp": "Nur Entwicklungsmodus: ersetzt die Teamdaten durch den vollständigen Beispielsatz (Kunden mit Lieferadressen, Lieferanten mit Zertifikaten, Artikel, Deals in allen Phasen in CHF/EUR/USD, Rechnungen inkl. QR-Rechnung, Anfragen und Sendungen, Termine im Kalender). «Alle Daten löschen» entfernt die Datensätze wieder (Kalendertermine separat im Kalender löschen).",
   "set.sampleFullLoad": "Vollständige Beispieldaten laden",
   "set.sampleFullLabel": "Vollständige Beispieldaten (sample/beispieldaten.json)",
   "set.sampleNotEmpty": "Die Datenbank enthält bereits Daten",

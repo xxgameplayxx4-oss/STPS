@@ -99,6 +99,7 @@ export async function handleApi(req, deps) {
 
   // Konten + Teams (lib/accounts.mjs): Login, Authentifizierung bei jeder Anfrage, Team-Kontext, /me /users /teams /team /audit /presence
   if (devActive && path === "/dev/session") return accounts.guard(() => dev.devSession(req, { ...deps, now }, method, parseBody));
+  if (devActive && path === "/dev/sample" && method === "GET") return dev.devSample(); // Beispieldaten für «Vollständige Beispieldaten laden» (sample/ ist öffentlich nicht abrufbar)
   if (path === "/login") return accounts.login(req, { ...deps, now, delay }, method);
   const auth = await accounts.authenticate(req, deps, now);
   if (!auth.ok) return auth.response;

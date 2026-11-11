@@ -7,6 +7,8 @@
 
 [functions]
   node_bundler = "esbuild"
+  # Beispieldaten (nur Entwicklungsmodus, /api/dev/sample) liegen neben der Function
+  included_files = ["sample/**"]
   # exceljs (Excel-Import/-Export) ist CommonJS und lässt sich nicht in das ESM-Bundle einbetten ("Dynamic require of …"):
   # Es wird deshalb als eigenes Paket mit der Function ausgeliefert.
   # web-push (Chat-Benachrichtigungen) ist ebenfalls CommonJS mit eigenen Abhängigkeiten (http_ece, jws …) und wird nur bei Bedarf geladen.

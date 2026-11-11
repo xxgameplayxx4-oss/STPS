@@ -3,7 +3,7 @@ import * as store from "../store.js";
 import * as api from "../api.js";
 import { html, th, fmtDateTime, todayISO, fmtDate } from "../util.js";
 import { icon, toast, confirmDialog } from "../ui.js";
-import { DEFAULT_LISTS, APP, COLLECTIONS, CHAT_ENABLED } from "../config.js";
+import { DEFAULT_LISTS, APP, COLLECTIONS, CHAT_ENABLED, CALENDAR_ENABLED } from "../config.js";
 import { t, tv } from "../i18n.js";
 import { CSV_TABLES, exportCsv, downloadFile } from "../csv.js";
 import { loadSampleData } from "../seed.js";
@@ -205,9 +205,8 @@ export function render(root) {
         break;
       case "sample-full":
         try {
-          const res = await fetch("/sample/beispieldaten.json", { cache: "no-store" });
-          if (!res.ok) throw new Error(`HTTP ${res.status}`);
-          if (await confirmAndReplace(await res.json(), t("set.sampleFullLabel"))) await seedSampleChat();
+          const raw = await api.devSample();
+          if (await confirmAndReplace(raw, t("set.sampleFullLabel"))) { await seedSampleCalendar(raw.kalender); await seedSampleChat(); }
         } catch (err) { toast(t("toast.importFailed", { msg: err.message }), { type: "error", ms: 8000 }); }
         break;
       case "wipe": {
@@ -251,6 +250,16 @@ async function confirmAndReplace(raw, label) {
   await store.replaceDb(raw);
   toast(t("toast.dbReplaced"), { type: "ok" });
   return true;
+}
+
+// Beispiel-Termine (nur Entwicklungsmodus, nur wenn der Team-Kalender noch leer ist; Termine stehen in sample/beispieldaten.json unter «kalender»)
+async function seedSampleCalendar(events) {
+  if (!CALENDAR_ENABLED || !Array.isArray(events) || !events.length) return;
+  try {
+    const day = 86400000, r = await api.calList(new Date(Date.now() - 200 * day).toISOString(), new Date(Date.now() + 200 * day).toISOString()); // höchstens 400 Tage je Abfrage
+    if (r?.events?.length) return;
+    for (const e of events) await api.calCreate(e);
+  } catch { /* Kalender ist optional */ }
 }
 
 // Beispiel-Chat (nur Entwicklungsmodus, nur wenn der Team-Chat noch leer ist)

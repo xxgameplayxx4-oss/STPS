@@ -1,14 +1,14 @@
 {
   "schema": 1,
   "meta": {
-    "createdAt": "2026-11-02T08:00:00.000Z",
+    "createdAt": "2026-11-09T08:00:00.000Z",
     "lastNr": {
-      "customers": 10008,
-      "suppliers": 20005,
-      "activities": 30006,
-      "deals": 40010,
-      "tasks": 50005,
-      "invoices": 60006
+      "customers": 10013,
+      "suppliers": 20009,
+      "activities": 30014,
+      "deals": 40016,
+      "tasks": 50013,
+      "invoices": 60014
     },
     "beispieldaten": true
   },
@@ -675,6 +675,313 @@
       "addrSeq": 0,
       "createdAt": "2026-11-02T08:00:00.000Z",
       "updatedAt": "2026-11-02T08:00:00.000Z"
+    },
+    {
+      "id": "bf3bbaab-0216-4ec1-a8e3-10bbbd094970",
+      "firma": "Exemple Mécanique SA",
+      "strasse": "Rue de l'Exemple 7",
+      "plz": "1201",
+      "ort": "Genf",
+      "land": "CH",
+      "waehrung": "CHF",
+      "prioritaet": "B",
+      "status": "Prospect",
+      "phase": "Termin erhalten",
+      "owner": "Liz",
+      "produkt": "Präzisionsteile für Uhrenzulieferer (Frästeile)",
+      "potenzial": 38000,
+      "angebot": 1224,
+      "chance": 20,
+      "quelle": "LinkedIn",
+      "naechsterSchritt": "Termin vor Ort in Genf",
+      "termin": "2026-11-19",
+      "followUp": "2026-11-16",
+      "erstkontakt": "2026-10-28",
+      "letzterKontakt": "2026-11-05",
+      "kommentar": "Beispieldaten: Westschweizer Kunde (Französisch).",
+      "kategorien": [
+        "wg_a",
+        "uk_a_fraes"
+      ],
+      "contacts": [
+        {
+          "id": "6a9f1c98-9ab5-46a9-99b3-fcfd0e6b428a",
+          "name": "Claire Exemple",
+          "funktion": "Responsable achats",
+          "email": "claire.exemple@example.com",
+          "telefon": "+41 22 000 00 11",
+          "mobile": "",
+          "notiz": "Beispieldaten",
+          "primary": true,
+          "rechnung": false
+        },
+        {
+          "id": "f39a8203-51cb-462c-8a08-e137fc43527e",
+          "name": "Luc Modèle",
+          "funktion": "Ingénieur méthodes",
+          "email": "luc.modele@example.com",
+          "telefon": "",
+          "mobile": "+41 79 000 00 12",
+          "notiz": "Beispieldaten",
+          "primary": false,
+          "rechnung": false
+        }
+      ],
+      "nr": 10009,
+      "createdAt": "2026-11-09T08:00:00.000Z",
+      "updatedAt": "2026-11-09T08:00:00.000Z",
+      "addresses": [
+        {
+          "id": "704d2646-588d-41e4-bfe3-09dc790580bd",
+          "sub": 1,
+          "bezeichnung": "Auslieferlager",
+          "same": false,
+          "aktiv": true,
+          "strasse": "Industriering 9",
+          "plz": "6340",
+          "ort": "Baar",
+          "land": "CH",
+          "contactId": "",
+          "notiz": "Beispieldaten"
+        }
+      ],
+      "addrSeq": 1
+    },
+    {
+      "id": "20629bac-7f20-43bf-a74f-8506b7981a45",
+      "firma": "Esempio Meccanica S.r.l.",
+      "strasse": "Via Campione 15",
+      "plz": "20121",
+      "ort": "Mailand",
+      "land": "IT",
+      "waehrung": "EUR",
+      "prioritaet": "B",
+      "status": "Aktiver Kunde",
+      "phase": "Abschluss Ja",
+      "owner": "Pascal",
+      "produkt": "Laserzuschnitte und Abkantteile für Verpackungsmaschinen",
+      "potenzial": 60000,
+      "angebot": 0,
+      "chance": 100,
+      "quelle": "Bestehendes Netzwerk",
+      "naechsterSchritt": "Quartalsgespräch",
+      "termin": "2026-12-03",
+      "followUp": "2026-11-24",
+      "erstkontakt": "2026-01-20",
+      "letzterKontakt": "2026-11-03",
+      "kommentar": "Beispieldaten: Italienischer Kunde, EUR, Ausfuhr aus der Schweiz (0 % MWST).",
+      "kategorien": [
+        "wg_b",
+        "uk_b_laser",
+        "uk_b_kant"
+      ],
+      "contacts": [
+        {
+          "id": "120fa1c8-df9c-4eb1-92ff-ee688690d681",
+          "name": "Giulia Esempio",
+          "funktion": "Direttrice acquisti",
+          "email": "giulia.esempio@example.com",
+          "telefon": "+39 02 0000 0021",
+          "mobile": "",
+          "notiz": "Beispieldaten",
+          "primary": true,
+          "rechnung": false
+        },
+        {
+          "id": "0a6255b5-b046-4b5d-8a4b-fec0b98d5c95",
+          "name": "Marco Prova",
+          "funktion": "Responsabile qualità",
+          "email": "marco.prova@example.com",
+          "telefon": "",
+          "mobile": "+39 333 000 0022",
+          "notiz": "Beispieldaten",
+          "primary": false,
+          "rechnung": false
+        }
+      ],
+      "nr": 10010,
+      "createdAt": "2026-11-09T08:00:00.000Z",
+      "updatedAt": "2026-11-09T08:00:00.000Z",
+      "addresses": [
+        {
+          "id": "4130009a-a4a0-4c09-a0b7-c9eb17912c7b",
+          "sub": 1,
+          "bezeichnung": "Lager Mailand",
+          "same": false,
+          "aktiv": true,
+          "strasse": "Via Logistica 2",
+          "plz": "20090",
+          "ort": "Segrate",
+          "land": "IT",
+          "contactId": "",
+          "notiz": "Beispieldaten"
+        }
+      ],
+      "addrSeq": 1
+    },
+    {
+      "id": "698d64ee-cac1-479f-bb86-8fc669992fab",
+      "firma": "Modell Fördertechnik GmbH",
+      "strasse": "Mariahilfer Strasse 99",
+      "plz": "1070",
+      "ort": "Wien",
+      "land": "AT",
+      "waehrung": "EUR",
+      "prioritaet": "C",
+      "status": "Inaktiv",
+      "phase": "Abschluss Nein",
+      "owner": "Marco",
+      "produkt": "Schweissbaugruppen für Förderanlagen",
+      "potenzial": 30000,
+      "angebot": 0,
+      "chance": 0,
+      "quelle": "Messe / Event",
+      "naechsterSchritt": "",
+      "termin": "",
+      "followUp": "",
+      "erstkontakt": "2026-04-22",
+      "letzterKontakt": "2026-09-18",
+      "kommentar": "Beispieldaten: Offerte abgelehnt (Preis), Wiedervorlage im Frühling.",
+      "kategorien": [
+        "wg_b",
+        "uk_b_schweiss"
+      ],
+      "contacts": [
+        {
+          "id": "fdd240af-0268-40cc-8330-dddcb1444ab1",
+          "name": "Karl Modell",
+          "funktion": "Geschäftsführer",
+          "email": "karl.modell@example.com",
+          "telefon": "+43 1 000 00 31",
+          "mobile": "",
+          "notiz": "Beispieldaten",
+          "primary": true,
+          "rechnung": false
+        }
+      ],
+      "nr": 10011,
+      "createdAt": "2026-11-09T08:00:00.000Z",
+      "updatedAt": "2026-11-09T08:00:00.000Z",
+      "addresses": [],
+      "addrSeq": 0
+    },
+    {
+      "id": "d51b9bf8-e736-4208-bdf5-e47e588a2826",
+      "firma": "Prototyp Dichtungstechnik AG",
+      "strasse": "Bahnhofstrasse 3",
+      "plz": "6300",
+      "ort": "Zug",
+      "land": "CH",
+      "waehrung": "CHF",
+      "prioritaet": "A",
+      "status": "Aktiver Kunde",
+      "phase": "Verhandlung Angebot",
+      "owner": "Pascal",
+      "produkt": "Dichtungsträger und Abdeckkappen (Spritzguss), Oberflächen eloxiert",
+      "potenzial": 85000,
+      "angebot": 62200,
+      "chance": 60,
+      "quelle": "Empfehlung Marco",
+      "naechsterSchritt": "Preisverhandlung Staffel 10'000/25'000",
+      "termin": "2026-11-17",
+      "followUp": "2026-11-13",
+      "erstkontakt": "2026-02-03",
+      "letzterKontakt": "2026-11-09",
+      "kommentar": "Beispieldaten: Grosskunde, zwei Rechnungsempfänger.",
+      "kategorien": [
+        "wg_c",
+        "uk_c_spritz",
+        "wg_d",
+        "uk_d_elox"
+      ],
+      "contacts": [
+        {
+          "id": "18ff3378-adfc-4a01-b0f4-9a3c0c92a9f1",
+          "name": "Sabine Prototyp",
+          "funktion": "Leiterin Einkauf",
+          "email": "sabine.prototyp@example.com",
+          "telefon": "+41 41 000 00 41",
+          "mobile": "",
+          "notiz": "Beispieldaten",
+          "primary": true,
+          "rechnung": false
+        },
+        {
+          "id": "a9dbfd4f-f093-4c14-90ec-d414ca7ef27b",
+          "name": "Reto Vorlage",
+          "funktion": "Buchhaltung",
+          "email": "reto.vorlage@example.com",
+          "telefon": "+41 41 000 00 42",
+          "mobile": "",
+          "notiz": "Rechnungsempfänger (Beispieldaten)",
+          "primary": false,
+          "rechnung": false
+        }
+      ],
+      "nr": 10012,
+      "createdAt": "2026-11-09T08:00:00.000Z",
+      "updatedAt": "2026-11-09T08:00:00.000Z",
+      "addresses": [
+        {
+          "id": "2fbebe6b-a103-4a95-bda4-fb29de0712e6",
+          "sub": 1,
+          "bezeichnung": "Auslieferlager",
+          "same": false,
+          "aktiv": true,
+          "strasse": "Industriering 9",
+          "plz": "6340",
+          "ort": "Baar",
+          "land": "CH",
+          "contactId": "",
+          "notiz": "Beispieldaten"
+        }
+      ],
+      "addrSeq": 1
+    },
+    {
+      "id": "44ad1aac-fda4-4a83-8f23-a6b937d1353d",
+      "firma": "Probe Verbindungstechnik GmbH",
+      "strasse": "Hafenstrasse 21",
+      "plz": "20457",
+      "ort": "Hamburg",
+      "land": "DE",
+      "waehrung": "EUR",
+      "prioritaet": "B",
+      "status": "Lead",
+      "phase": "Akquise",
+      "owner": "Liz",
+      "produkt": "Frästeile und Distanzhülsen",
+      "potenzial": 22000,
+      "angebot": 1938,
+      "chance": 20,
+      "quelle": "Google / Website",
+      "naechsterSchritt": "Erstkontakt per E-Mail",
+      "termin": "",
+      "followUp": "2026-11-12",
+      "erstkontakt": "2026-11-09",
+      "letzterKontakt": "2026-11-09",
+      "kommentar": "Beispieldaten: Neuer Lead über die Website.",
+      "kategorien": [
+        "wg_a"
+      ],
+      "contacts": [
+        {
+          "id": "ea71758c-56a2-47c9-8c62-9fa41b076170",
+          "name": "Jan Probe",
+          "funktion": "Einkäufer",
+          "email": "jan.probe@example.com",
+          "telefon": "",
+          "mobile": "+49 170 0000 051",
+          "notiz": "Beispieldaten",
+          "primary": true,
+          "rechnung": false
+        }
+      ],
+      "nr": 10013,
+      "createdAt": "2026-11-09T08:00:00.000Z",
+      "updatedAt": "2026-11-09T08:00:00.000Z",
+      "addresses": [],
+      "addrSeq": 0
     }
   ],
   "suppliers": [
@@ -1024,6 +1331,215 @@
       ],
       "createdAt": "2026-11-02T08:00:00.000Z",
       "updatedAt": "2026-11-02T08:00:00.000Z"
+    },
+    {
+      "id": "9b5eea10-a9a1-414b-8925-f649dc6c63b3",
+      "firma": "Da Nang Plastics Co., Ltd.",
+      "ort": "Da Nang, Vietnam",
+      "status": "Aktiv",
+      "owner": "Liz",
+      "bewertung": "5",
+      "seit": "2025-09-01",
+      "produkte": "Spritzguss PA/POM/PP, Werkzeugbau",
+      "qualitaet": "ISO 9001 und ISO 14001, PPAP-Dokumentation",
+      "zahlungskonditionen": "30 % Anzahlung, 70 % vor Versand",
+      "letzterKontakt": "2026-11-06",
+      "followUp": "2026-11-13",
+      "notiz": "Beispieldaten: Neuer Spritzgusspartner, Werkzeug-Freigabe läuft.",
+      "kategorien": [
+        "wg_c",
+        "uk_c_spritz",
+        "uk_c_werkzeug"
+      ],
+      "geprueft": true,
+      "dokumente": [
+        {
+          "id": "7a452d09-6027-4770-ad7f-45df1427b325",
+          "name": "ISO 9001:2015 Zertifikat",
+          "link": "https://example.com/beispieldaten/danang-iso9001.pdf",
+          "gueltigBis": "2027-12-15",
+          "typ": "iso9001",
+          "ausgestelltAm": "2024-12-15",
+          "intervall": 36
+        },
+        {
+          "id": "6ffdabf2-126a-4062-a449-2ea890b96c72",
+          "name": "ISO 14001:2015 Zertifikat",
+          "link": "https://example.com/beispieldaten/danang-iso14001.pdf",
+          "gueltigBis": "2027-02-28",
+          "typ": "iso14001",
+          "ausgestelltAm": "2024-02-28",
+          "intervall": 36
+        }
+      ],
+      "contacts": [
+        {
+          "id": "7e3c0950-e684-48eb-a756-6cada3beae11",
+          "name": "Pham Minh Beispiel",
+          "funktion": "Export Manager",
+          "email": "pham.beispiel@example.com",
+          "telefon": "+84 236 000 0003",
+          "mobile": "",
+          "notiz": "Beispieldaten",
+          "primary": true,
+          "rechnung": false
+        },
+        {
+          "id": "193cf4df-c166-4c2a-8d0c-9a8d5e56c151",
+          "name": "Le Thu Muster",
+          "funktion": "Projektleiterin Werkzeugbau",
+          "email": "le.muster@example.com",
+          "telefon": "",
+          "mobile": "+84 91 000 0004",
+          "notiz": "Beispieldaten",
+          "primary": false,
+          "rechnung": false
+        }
+      ],
+      "nr": 20006,
+      "createdAt": "2026-11-09T08:00:00.000Z",
+      "updatedAt": "2026-11-09T08:00:00.000Z"
+    },
+    {
+      "id": "8375f233-b8cc-4ea7-8c55-8aa9b7910efd",
+      "firma": "Hue Anodizing Works Co., Ltd.",
+      "ort": "Hue, Vietnam",
+      "status": "In Prüfung",
+      "owner": "Liz",
+      "bewertung": "3",
+      "seit": "2026-10-05",
+      "produkte": "Eloxieren (Hart-/Farbeloxal), Verzinken",
+      "qualitaet": "Erstaudit offen, Schichtdickenmessung auf Anfrage",
+      "zahlungskonditionen": "Vorauskasse bei Erstbestellung",
+      "letzterKontakt": "2026-10-30",
+      "followUp": "2026-11-20",
+      "notiz": "Beispieldaten: Kalibrierzertifikat der Messgeräte ist abgelaufen, neues angefordert.",
+      "kategorien": [
+        "wg_d",
+        "uk_d_elox",
+        "uk_d_verz"
+      ],
+      "geprueft": false,
+      "dokumente": [
+        {
+          "id": "03b49f06-d58d-4bbd-a1b8-97a722303d32",
+          "name": "Kalibrierzertifikat Schichtdickenmessgerät",
+          "link": "https://example.com/beispieldaten/hue-kalibrierung.pdf",
+          "gueltigBis": "2026-10-15",
+          "typ": "kalibrierung",
+          "ausgestelltAm": "2025-10-15",
+          "intervall": 12
+        },
+        {
+          "id": "39054c3c-e0d2-48a6-a06a-89afade0464f",
+          "name": "Kalibrierzertifikat (Vorjahr, archiviert)",
+          "link": "https://example.com/beispieldaten/hue-kalibrierung-2024.pdf",
+          "gueltigBis": "2025-10-15",
+          "typ": "kalibrierung",
+          "ausgestelltAm": "2024-10-15",
+          "intervall": 12,
+          "archiviert": true
+        }
+      ],
+      "contacts": [
+        {
+          "id": "2a5dc464-641f-464e-ba6e-31ae920a0566",
+          "name": "Vo Thanh Beispiel",
+          "funktion": "Owner",
+          "email": "vo.beispiel@example.com",
+          "telefon": "+84 234 000 0005",
+          "mobile": "",
+          "notiz": "Beispieldaten",
+          "primary": true,
+          "rechnung": false
+        }
+      ],
+      "nr": 20007,
+      "createdAt": "2026-11-09T08:00:00.000Z",
+      "updatedAt": "2026-11-09T08:00:00.000Z"
+    },
+    {
+      "id": "01821243-e81e-411f-8e1f-760e8f895790",
+      "firma": "Can Tho Metalworks Co., Ltd.",
+      "ort": "Can Tho, Vietnam",
+      "status": "Gesperrt",
+      "owner": "Marco",
+      "bewertung": "1",
+      "seit": "2025-03-10",
+      "produkte": "Schweissbaugruppen, Blechteile",
+      "qualitaet": "Mehrfach Massabweichungen, Reklamation 2026-08",
+      "zahlungskonditionen": "Vorauskasse",
+      "letzterKontakt": "2026-08-22",
+      "followUp": "",
+      "notiz": "Beispieldaten: Gesperrt nach wiederholter Reklamation. Nicht mehr anfragen, bis Audit bestanden.",
+      "kategorien": [
+        "wg_b",
+        "uk_b_schweiss"
+      ],
+      "geprueft": false,
+      "dokumente": [],
+      "contacts": [
+        {
+          "id": "5d127ee7-54a6-4ffd-b3a6-fe90aa2f41f1",
+          "name": "Dang Quoc Muster",
+          "funktion": "Sales",
+          "email": "dang.muster@example.com",
+          "telefon": "",
+          "mobile": "+84 92 000 0006",
+          "notiz": "Beispieldaten",
+          "primary": true,
+          "rechnung": false
+        }
+      ],
+      "nr": 20008,
+      "createdAt": "2026-11-09T08:00:00.000Z",
+      "updatedAt": "2026-11-09T08:00:00.000Z"
+    },
+    {
+      "id": "9e682e12-23c2-4434-b270-5f344e0550c7",
+      "firma": "Haiphong Forge Co., Ltd.",
+      "ort": "Hai Phong, Vietnam",
+      "status": "Inaktiv",
+      "owner": "Liz",
+      "bewertung": "2",
+      "seit": "2024-11-01",
+      "produkte": "Schmiedeteile, Rohlinge",
+      "qualitaet": "ISO 9001 abgelaufen und nicht erneuert",
+      "zahlungskonditionen": "60 Tage netto",
+      "letzterKontakt": "2026-03-14",
+      "followUp": "",
+      "notiz": "Beispieldaten: Seit Frühling keine Anfragen mehr.",
+      "kategorien": [
+        "wg_a"
+      ],
+      "geprueft": false,
+      "dokumente": [
+        {
+          "id": "d789e28f-b23e-45a1-9f0d-69afc869bcfe",
+          "name": "ISO 9001:2015 Zertifikat",
+          "link": "https://example.com/beispieldaten/haiphong-iso9001.pdf",
+          "gueltigBis": "2026-05-31",
+          "typ": "iso9001",
+          "ausgestelltAm": "2023-05-31",
+          "intervall": 36
+        }
+      ],
+      "contacts": [
+        {
+          "id": "676f2865-6b5c-4070-8fb1-fe4de993163a",
+          "name": "Bui Van Probe",
+          "funktion": "Sales Manager",
+          "email": "bui.probe@example.com",
+          "telefon": "+84 225 000 0007",
+          "mobile": "",
+          "notiz": "Beispieldaten",
+          "primary": true,
+          "rechnung": false
+        }
+      ],
+      "nr": 20009,
+      "createdAt": "2026-11-09T08:00:00.000Z",
+      "updatedAt": "2026-11-09T08:00:00.000Z"
     }
   ],
   "rfqs": [
@@ -1662,6 +2178,263 @@
           "note": "Fracht-Terminal, Zoll in Vorbereitung"
         }
       ]
+    },
+    {
+      "id": "100d9806-2f30-4bb7-a8de-7cedc9ef4316",
+      "customerId": "bf3bbaab-0216-4ec1-a8e3-10bbbd094970",
+      "supplierId": "3adb0aec-acea-4822-ad8c-3e8b2a6ebab0",
+      "contactId": "f81d53ce-e452-4045-a13c-56a1fa976c7f",
+      "dealId": "6ca83d62-d728-4a2e-a42c-73da35b4a781",
+      "produkt": "Messplatten Erstmuster",
+      "waehrung": "USD",
+      "phase": "Lieferant zugeordnet",
+      "gesendetAm": "",
+      "erhaltenAm": "",
+      "angebot": "",
+      "moq": "",
+      "leadTime": "",
+      "naechsterSchritt": "Anfrage mit Zeichnung senden",
+      "kommentar": "Beispieldaten",
+      "createdAt": "2026-11-09T08:00:00.000Z",
+      "updatedAt": "2026-11-09T08:00:00.000Z"
+    },
+    {
+      "id": "2fd2e879-0f65-4f15-9cd9-7e7106b67760",
+      "customerId": "d51b9bf8-e736-4208-bdf5-e47e588a2826",
+      "supplierId": "9b5eea10-a9a1-414b-8925-f649dc6c63b3",
+      "contactId": "7e3c0950-e684-48eb-a756-6cada3beae11",
+      "dealId": "9c37fe88-e782-4896-8818-7b8a8aab1836",
+      "produkt": "Spritzgusswerkzeug und Serie",
+      "waehrung": "USD",
+      "phase": "Verhandlung Angebot",
+      "gesendetAm": "2026-10-15",
+      "erhaltenAm": "2026-10-29",
+      "angebot": 48500,
+      "moq": "10000 Stk",
+      "leadTime": "12 Wochen Werkzeug + 4 Wochen Serie",
+      "naechsterSchritt": "Werkzeugpreis drücken",
+      "kommentar": "Beispieldaten",
+      "createdAt": "2026-11-09T08:00:00.000Z",
+      "updatedAt": "2026-11-09T08:00:00.000Z"
+    },
+    {
+      "id": "659669b3-13d5-4fd8-9943-ea8c52fc8d8f",
+      "customerId": "d51b9bf8-e736-4208-bdf5-e47e588a2826",
+      "supplierId": "8375f233-b8cc-4ea7-8c55-8aa9b7910efd",
+      "contactId": "2a5dc464-641f-464e-ba6e-31ae920a0566",
+      "dealId": "9c37fe88-e782-4896-8818-7b8a8aab1836",
+      "produkt": "Eloxierung Hartcoat",
+      "waehrung": "USD",
+      "phase": "Angebot erhalten",
+      "gesendetAm": "2026-10-15",
+      "erhaltenAm": "2026-11-02",
+      "angebot": 5200,
+      "moq": "5000 Stk",
+      "leadTime": "3 Wochen",
+      "naechsterSchritt": "Muster eloxieren lassen",
+      "kommentar": "Beispieldaten",
+      "createdAt": "2026-11-09T08:00:00.000Z",
+      "updatedAt": "2026-11-09T08:00:00.000Z"
+    },
+    {
+      "id": "16b7ae4f-ed46-42d5-a63f-d6703d0a8f0b",
+      "customerId": "698d64ee-cac1-479f-bb86-8fc669992fab",
+      "supplierId": "01821243-e81e-411f-8e1f-760e8f895790",
+      "contactId": "5d127ee7-54a6-4ffd-b3a6-fe90aa2f41f1",
+      "dealId": "66bc8f08-80df-40a2-964b-b4cf6d3fe6fb",
+      "produkt": "Förderrahmen",
+      "waehrung": "USD",
+      "phase": "Abschluss Nein",
+      "gesendetAm": "2026-10-15",
+      "erhaltenAm": "2026-07-20",
+      "angebot": 18000,
+      "moq": "",
+      "leadTime": "",
+      "naechsterSchritt": "",
+      "kommentar": "Beispieldaten: Lieferant gesperrt, nicht weiterverfolgt",
+      "createdAt": "2026-11-09T08:00:00.000Z",
+      "updatedAt": "2026-11-09T08:00:00.000Z"
+    },
+    {
+      "id": "feabcfdb-90b0-4aa2-8f9a-ff36afaad110",
+      "customerId": "20629bac-7f20-43bf-a74f-8506b7981a45",
+      "supplierId": "46b26776-a148-4008-a99d-318dbfdc127b",
+      "contactId": "83796345-e132-4e32-a4de-97a462e91b8c",
+      "dealId": "721d6227-425b-4b52-81de-fecea9351ce5",
+      "produkt": "Frontbleche Serie 1 (Bahn/Strasse ab Hamburg)",
+      "waehrung": "EUR",
+      "phase": "Abschluss Ja",
+      "gesendetAm": "2026-10-15",
+      "erhaltenAm": "2026-09-22",
+      "angebot": 12300,
+      "moq": "",
+      "leadTime": "",
+      "naechsterSchritt": "",
+      "kommentar": "Beispieldaten",
+      "transport": "Bahn",
+      "spediteur": "Beispiel Rail Cargo",
+      "trackingNr": "RC-BSP-77012",
+      "containerNr": "BSPU1234567",
+      "blAwbNr": "",
+      "originPort": "Hamburg",
+      "destPort": "Mailand",
+      "vessel": "Containerzug 47213",
+      "versandAm": "2026-11-03",
+      "lieferungErwartet": "2026-11-16",
+      "versandStatus": "Unterwegs",
+      "currentLocation": "Basel Güterbahnhof",
+      "events": [
+        {
+          "id": "f65be7dc-1f27-45ed-87ef-b1c2b57f07e3",
+          "date": "2026-11-01",
+          "status": "Gebucht",
+          "location": "Hamburg",
+          "note": ""
+        },
+        {
+          "id": "36c5db6d-6d2a-404e-b93f-e09c26ac2508",
+          "date": "2026-11-03",
+          "status": "Abgefahren",
+          "location": "Hamburg Hafen",
+          "note": ""
+        },
+        {
+          "id": "f58718dd-8fb3-4b6b-a43d-ee6460fe9b97",
+          "date": "2026-11-08",
+          "status": "Unterwegs",
+          "location": "Frankfurt am Main",
+          "note": ""
+        },
+        {
+          "id": "3873fd92-610f-4b2f-9fcc-e05bd4309dd1",
+          "date": "2026-11-10",
+          "status": "Unterwegs",
+          "location": "Basel Güterbahnhof",
+          "note": "Zollanmeldung vorbereitet"
+        }
+      ],
+      "createdAt": "2026-11-09T08:00:00.000Z",
+      "updatedAt": "2026-11-09T08:00:00.000Z"
+    },
+    {
+      "id": "749032fa-a206-4fb2-8936-a840afe04029",
+      "customerId": "d51b9bf8-e736-4208-bdf5-e47e588a2826",
+      "supplierId": "9b5eea10-a9a1-414b-8925-f649dc6c63b3",
+      "contactId": "7e3c0950-e684-48eb-a756-6cada3beae11",
+      "dealId": "3eef6cd4-1903-452a-9fd9-7add72d74867",
+      "produkt": "Abdeckkappen Los 2 (Luftfracht, Zustellung)",
+      "waehrung": "USD",
+      "phase": "Abschluss Ja",
+      "gesendetAm": "2026-10-15",
+      "erhaltenAm": "2026-08-30",
+      "angebot": 7600,
+      "moq": "",
+      "leadTime": "",
+      "naechsterSchritt": "",
+      "kommentar": "Beispieldaten",
+      "transport": "Luftfracht",
+      "spediteur": "Beispiel Air Express",
+      "trackingNr": "BAX-0042-7781",
+      "blAwbNr": "176-00000042",
+      "originPort": "DAD",
+      "destPort": "ZRH",
+      "vessel": "Flug BX 842",
+      "versandAm": "2026-10-22",
+      "lieferungErwartet": "2026-10-28",
+      "versandStatus": "Zugestellt",
+      "currentLocation": "Zug",
+      "events": [
+        {
+          "id": "02c62a56-d99e-4169-bfc9-c98256d65559",
+          "date": "2026-10-21",
+          "status": "Abgeholt",
+          "location": "Da Nang",
+          "note": ""
+        },
+        {
+          "id": "157dc885-490b-4d15-80d3-1fc28d9976f9",
+          "date": "2026-10-22",
+          "status": "Abgefahren",
+          "location": "Da Nang (DAD)",
+          "note": ""
+        },
+        {
+          "id": "7cee203b-a523-4b63-8044-80a01dc772f6",
+          "date": "2026-10-26",
+          "status": "Angekommen",
+          "location": "Zürich (ZRH)",
+          "note": ""
+        },
+        {
+          "id": "1aacb404-57d8-4c9c-b279-871b5ad9354d",
+          "date": "2026-10-28",
+          "status": "Zugestellt",
+          "location": "Zug",
+          "note": "Empfangen von S. Prototyp"
+        }
+      ],
+      "createdAt": "2026-11-09T08:00:00.000Z",
+      "updatedAt": "2026-11-09T08:00:00.000Z"
+    },
+    {
+      "id": "e6253b22-b4af-4c2e-aabb-4937ef0e6660",
+      "customerId": "d51b9bf8-e736-4208-bdf5-e47e588a2826",
+      "supplierId": "9b5eea10-a9a1-414b-8925-f649dc6c63b3",
+      "contactId": "7e3c0950-e684-48eb-a756-6cada3beae11",
+      "dealId": "9c37fe88-e782-4896-8818-7b8a8aab1836",
+      "produkt": "Spritzgusswerkzeug (Seefracht, Verzug)",
+      "waehrung": "USD",
+      "phase": "Abschluss Ja",
+      "gesendetAm": "2026-10-15",
+      "erhaltenAm": "2026-09-12",
+      "angebot": 9800,
+      "moq": "",
+      "leadTime": "",
+      "naechsterSchritt": "",
+      "kommentar": "Beispieldaten",
+      "transport": "Seefracht",
+      "spediteur": "Beispiel Lines",
+      "containerNr": "BSLU7788990",
+      "blAwbNr": "BSL2610771",
+      "originPort": "Da Nang",
+      "destPort": "Rotterdam",
+      "vessel": "MV Beispiel Star V.55W",
+      "versandAm": "2026-09-28",
+      "lieferungErwartet": "2026-11-05",
+      "versandStatus": "Verzögert",
+      "currentLocation": "Hafen Singapur (Stau)",
+      "events": [
+        {
+          "id": "62b1f900-8746-4b69-a1aa-79baf77a7855",
+          "date": "2026-09-25",
+          "status": "Gebucht",
+          "location": "Da Nang",
+          "note": ""
+        },
+        {
+          "id": "72698182-4945-4da7-b8d0-66258a0e9c20",
+          "date": "2026-09-28",
+          "status": "Abgefahren",
+          "location": "Da Nang",
+          "note": ""
+        },
+        {
+          "id": "e81b9e2f-2d91-456e-b03c-9e0348002387",
+          "date": "2026-10-15",
+          "status": "Unterwegs",
+          "location": "Singapur",
+          "note": "Umladung verzögert"
+        },
+        {
+          "id": "00717d6e-87e2-4e0f-9c8a-d23167a4d070",
+          "date": "2026-11-06",
+          "status": "Unterwegs",
+          "location": "Hafen Singapur (Stau)",
+          "note": "Neue ETA offen"
+        }
+      ],
+      "createdAt": "2026-11-09T08:00:00.000Z",
+      "updatedAt": "2026-11-09T08:00:00.000Z"
     }
   ],
   "deals": [
@@ -2102,6 +2875,232 @@
       "createdAt": "2026-11-02T08:00:00.000Z",
       "updatedAt": "2026-11-02T08:00:00.000Z",
       "wert": 2208
+    },
+    {
+      "id": "6ca83d62-d728-4a2e-a42c-73da35b4a781",
+      "nr": 40011,
+      "waehrung": "CHF",
+      "customerId": "bf3bbaab-0216-4ec1-a8e3-10bbbd094970",
+      "produkt": "Messplatten Erstbemusterung",
+      "erstellt": "2026-11-05",
+      "gesendet": "",
+      "phase": "Termin erhalten",
+      "chance": 20,
+      "erwarteterAbschluss": "2027-02-15",
+      "owner": "Liz",
+      "naechsterSchritt": "Vor-Ort-Termin",
+      "kommentar": "Beispieldaten: Messplatten Erstbemusterung",
+      "positions": [
+        {
+          "id": "f4d4b8c9-c59f-41d5-82c7-609497a50750",
+          "articleId": "c15499b4-abb2-4634-bb35-f1461e6d919f",
+          "artNr": 100007,
+          "bezeichnung": "Messplatte 200 × 100 × 15 mm, Alu",
+          "menge": 40,
+          "einheit": "Stk",
+          "brutto": 34,
+          "rabatt": 10,
+          "netto": 30.6
+        }
+      ],
+      "mwstAktiv": true,
+      "mwstSatz": 8.1,
+      "liefertermin": "",
+      "wert": 1224,
+      "createdAt": "2026-11-09T08:00:00.000Z",
+      "updatedAt": "2026-11-09T08:00:00.000Z"
+    },
+    {
+      "id": "721d6227-425b-4b52-81de-fecea9351ce5",
+      "nr": 40012,
+      "waehrung": "EUR",
+      "customerId": "20629bac-7f20-43bf-a74f-8506b7981a45",
+      "produkt": "Frontbleche Serie Q1/2027",
+      "erstellt": "2026-09-25",
+      "gesendet": "2026-09-29",
+      "phase": "Abschluss Ja",
+      "chance": 100,
+      "erwarteterAbschluss": "2026-10-20",
+      "owner": "Pascal",
+      "naechsterSchritt": "",
+      "kommentar": "Beispieldaten: Auftrag erhalten, Lieferung Januar",
+      "positions": [
+        {
+          "id": "2eba0509-b276-4e2c-bc39-93be33251183",
+          "articleId": "e2ffe9b4-7819-4398-b8d6-cbaf445742a2",
+          "artNr": 200007,
+          "bezeichnung": "Laserzuschnitt Frontblech 1.5 mm",
+          "menge": 1500,
+          "einheit": "Stk",
+          "brutto": 9.2,
+          "rabatt": 10,
+          "netto": 8.28
+        }
+      ],
+      "mwstAktiv": false,
+      "mwstSatz": 8.1,
+      "liefertermin": "2027-01-20",
+      "wert": 12420,
+      "createdAt": "2026-11-09T08:00:00.000Z",
+      "updatedAt": "2026-11-09T08:00:00.000Z"
+    },
+    {
+      "id": "66bc8f08-80df-40a2-964b-b4cf6d3fe6fb",
+      "nr": 40013,
+      "waehrung": "EUR",
+      "customerId": "698d64ee-cac1-479f-bb86-8fc669992fab",
+      "produkt": "Förderrahmen Schweissbaugruppen",
+      "erstellt": "2026-07-01",
+      "gesendet": "2026-07-08",
+      "phase": "Abschluss Nein",
+      "chance": 0,
+      "erwarteterAbschluss": "2026-09-18",
+      "owner": "Marco",
+      "naechsterSchritt": "",
+      "kommentar": "Beispieldaten: Abgelehnt: Preis zu hoch",
+      "positions": [
+        {
+          "id": "beead5dd-98cc-4bee-a435-dbb254ecbf62",
+          "articleId": "202a6360-5966-4cbf-a9f1-8863f7ffea34",
+          "artNr": 200004,
+          "bezeichnung": "Schweissbaugruppe Maschinenrahmen",
+          "menge": 25,
+          "einheit": "Stk",
+          "brutto": 118,
+          "rabatt": 10,
+          "netto": 106.2
+        }
+      ],
+      "mwstAktiv": false,
+      "mwstSatz": 8.1,
+      "liefertermin": "",
+      "wert": 2655,
+      "createdAt": "2026-11-09T08:00:00.000Z",
+      "updatedAt": "2026-11-09T08:00:00.000Z"
+    },
+    {
+      "id": "9c37fe88-e782-4896-8818-7b8a8aab1836",
+      "nr": 40014,
+      "waehrung": "CHF",
+      "customerId": "d51b9bf8-e736-4208-bdf5-e47e588a2826",
+      "produkt": "Dichtungsträger inkl. Werkzeug und Eloxierung",
+      "erstellt": "2026-10-12",
+      "gesendet": "2026-10-19",
+      "phase": "Verhandlung Angebot",
+      "chance": 60,
+      "erwarteterAbschluss": "2026-12-15",
+      "owner": "Pascal",
+      "naechsterSchritt": "Staffelpreis verhandeln",
+      "kommentar": "Beispieldaten: Verhandlung läuft",
+      "positions": [
+        {
+          "id": "ecc8305a-5d05-4739-bcce-7e00d81bdc72",
+          "articleId": "6b21aa5a-d9f8-4897-b209-1a06c0271343",
+          "artNr": 300004,
+          "bezeichnung": "Spritzgusswerkzeug 2-fach, Einmalkosten",
+          "menge": 1,
+          "einheit": "Stk",
+          "brutto": 14500,
+          "rabatt": 0,
+          "netto": 14500
+        },
+        {
+          "id": "fc5dbcba-ab29-4573-a542-1b1dfb363d42",
+          "articleId": "8751da6c-0aa3-4bd7-b0e2-b9c646f81ad1",
+          "artNr": 300005,
+          "bezeichnung": "Dichtungsträger POM, Variante lang",
+          "menge": 10000,
+          "einheit": "Stk",
+          "brutto": 2.9,
+          "rabatt": 8,
+          "netto": 2.67
+        },
+        {
+          "id": "5ff1e7d9-0df8-4485-b076-2e5622a745e9",
+          "articleId": "0129c092-adda-4c0c-8acb-066f5a6894c6",
+          "artNr": 400001,
+          "bezeichnung": "Eloxierung Hartcoat 50 µm, je Teil",
+          "menge": 10000,
+          "einheit": "Stk",
+          "brutto": 2.1,
+          "rabatt": 0,
+          "netto": 2.1
+        }
+      ],
+      "mwstAktiv": true,
+      "mwstSatz": 8.1,
+      "liefertermin": "2027-03-01",
+      "wert": 62200,
+      "createdAt": "2026-11-09T08:00:00.000Z",
+      "updatedAt": "2026-11-09T08:00:00.000Z"
+    },
+    {
+      "id": "3eef6cd4-1903-452a-9fd9-7add72d74867",
+      "nr": 40015,
+      "waehrung": "CHF",
+      "customerId": "d51b9bf8-e736-4208-bdf5-e47e588a2826",
+      "produkt": "Abdeckkappen PP Los 2",
+      "erstellt": "2026-08-20",
+      "gesendet": "2026-08-24",
+      "phase": "Abschluss Ja",
+      "chance": 100,
+      "erwarteterAbschluss": "2026-09-10",
+      "owner": "Pascal",
+      "naechsterSchritt": "",
+      "kommentar": "Beispieldaten: Auftrag, bereits geliefert und fakturiert",
+      "positions": [
+        {
+          "id": "390fd48d-3111-44da-8f08-0a5ccbf64764",
+          "articleId": "1d7ea5af-b571-41f6-afa1-641c4f6871a4",
+          "artNr": 300003,
+          "bezeichnung": "Abdeckkappe PP",
+          "menge": 20000,
+          "einheit": "Stk",
+          "brutto": 0.95,
+          "rabatt": 0,
+          "netto": 0.95
+        }
+      ],
+      "mwstAktiv": true,
+      "mwstSatz": 8.1,
+      "liefertermin": "2026-10-30",
+      "wert": 19000,
+      "createdAt": "2026-11-09T08:00:00.000Z",
+      "updatedAt": "2026-11-09T08:00:00.000Z"
+    },
+    {
+      "id": "a31b0774-5161-4f64-8c1d-0f56f389ef4e",
+      "nr": 40016,
+      "waehrung": "EUR",
+      "customerId": "44ad1aac-fda4-4a83-8f23-a6b937d1353d",
+      "produkt": "Distanzhülsen Muster",
+      "erstellt": "2026-11-09",
+      "gesendet": "",
+      "phase": "Akquise",
+      "chance": 20,
+      "erwarteterAbschluss": "",
+      "owner": "Liz",
+      "naechsterSchritt": "Erstkontakt",
+      "kommentar": "Beispieldaten: Distanzhülsen Muster",
+      "positions": [
+        {
+          "id": "19795e9f-654d-439f-81b8-be4b111dddad",
+          "articleId": "2c4d7fbc-24f4-4993-a348-811d4ea69482",
+          "artNr": 100002,
+          "bezeichnung": "Distanzhülse Ø30, Alu EN AW-6082",
+          "menge": 300,
+          "einheit": "Stk",
+          "brutto": 6.8,
+          "rabatt": 5,
+          "netto": 6.46
+        }
+      ],
+      "mwstAktiv": false,
+      "mwstSatz": 8.1,
+      "liefertermin": "",
+      "wert": 1938,
+      "createdAt": "2026-11-09T08:00:00.000Z",
+      "updatedAt": "2026-11-09T08:00:00.000Z"
     }
   ],
   "activities": [
@@ -2216,6 +3215,134 @@
       "status": "Erledigt",
       "createdAt": "2026-11-02T08:00:00.000Z",
       "updatedAt": "2026-11-02T08:00:00.000Z"
+    },
+    {
+      "id": "6a1eb7bd-8971-4899-9a90-ae3935052af3",
+      "nr": 30007,
+      "datum": "2026-10-28",
+      "typ": "Akquise",
+      "customerId": "bf3bbaab-0216-4ec1-a8e3-10bbbd094970",
+      "owner": "Liz",
+      "contactId": "6a9f1c98-9ab5-46a9-99b3-fcfd0e6b428a",
+      "ort": "LinkedIn",
+      "notiz": "Beispieldaten: Erstkontakt über LinkedIn, Interesse an Frästeilen.",
+      "naechsterSchritt": "Termin vereinbaren",
+      "faellig": "2026-11-05",
+      "status": "Erledigt",
+      "createdAt": "2026-11-09T08:00:00.000Z",
+      "updatedAt": "2026-11-09T08:00:00.000Z"
+    },
+    {
+      "id": "b92cbb18-3edc-4308-a149-a51dd786bee9",
+      "nr": 30008,
+      "datum": "2026-11-05",
+      "typ": "Telefon",
+      "customerId": "bf3bbaab-0216-4ec1-a8e3-10bbbd094970",
+      "owner": "Liz",
+      "contactId": "6a9f1c98-9ab5-46a9-99b3-fcfd0e6b428a",
+      "ort": "Telefon",
+      "notiz": "Beispieldaten: Telefonat, Termin am 19.11. in Genf vereinbart.",
+      "naechsterSchritt": "Unterlagen vorbereiten",
+      "faellig": "2026-11-17",
+      "status": "Offen",
+      "createdAt": "2026-11-09T08:00:00.000Z",
+      "updatedAt": "2026-11-09T08:00:00.000Z"
+    },
+    {
+      "id": "183a20fc-f5d9-46cc-8a1e-08b05e8e8643",
+      "nr": 30009,
+      "datum": "2026-11-03",
+      "typ": "Termin",
+      "customerId": "20629bac-7f20-43bf-a74f-8506b7981a45",
+      "owner": "Pascal",
+      "contactId": "120fa1c8-df9c-4eb1-92ff-ee688690d681",
+      "ort": "Mailand",
+      "notiz": "Beispieldaten: Besuch Werk Mailand, Folgeauftrag Q1/2027 besprochen.",
+      "naechsterSchritt": "Offerte Q1 senden",
+      "faellig": "2026-11-20",
+      "status": "In Arbeit",
+      "createdAt": "2026-11-09T08:00:00.000Z",
+      "updatedAt": "2026-11-09T08:00:00.000Z"
+    },
+    {
+      "id": "62da21f5-80a4-41e1-9bdc-e1717d000309",
+      "nr": 30010,
+      "datum": "2026-11-09",
+      "typ": "Verhandlung",
+      "customerId": "d51b9bf8-e736-4208-bdf5-e47e588a2826",
+      "owner": "Pascal",
+      "contactId": "18ff3378-adfc-4a01-b0f4-9a3c0c92a9f1",
+      "ort": "Zug",
+      "notiz": "Beispieldaten: Preisgespräch Staffel, Kunde will 12 % statt 8 %.",
+      "naechsterSchritt": "Gegenvorschlag erstellen",
+      "faellig": "2026-11-13",
+      "status": "Offen",
+      "createdAt": "2026-11-09T08:00:00.000Z",
+      "updatedAt": "2026-11-09T08:00:00.000Z"
+    },
+    {
+      "id": "523470ab-0c12-4b48-9d09-1d69a402126f",
+      "nr": 30011,
+      "datum": "2026-09-18",
+      "typ": "E-Mail",
+      "customerId": "698d64ee-cac1-479f-bb86-8fc669992fab",
+      "owner": "Marco",
+      "contactId": "fdd240af-0268-40cc-8330-dddcb1444ab1",
+      "ort": "E-Mail",
+      "notiz": "Beispieldaten: Absage erhalten (Preis).",
+      "naechsterSchritt": "Wiedervorlage Frühling 2027",
+      "faellig": "2027-03-15",
+      "status": "Erledigt",
+      "createdAt": "2026-11-09T08:00:00.000Z",
+      "updatedAt": "2026-11-09T08:00:00.000Z"
+    },
+    {
+      "id": "bc5922d2-478d-4de5-bb62-1b69165c8eed",
+      "nr": 30012,
+      "datum": "2026-11-09",
+      "typ": "E-Mail",
+      "customerId": "44ad1aac-fda4-4a83-8f23-a6b937d1353d",
+      "owner": "Liz",
+      "contactId": "ea71758c-56a2-47c9-8c62-9fa41b076170",
+      "ort": "E-Mail",
+      "notiz": "Beispieldaten: Erste E-Mail mit Firmenvorstellung gesendet.",
+      "naechsterSchritt": "Nachfassen nach 3 Tagen",
+      "faellig": "2026-11-12",
+      "status": "Offen",
+      "createdAt": "2026-11-09T08:00:00.000Z",
+      "updatedAt": "2026-11-09T08:00:00.000Z"
+    },
+    {
+      "id": "bbf00b06-7cc8-4fb6-b2d6-27218028538c",
+      "nr": 30013,
+      "datum": "2026-10-19",
+      "typ": "Notiz",
+      "customerId": "d51b9bf8-e736-4208-bdf5-e47e588a2826",
+      "owner": "Pascal",
+      "contactId": "18ff3378-adfc-4a01-b0f4-9a3c0c92a9f1",
+      "ort": "Intern",
+      "notiz": "Beispieldaten: Kunde bevorzugt Zahlungsziel 45 Tage.",
+      "naechsterSchritt": "",
+      "faellig": "",
+      "status": "Erledigt",
+      "createdAt": "2026-11-09T08:00:00.000Z",
+      "updatedAt": "2026-11-09T08:00:00.000Z"
+    },
+    {
+      "id": "20e7bab1-f0ac-4ef4-8148-43137e2d6b36",
+      "nr": 30014,
+      "datum": "2026-11-10",
+      "typ": "Follow-up",
+      "customerId": "c31c44d1-f429-4ceb-a21a-b1f03cd67eee",
+      "owner": "Pascal",
+      "contactId": "5a6f3b92-a2de-40f6-a102-fd9826af9bbd",
+      "ort": "Telefon",
+      "notiz": "Beispieldaten: Offerte 40003: Kunde prüft intern, Rückmeldung bis Monatsende.",
+      "naechsterSchritt": "Nachfassen",
+      "faellig": "2026-11-18",
+      "status": "Offen",
+      "createdAt": "2026-11-09T08:00:00.000Z",
+      "updatedAt": "2026-11-09T08:00:00.000Z"
     }
   ],
   "tasks": [
@@ -2302,6 +3429,121 @@
       "kommentar": "Beispieldaten",
       "createdAt": "2026-11-02T08:00:00.000Z",
       "updatedAt": "2026-11-02T08:00:00.000Z"
+    },
+    {
+      "id": "b355058f-d863-4747-817c-a83367ec69ec",
+      "nr": 50006,
+      "aufgabe": "Mahnung Rechnung Prototyp Dichtungstechnik vorbereiten",
+      "faellig": "2026-11-12",
+      "owner": "Marco",
+      "customerId": "d51b9bf8-e736-4208-bdf5-e47e588a2826",
+      "prioritaet": "A",
+      "status": "Offen",
+      "erledigtAm": "",
+      "kommentar": "Beispieldaten: Überfällige Rechnung Abdeckkappen",
+      "createdAt": "2026-11-09T08:00:00.000Z",
+      "updatedAt": "2026-11-09T08:00:00.000Z"
+    },
+    {
+      "id": "0a4ee772-ef94-4208-bd9b-aa7e9e67bb3c",
+      "nr": 50007,
+      "aufgabe": "Zahlungseingang USD-Rechnung Probe Instruments prüfen",
+      "faellig": "2026-11-13",
+      "owner": "Marco",
+      "customerId": "0eb35cb4-2c94-4884-accb-674d4c7e2c14",
+      "prioritaet": "B",
+      "status": "In Arbeit",
+      "erledigtAm": "",
+      "kommentar": "Beispieldaten: 41 Tage überfällig",
+      "createdAt": "2026-11-09T08:00:00.000Z",
+      "updatedAt": "2026-11-09T08:00:00.000Z"
+    },
+    {
+      "id": "cf78c1b3-9a03-4c32-aa9d-72fe829d5ced",
+      "nr": 50008,
+      "aufgabe": "Kalibrierzertifikat Hue Anodizing nachfordern",
+      "faellig": "2026-11-14",
+      "owner": "Liz",
+      "customerId": "",
+      "prioritaet": "A",
+      "status": "Offen",
+      "erledigtAm": "",
+      "kommentar": "Beispieldaten: Zertifikat abgelaufen",
+      "supplierId": "8375f233-b8cc-4ea7-8c55-8aa9b7910efd",
+      "createdAt": "2026-11-09T08:00:00.000Z",
+      "updatedAt": "2026-11-09T08:00:00.000Z"
+    },
+    {
+      "id": "7af455c3-9bf3-431c-b07d-5d8f742f05b6",
+      "nr": 50009,
+      "aufgabe": "ISO-9001-Zertifikat Hanoi Sheet Metal erneuern lassen",
+      "faellig": "2026-11-20",
+      "owner": "Liz",
+      "customerId": "",
+      "prioritaet": "A",
+      "status": "Blockiert",
+      "erledigtAm": "",
+      "kommentar": "Beispieldaten: wartet auf Auditor",
+      "supplierId": "46b26776-a148-4008-a99d-318dbfdc127b",
+      "createdAt": "2026-11-09T08:00:00.000Z",
+      "updatedAt": "2026-11-09T08:00:00.000Z"
+    },
+    {
+      "id": "d4acb16e-15f8-48e1-a5a0-0ff955d48b97",
+      "nr": 50010,
+      "aufgabe": "Seefracht Verzug Da Nang bei Spediteur nachfragen",
+      "faellig": "2026-11-11",
+      "owner": "Liz",
+      "customerId": "d51b9bf8-e736-4208-bdf5-e47e588a2826",
+      "prioritaet": "A",
+      "status": "Offen",
+      "erledigtAm": "",
+      "kommentar": "Beispieldaten: ETA überschritten",
+      "supplierId": "9b5eea10-a9a1-414b-8925-f649dc6c63b3",
+      "createdAt": "2026-11-09T08:00:00.000Z",
+      "updatedAt": "2026-11-09T08:00:00.000Z"
+    },
+    {
+      "id": "e6595c21-17c1-4090-b439-949111b8e1ab",
+      "nr": 50011,
+      "aufgabe": "Offerte Esempio Meccanica Q1/2027 erstellen",
+      "faellig": "2026-11-20",
+      "owner": "Pascal",
+      "customerId": "20629bac-7f20-43bf-a74f-8506b7981a45",
+      "prioritaet": "B",
+      "status": "Offen",
+      "erledigtAm": "",
+      "kommentar": "Beispieldaten",
+      "createdAt": "2026-11-09T08:00:00.000Z",
+      "updatedAt": "2026-11-09T08:00:00.000Z"
+    },
+    {
+      "id": "0cdeebe9-f2ea-4281-8b4d-4fd178fff232",
+      "nr": 50012,
+      "aufgabe": "Stammdaten Modell Fördertechnik aktualisieren",
+      "faellig": "2026-11-06",
+      "owner": "Marco",
+      "customerId": "698d64ee-cac1-479f-bb86-8fc669992fab",
+      "prioritaet": "C",
+      "status": "Erledigt",
+      "erledigtAm": "2026-11-06",
+      "kommentar": "Beispieldaten",
+      "createdAt": "2026-11-09T08:00:00.000Z",
+      "updatedAt": "2026-11-09T08:00:00.000Z"
+    },
+    {
+      "id": "57e7c4c3-adb8-4af5-bc93-f5dd37d398b2",
+      "nr": 50013,
+      "aufgabe": "Jahresplanung Lieferantenaudits 2027",
+      "faellig": "2026-12-18",
+      "owner": "Marco",
+      "customerId": "",
+      "prioritaet": "C",
+      "status": "Offen",
+      "erledigtAm": "",
+      "kommentar": "Beispieldaten: Audits Vietnam planen",
+      "createdAt": "2026-11-09T08:00:00.000Z",
+      "updatedAt": "2026-11-09T08:00:00.000Z"
     }
   ],
   "focus": [
@@ -2334,6 +3576,36 @@
       "kommentar": "Beispieldaten: Termin am 12.11. vorbereiten.",
       "createdAt": "2026-11-02T08:00:00.000Z",
       "updatedAt": "2026-11-02T08:00:00.000Z"
+    },
+    {
+      "id": "37bfa897-2697-4e36-b7d1-c673d1190bf7",
+      "customerId": "d51b9bf8-e736-4208-bdf5-e47e588a2826",
+      "blocker": "Staffelpreis offen",
+      "diese": "Ja",
+      "owner": "Pascal",
+      "kommentar": "Beispieldaten: Verhandlung abschliessen.",
+      "createdAt": "2026-11-09T08:00:00.000Z",
+      "updatedAt": "2026-11-09T08:00:00.000Z"
+    },
+    {
+      "id": "da58a2f8-0e32-46d2-97c0-16e7a4d302e7",
+      "customerId": "20629bac-7f20-43bf-a74f-8506b7981a45",
+      "blocker": "",
+      "diese": "Ja",
+      "owner": "Pascal",
+      "kommentar": "Beispieldaten: Offerte Q1/2027.",
+      "createdAt": "2026-11-09T08:00:00.000Z",
+      "updatedAt": "2026-11-09T08:00:00.000Z"
+    },
+    {
+      "id": "95443b1e-b684-46d5-909b-209e276d1c9e",
+      "customerId": "bf3bbaab-0216-4ec1-a8e3-10bbbd094970",
+      "blocker": "",
+      "diese": "Nein",
+      "owner": "Liz",
+      "kommentar": "Beispieldaten: Termin 19.11. Genf.",
+      "createdAt": "2026-11-09T08:00:00.000Z",
+      "updatedAt": "2026-11-09T08:00:00.000Z"
     }
   ],
   "approvals": [
@@ -2346,6 +3618,26 @@
       "status": "Offen",
       "createdAt": "2026-11-02T08:00:00.000Z",
       "updatedAt": "2026-11-02T08:00:00.000Z"
+    },
+    {
+      "id": "a4dbaed5-9fe9-4e52-948e-4a8711796321",
+      "thema": "Zahlungsziel 45 Tage für Prototyp Dichtungstechnik AG",
+      "customerId": "d51b9bf8-e736-4208-bdf5-e47e588a2826",
+      "entscheidung": "Beispieldaten: Zahlungsziel 45 statt 30 Tage akzeptieren?",
+      "termin": "2026-11-16",
+      "status": "Offen",
+      "createdAt": "2026-11-09T08:00:00.000Z",
+      "updatedAt": "2026-11-09T08:00:00.000Z"
+    },
+    {
+      "id": "cfa2cc56-6317-4dfa-b47f-d1120c9d0465",
+      "thema": "Lieferant Can Tho Metalworks dauerhaft sperren",
+      "customerId": "",
+      "entscheidung": "Beispieldaten: Sperre nach Reklamation bestätigt.",
+      "termin": "2026-09-01",
+      "status": "Erledigt",
+      "createdAt": "2026-11-09T08:00:00.000Z",
+      "updatedAt": "2026-11-09T08:00:00.000Z"
     }
   ],
   "articles": [
@@ -2648,6 +3940,126 @@
       "notiz": "Beispieldaten",
       "createdAt": "2026-11-02T08:00:00.000Z",
       "updatedAt": "2026-11-02T08:00:00.000Z"
+    },
+    {
+      "id": "0129c092-adda-4c0c-8acb-066f5a6894c6",
+      "nr": 400001,
+      "warengruppeId": "wg_d",
+      "unterkategorieId": "uk_d_elox",
+      "bezeichnung": "Eloxierung Hartcoat 50 µm, je Teil",
+      "beschreibung": "Hartanodisieren, schwarz",
+      "einheit": "Stk",
+      "customerId": "d51b9bf8-e736-4208-bdf5-e47e588a2826",
+      "supplierId": "8375f233-b8cc-4ea7-8c55-8aa9b7910efd",
+      "lieferantenArtNr": "HA-HC-50",
+      "waehrung": "CHF",
+      "ek": 0.9,
+      "brutto": 2.1,
+      "rabatt": 0,
+      "netto": 2.1,
+      "notiz": "Beispieldaten",
+      "createdAt": "2026-11-09T08:00:00.000Z",
+      "updatedAt": "2026-11-09T08:00:00.000Z"
+    },
+    {
+      "id": "c94098ef-0563-46bd-a87e-c78d3d0db230",
+      "nr": 400002,
+      "warengruppeId": "wg_d",
+      "unterkategorieId": "uk_d_verz",
+      "bezeichnung": "Verzinken Stahlteile, Los",
+      "beschreibung": "Galvanisch verzinkt, transparent passiviert",
+      "einheit": "Los",
+      "customerId": "",
+      "supplierId": "8375f233-b8cc-4ea7-8c55-8aa9b7910efd",
+      "lieferantenArtNr": "HA-ZN-T",
+      "waehrung": "CHF",
+      "ek": 45,
+      "brutto": 95,
+      "rabatt": 10,
+      "netto": 85.5,
+      "notiz": "Beispieldaten",
+      "createdAt": "2026-11-09T08:00:00.000Z",
+      "updatedAt": "2026-11-09T08:00:00.000Z"
+    },
+    {
+      "id": "6b21aa5a-d9f8-4897-b209-1a06c0271343",
+      "nr": 300004,
+      "warengruppeId": "wg_c",
+      "unterkategorieId": "uk_c_werkzeug",
+      "bezeichnung": "Spritzgusswerkzeug 2-fach, Einmalkosten",
+      "beschreibung": "Stahlwerkzeug, gehärtet, inkl. Erstmuster",
+      "einheit": "Stk",
+      "customerId": "d51b9bf8-e736-4208-bdf5-e47e588a2826",
+      "supplierId": "9b5eea10-a9a1-414b-8925-f649dc6c63b3",
+      "lieferantenArtNr": "DN-WZ-2K",
+      "waehrung": "CHF",
+      "ek": 8200,
+      "brutto": 14500,
+      "rabatt": 0,
+      "netto": 14500,
+      "notiz": "Beispieldaten",
+      "createdAt": "2026-11-09T08:00:00.000Z",
+      "updatedAt": "2026-11-09T08:00:00.000Z"
+    },
+    {
+      "id": "8751da6c-0aa3-4bd7-b0e2-b9c646f81ad1",
+      "nr": 300005,
+      "warengruppeId": "wg_c",
+      "unterkategorieId": "uk_c_spritz",
+      "bezeichnung": "Dichtungsträger POM, Variante lang",
+      "beschreibung": "Spritzguss, Toleranz ISO 20457",
+      "einheit": "Stk",
+      "customerId": "d51b9bf8-e736-4208-bdf5-e47e588a2826",
+      "supplierId": "9b5eea10-a9a1-414b-8925-f649dc6c63b3",
+      "lieferantenArtNr": "DN-DT-L",
+      "waehrung": "CHF",
+      "ek": 1.1,
+      "brutto": 2.9,
+      "rabatt": 8,
+      "netto": 2.67,
+      "notiz": "Beispieldaten",
+      "createdAt": "2026-11-09T08:00:00.000Z",
+      "updatedAt": "2026-11-09T08:00:00.000Z"
+    },
+    {
+      "id": "e2ffe9b4-7819-4398-b8d6-cbaf445742a2",
+      "nr": 200007,
+      "warengruppeId": "wg_b",
+      "unterkategorieId": "uk_b_laser",
+      "bezeichnung": "Laserzuschnitt Frontblech 1.5 mm",
+      "beschreibung": "Edelstahl 1.4301, entgratet",
+      "einheit": "Stk",
+      "customerId": "20629bac-7f20-43bf-a74f-8506b7981a45",
+      "supplierId": "46b26776-a148-4008-a99d-318dbfdc127b",
+      "lieferantenArtNr": "HS-LZ-15",
+      "waehrung": "EUR",
+      "ek": 3.9,
+      "brutto": 9.2,
+      "rabatt": 10,
+      "netto": 8.28,
+      "notiz": "Beispieldaten",
+      "createdAt": "2026-11-09T08:00:00.000Z",
+      "updatedAt": "2026-11-09T08:00:00.000Z"
+    },
+    {
+      "id": "c15499b4-abb2-4634-bb35-f1461e6d919f",
+      "nr": 100007,
+      "warengruppeId": "wg_a",
+      "unterkategorieId": "uk_a_fraes",
+      "bezeichnung": "Messplatte 200 × 100 × 15 mm, Alu",
+      "beschreibung": "Gefräst, plangeschliffen",
+      "einheit": "Stk",
+      "customerId": "bf3bbaab-0216-4ec1-a8e3-10bbbd094970",
+      "supplierId": "3adb0aec-acea-4822-ad8c-3e8b2a6ebab0",
+      "lieferantenArtNr": "VP-MP-200",
+      "waehrung": "CHF",
+      "ek": 18,
+      "brutto": 34,
+      "rabatt": 10,
+      "netto": 30.6,
+      "notiz": "Beispieldaten",
+      "createdAt": "2026-11-09T08:00:00.000Z",
+      "updatedAt": "2026-11-09T08:00:00.000Z"
     }
   ],
   "invoices": [
@@ -2893,6 +4305,414 @@
       ],
       "createdAt": "2026-11-02T08:00:00.000Z",
       "updatedAt": "2026-11-02T08:00:00.000Z"
+    },
+    {
+      "id": "39ec73f3-3782-4859-b1fd-f0921f861738",
+      "nr": 60007,
+      "customerId": "d51b9bf8-e736-4208-bdf5-e47e588a2826",
+      "dealId": "3eef6cd4-1903-452a-9fd9-7add72d74867",
+      "referenz": "Angebot 40015",
+      "mwstAktiv": true,
+      "mwstSatz": 8.1,
+      "waehrung": "CHF",
+      "bankId": "bk_chf",
+      "faellig": "2026-10-30",
+      "datum": "2026-09-30",
+      "status": "Gesendet",
+      "bemerkung": "Beispieldaten: Abdeckkappen Los 2, seit 12 Tagen überfällig (Mahnstufe 1 prüfen).",
+      "positions": [
+        {
+          "id": "71569286-d1a8-4875-9acc-0857704fbdd1",
+          "articleId": "1d7ea5af-b571-41f6-afa1-641c4f6871a4",
+          "artNr": 300003,
+          "bezeichnung": "Abdeckkappe PP",
+          "menge": 20000,
+          "einheit": "Stk",
+          "brutto": 0.95,
+          "rabatt": 0,
+          "netto": 0.95
+        }
+      ],
+      "createdAt": "2026-11-09T08:00:00.000Z",
+      "updatedAt": "2026-11-09T08:00:00.000Z"
+    },
+    {
+      "id": "1a38cc51-9ede-494a-abee-caf9fbfae7fd",
+      "nr": 60008,
+      "customerId": "d51b9bf8-e736-4208-bdf5-e47e588a2826",
+      "dealId": "3eef6cd4-1903-452a-9fd9-7add72d74867",
+      "referenz": "Angebot 40015",
+      "mwstAktiv": true,
+      "mwstSatz": 8.1,
+      "waehrung": "CHF",
+      "bankId": "bk_chf",
+      "faellig": "2026-09-24",
+      "datum": "2026-08-25",
+      "status": "Bezahlt",
+      "bemerkung": "Beispieldaten: Werkzeug-Anzahlung, bezahlt 2026-09-20.",
+      "positions": [
+        {
+          "id": "0a121562-98ad-4bfd-b169-687a8b3d5ebd",
+          "articleId": "6b21aa5a-d9f8-4897-b209-1a06c0271343",
+          "artNr": 300004,
+          "bezeichnung": "Spritzgusswerkzeug 2-fach, Einmalkosten",
+          "menge": 1,
+          "einheit": "Stk",
+          "brutto": 14500,
+          "rabatt": 0,
+          "netto": 14500
+        }
+      ],
+      "createdAt": "2026-11-09T08:00:00.000Z",
+      "updatedAt": "2026-11-09T08:00:00.000Z"
+    },
+    {
+      "id": "6d584d50-b342-4efb-a5e2-9f5758fb6ac2",
+      "nr": 60009,
+      "customerId": "20629bac-7f20-43bf-a74f-8506b7981a45",
+      "dealId": "721d6227-425b-4b52-81de-fecea9351ce5",
+      "referenz": "Angebot 40012",
+      "mwstAktiv": false,
+      "mwstSatz": 8.1,
+      "waehrung": "EUR",
+      "bankId": "bk_eur",
+      "faellig": "2026-12-02",
+      "datum": "2026-11-02",
+      "status": "Gesendet",
+      "bemerkung": "Beispieldaten: Teillieferung 1 von 2, Ausfuhr nach Italien, steuerfrei.",
+      "positions": [
+        {
+          "id": "9c7d898b-ac9d-400e-8c3e-afd3041cbc91",
+          "articleId": "e2ffe9b4-7819-4398-b8d6-cbaf445742a2",
+          "artNr": 200007,
+          "bezeichnung": "Laserzuschnitt Frontblech 1.5 mm",
+          "menge": 750,
+          "einheit": "Stk",
+          "brutto": 9.2,
+          "rabatt": 10,
+          "netto": 8.28
+        }
+      ],
+      "createdAt": "2026-11-09T08:00:00.000Z",
+      "updatedAt": "2026-11-09T08:00:00.000Z"
+    },
+    {
+      "id": "0b173188-d9ef-4b1f-ae59-3687f3679675",
+      "nr": 60010,
+      "customerId": "20629bac-7f20-43bf-a74f-8506b7981a45",
+      "dealId": "721d6227-425b-4b52-81de-fecea9351ce5",
+      "referenz": "Angebot 40012",
+      "mwstAktiv": false,
+      "mwstSatz": 8.1,
+      "waehrung": "EUR",
+      "bankId": "bk_eur",
+      "faellig": "2026-12-11",
+      "datum": "2026-11-11",
+      "status": "Entwurf",
+      "bemerkung": "Beispieldaten: Teillieferung 2 von 2, noch nicht versendet.",
+      "positions": [
+        {
+          "id": "00094962-60a0-40eb-a6d2-984e6fb39e43",
+          "articleId": "e2ffe9b4-7819-4398-b8d6-cbaf445742a2",
+          "artNr": 200007,
+          "bezeichnung": "Laserzuschnitt Frontblech 1.5 mm",
+          "menge": 750,
+          "einheit": "Stk",
+          "brutto": 9.2,
+          "rabatt": 10,
+          "netto": 8.28
+        }
+      ],
+      "createdAt": "2026-11-09T08:00:00.000Z",
+      "updatedAt": "2026-11-09T08:00:00.000Z"
+    },
+    {
+      "id": "1194820c-956f-4a79-b697-43ff8dead72c",
+      "nr": 60011,
+      "customerId": "698d64ee-cac1-479f-bb86-8fc669992fab",
+      "dealId": "66bc8f08-80df-40a2-964b-b4cf6d3fe6fb",
+      "referenz": "Angebot 40013",
+      "mwstAktiv": false,
+      "mwstSatz": 8.1,
+      "waehrung": "EUR",
+      "bankId": "bk_eur",
+      "faellig": "2026-08-14",
+      "datum": "2026-07-15",
+      "status": "Storniert",
+      "bemerkung": "Beispieldaten: Musterbaugruppen, storniert wegen Auftragsrücknahme.",
+      "positions": [
+        {
+          "id": "e0e01e27-8deb-4aee-893c-dcfc3b52e2b2",
+          "articleId": "202a6360-5966-4cbf-a9f1-8863f7ffea34",
+          "artNr": 200004,
+          "bezeichnung": "Schweissbaugruppe Maschinenrahmen",
+          "menge": 5,
+          "einheit": "Stk",
+          "brutto": 118,
+          "rabatt": 10,
+          "netto": 106.2
+        }
+      ],
+      "createdAt": "2026-11-09T08:00:00.000Z",
+      "updatedAt": "2026-11-09T08:00:00.000Z"
+    },
+    {
+      "id": "09939367-e99e-4af0-81c5-fbd120cb1494",
+      "nr": 60012,
+      "customerId": "0eb35cb4-2c94-4884-accb-674d4c7e2c14",
+      "dealId": "",
+      "referenz": "",
+      "mwstAktiv": false,
+      "mwstSatz": 8.1,
+      "waehrung": "USD",
+      "bankId": "bk_usd",
+      "faellig": "2026-10-01",
+      "datum": "2026-09-01",
+      "status": "Gesendet",
+      "bemerkung": "Beispieldaten: Beispiel in USD (Export USA), 41 Tage überfällig.",
+      "positions": [
+        {
+          "id": "7fde0f5a-758c-4e3c-b7c0-a2d4b0d47300",
+          "articleId": "d40a494e-300f-49bc-a521-b596b9cb290d",
+          "artNr": 100006,
+          "bezeichnung": "Präzisionswelle Ø12 × 90 mm, Edelstahl 1.4301",
+          "menge": 400,
+          "einheit": "Stk",
+          "brutto": 12.9,
+          "rabatt": 5,
+          "netto": 12.26
+        }
+      ],
+      "createdAt": "2026-11-09T08:00:00.000Z",
+      "updatedAt": "2026-11-09T08:00:00.000Z"
+    },
+    {
+      "id": "8d7751b7-89a5-4880-b88e-2b94d7bacb3b",
+      "nr": 60013,
+      "customerId": "0eb35cb4-2c94-4884-accb-674d4c7e2c14",
+      "dealId": "",
+      "referenz": "",
+      "mwstAktiv": false,
+      "mwstSatz": 8.1,
+      "waehrung": "USD",
+      "bankId": "bk_usd",
+      "faellig": "2026-08-31",
+      "datum": "2026-08-01",
+      "status": "Bezahlt",
+      "bemerkung": "Beispieldaten: Pilotlieferung USD, bezahlt.",
+      "positions": [
+        {
+          "id": "5b595e8f-2f48-47f9-b563-8a51943c9e77",
+          "articleId": "d40a494e-300f-49bc-a521-b596b9cb290d",
+          "artNr": 100006,
+          "bezeichnung": "Präzisionswelle Ø12 × 90 mm, Edelstahl 1.4301",
+          "menge": 100,
+          "einheit": "Stk",
+          "brutto": 12.9,
+          "rabatt": 5,
+          "netto": 12.26
+        }
+      ],
+      "createdAt": "2026-11-09T08:00:00.000Z",
+      "updatedAt": "2026-11-09T08:00:00.000Z"
+    },
+    {
+      "id": "c8258909-f313-470a-84df-ec1a97141ea2",
+      "nr": 60014,
+      "customerId": "307fe6de-b604-46d4-afb5-09089b54e2ec",
+      "dealId": "",
+      "referenz": "",
+      "mwstAktiv": true,
+      "mwstSatz": 8.1,
+      "waehrung": "CHF",
+      "bankId": "bk_chf",
+      "faellig": "2026-12-10",
+      "datum": "2026-11-10",
+      "status": "Gesendet",
+      "bemerkung": "Beispieldaten: Frisch versendet, noch nicht fällig (QR-Rechnung CHF).",
+      "positions": [
+        {
+          "id": "0d38caa9-e9c7-497a-9afc-89a465615e8d",
+          "articleId": "51b80897-dfe9-4e75-af69-2983dd2613a9",
+          "artNr": 200003,
+          "bezeichnung": "Schaltschrankblende",
+          "menge": 40,
+          "einheit": "Stk",
+          "brutto": 36,
+          "rabatt": 10,
+          "netto": 32.4
+        },
+        {
+          "id": "8fc2df27-3401-45e4-9b40-a73ced29c7b7",
+          "articleId": "2a38483b-e84b-46e8-ae4f-cd47184cddfa",
+          "artNr": 200002,
+          "bezeichnung": "Montagewinkel gekantet",
+          "menge": 200,
+          "einheit": "Stk",
+          "brutto": 4.9,
+          "rabatt": 15,
+          "netto": 4.17
+        }
+      ],
+      "createdAt": "2026-11-09T08:00:00.000Z",
+      "updatedAt": "2026-11-09T08:00:00.000Z"
+    }
+  ],
+  "kalender": [
+    {
+      "title": "Wochenstart Shopfloor",
+      "start": "2026-11-09T08:00:00Z",
+      "end": "2026-11-09T08:45:00Z",
+      "allDay": false,
+      "location": "Büro Zürich",
+      "notes": "Beispieldaten: wöchentlicher Kundenfokus (Shopfloor-Meeting)",
+      "reminders": [
+        15
+      ],
+      "repeat": {
+        "freq": "weekly",
+        "interval": 1,
+        "until": "2026-12-21",
+        "count": null
+      }
+    },
+    {
+      "title": "Kundenbesuch Muster Maschinenbau (Winterthur)",
+      "start": "2026-11-04T13:00:00Z",
+      "end": "2026-11-04T15:00:00Z",
+      "allDay": false,
+      "location": "Industriestrasse 12, 8400 Winterthur",
+      "notes": "Beispieldaten: Offerte 40003 besprechen (vergangen)",
+      "reminders": [
+        60
+      ]
+    },
+    {
+      "title": "Telefonat Prototyp Dichtungstechnik (Preisgespräch)",
+      "start": "2026-11-13T09:00:00Z",
+      "end": "2026-11-13T09:45:00Z",
+      "allDay": false,
+      "location": "",
+      "notes": "Beispieldaten: Staffelpreis verhandeln",
+      "reminders": [
+        15,
+        60
+      ]
+    },
+    {
+      "title": "Vor-Ort-Termin Exemple Mécanique SA, Genf",
+      "start": "2026-11-19T08:30:00Z",
+      "end": "2026-11-19T12:00:00Z",
+      "allDay": false,
+      "location": "Rue de l'Exemple 7, 1201 Genf",
+      "notes": "Beispieldaten",
+      "reminders": [
+        1440,
+        60
+      ]
+    },
+    {
+      "title": "Videocall Da Nang Plastics (Werkzeug-Freigabe)",
+      "start": "2026-11-17T02:00:00Z",
+      "end": "2026-11-17T03:00:00Z",
+      "allDay": false,
+      "location": "Online",
+      "notes": "Beispieldaten: Zeitverschiebung +6 Std. beachten",
+      "reminders": [
+        30
+      ]
+    },
+    {
+      "title": "Eingang Seecontainer Rotterdam (ETA)",
+      "start": "2026-11-05",
+      "end": "2026-11-05",
+      "allDay": true,
+      "location": "",
+      "notes": "Beispieldaten: Verzögerung prüfen",
+      "reminders": []
+    },
+    {
+      "title": "Zertifikatsfrist Muster Kunststofftechnik (ISO 13485)",
+      "start": "2026-11-22",
+      "end": "2026-11-22",
+      "allDay": true,
+      "location": "",
+      "notes": "Beispieldaten: Zertifikat läuft ab",
+      "reminders": [
+        10080,
+        1440
+      ]
+    },
+    {
+      "title": "Mahnlauf Debitoren",
+      "start": "2026-11-16T07:30:00Z",
+      "end": "2026-11-16T08:30:00Z",
+      "allDay": false,
+      "location": "",
+      "notes": "Beispieldaten: monatlicher Mahnlauf",
+      "reminders": [
+        60
+      ],
+      "repeat": {
+        "freq": "monthly",
+        "interval": 1,
+        "until": null,
+        "count": 6
+      }
+    },
+    {
+      "title": "Quartalsgespräch Esempio Meccanica (Mailand)",
+      "start": "2026-12-03T09:00:00Z",
+      "end": "2026-12-03T14:00:00Z",
+      "allDay": false,
+      "location": "Via Campione 15, Mailand",
+      "notes": "Beispieldaten",
+      "reminders": [
+        2880,
+        1440
+      ]
+    },
+    {
+      "title": "Lieferantenaudit Hanoi Sheet Metal (Vorbereitung)",
+      "start": "2026-12-08T09:00:00Z",
+      "end": "2026-12-08T10:30:00Z",
+      "allDay": false,
+      "location": "Büro Zürich",
+      "notes": "Beispieldaten",
+      "reminders": [
+        60
+      ]
+    },
+    {
+      "title": "Jahresabschluss-Workshop",
+      "start": "2026-12-14",
+      "end": "2026-12-15",
+      "allDay": true,
+      "location": "",
+      "notes": "Beispieldaten: zweitägig",
+      "reminders": [
+        10080
+      ]
+    },
+    {
+      "title": "Weihnachtsessen Team",
+      "start": "2026-12-18T17:30:00Z",
+      "end": "2026-12-18T21:00:00Z",
+      "allDay": false,
+      "location": "Restaurant Beispiel, Zürich",
+      "notes": "Beispieldaten",
+      "reminders": [
+        60
+      ]
+    },
+    {
+      "title": "Betriebsferien",
+      "start": "2026-12-24",
+      "end": "2027-01-03",
+      "allDay": true,
+      "location": "",
+      "notes": "Beispieldaten: Büro geschlossen",
+      "reminders": []
     }
   ]
 }
