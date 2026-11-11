@@ -43,10 +43,10 @@ assert.equal(hasShipment({ containerNr: "ABCU1234567" }), true);
 assert.equal(hasShipment({ produkt: "x" }), false);
 assert.match(trackingHref({ spediteur: "MSC", containerNr: "MSCU7412358" }), /MSCU7412358$/);
 
-// Beispieldaten: 8 Sendungen, genau eine verspätet, eine in diesem Monat zugestellt
+// Beispieldaten: 11 Sendungen, zwei verspätet, eine in diesem Monat zugestellt
 const raw = JSON.parse(fs.readFileSync(new URL("../sample/beispieldaten.json", import.meta.url), "utf8"));
 const ships = raw.rfqs.filter(hasShipment);
-assert.equal(ships.length, 8);
-assert.deepEqual(shipmentKpis(ships, today), { inTransit: 6, arriving7: 4, delayed: 1, deliveredMonth: 1 });
+assert.equal(ships.length, 11);
+assert.deepEqual(shipmentKpis(ships, today), { inTransit: 8, arriving7: 4, delayed: 2, deliveredMonth: 1 });
 assert.ok(ships.every((s) => /^[A-Z]{4}\d{7}$/.test(s.containerNr || "AAAA0000000") && Array.isArray(s.events) && s.events.length));
 console.log("test-shipments: OK");

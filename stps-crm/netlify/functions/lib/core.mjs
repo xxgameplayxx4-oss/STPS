@@ -14,6 +14,7 @@ import { calendarEnabled, notFound } from "./features.mjs";
 import * as files from "./files.mjs";
 import * as outlook from "./outlook.mjs";
 import * as dev from "./devmode.mjs";
+import * as sample from "./sample.mjs";
 import { updateTeamFx } from "./fx-rates.mjs";
 import { parseBody } from "./http.mjs";
 import { stampAndDiff, appendAudit } from "./audit.mjs";
@@ -145,6 +146,10 @@ export async function handleApi(req, deps) {
     // Kein HTTP-Fehler für erwartbare Ausgänge (manuell, Dienst nicht erreichbar, noch keine Daten): die Oberfläche wertet «status» aus
     return json(200, { ok: false, status: r.status, ...(r.status === "failed" ? { message: "Wechselkurse konnten nicht geladen werden" } : {}) });
   }
+
+  // Beispieldaten hinzufügen/entfernen (nur Team-Admins; lib/sample.mjs) – fasst nur Datensätze mit sample:true an
+  const sampleRes = await sample.route(path, method, req, { ...deps, now, calendarOn: calOn }, ctx);
+  if (sampleRes) return sampleRes;
 
   if (path === "/db") {
     if (method === "GET") {

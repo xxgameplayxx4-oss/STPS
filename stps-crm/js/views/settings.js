@@ -46,6 +46,7 @@ export function render(root) {
   const S = store.S;
   const counts = store.counts();
   const empty = COLLECTIONS.every((c) => !counts[c]);
+  const sampleN = COLLECTIONS.reduce((n, c) => n + store.all(c).filter((r) => r.sample === true).length, 0); // als Beispieldaten gekennzeichnete Datensätze
   const server = S.mode === "server";
   const modeText = server ? t(S.backend === "mysql" ? "set.modeServerMysql" : "set.modeServer") : S.mode === "offline" ? t("set.modeOffline") : t("set.modeLocal");
   const spAdmin = server && store.isSuper(); // SharePoint-Einrichtung/-Diagnose: nur Superadmin (auch im betretenen Team)
@@ -108,8 +109,16 @@ export function render(root) {
         <div class="card-head"><h2>${t("set.sampleTitle")}</h2></div>
         <div class="pad">
           <p class="help">${t("set.sampleHelp")}</p>
-          <button type="button" class="btn" data-set="sample" ${empty ? "" : "disabled"}>${t("set.sampleLoad")}</button>
-          ${empty ? "" : html`<p class="help">${t("set.sampleNotEmpty")}</p>`}
+          ${server
+            ? (store.isTeamAdmin()
+              ? html`<div class="btn-row wrap">
+                  <button type="button" class="btn btn-primary" data-set="sample-add" ${sampleN ? "disabled" : ""}>${icon("plus")} ${t("set.sampleAdd")}</button>
+                  <button type="button" class="btn" data-set="sample-remove" ${sampleN ? "" : "disabled"}>${icon("trash")} ${t("set.sampleRemove")}</button>
+                </div>
+                <p class="help">${sampleN ? t("set.sampleLoadedInfo", { n: sampleN }) : t("set.sampleNoneInfo")}</p>`
+              : html`<p class="help">${t("set.sampleAdminOnly")}</p>`)
+            : html`<button type="button" class="btn" data-set="sample" ${empty ? "" : "disabled"}>${t("set.sampleLoad")}</button>
+              ${empty ? "" : html`<p class="help">${t("set.sampleNotEmpty")}</p>`}`}
           ${store.S.dev ? html`<p class="help">${t("set.sampleFullHelp")}</p><button type="button" class="btn" data-set="sample-full">${icon("upload")} ${t("set.sampleFullLoad")}</button>` : ""}
         </div>
       </section>
@@ -203,6 +212,12 @@ export function render(root) {
         loadSampleData();
         toast(t("toast.sampleLoaded"), { type: "ok" });
         break;
+      case "sample-add":
+        if (await confirmDialog({ title: t("set.sampleAddTitle"), message: html`<p>${t("set.sampleAddMsg")}</p>`, confirmLabel: t("set.sampleAddConfirm") })) await runSample("add");
+        break;
+      case "sample-remove":
+        if (await confirmDialog({ title: t("set.sampleRemoveTitle"), message: html`<p>${t("set.sampleRemoveMsg")}</p>`, confirmLabel: t("set.sampleRemoveConfirm"), danger: true })) await runSample("remove");
+        break;
       case "sample-full":
         try {
           const raw = await api.devSample();
@@ -235,6 +250,20 @@ export function render(root) {
       }
     }
   });
+}
+
+/** Beispieldaten auf dem Server hinzufügen/entfernen (nur Team-Admins). Zuerst werden eigene, noch ungespeicherte Änderungen gesichert; danach wird der Serverstand geladen. */
+async function runSample(kind) {
+  try {
+    await store.flushNow();
+    if (store.isDirty()) throw new Error(t("set.sampleUnsaved"));
+    const r = kind === "add" ? await api.sampleAdd() : await api.sampleRemove();
+    await store.reloadFromServer({ silent: true });
+    const n = Object.values(kind === "add" ? r.counts : r.removed).reduce((a, b) => a + b, 0);
+    toast(t(kind === "add" ? "toast.sampleAdded" : "toast.sampleRemoved", { n }) + (r.orphaned ? " – " + t("set.sampleOrphans", { n: r.orphaned }) : ""), { type: "ok", ms: r.orphaned ? 8000 : undefined });
+  } catch (err) {
+    toast(t("toast.sampleFailed", { msg: err.message }), { type: "error", ms: 8000 });
+  }
 }
 
 async function confirmAndReplace(raw, label) {

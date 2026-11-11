@@ -24,6 +24,7 @@
     "test:audit-fixes": "node scripts/test-audit-fixes.mjs",
     "test:audit-data": "node scripts/test-audit-data.mjs",
     "test:sample": "node scripts/test-sample.mjs",
+    "test:sample-live": "node scripts/test-sample-live.mjs",
     "test:fx": "node scripts/test-fx-rates.mjs",
     "test:shipments": "node scripts/test-shipments.mjs",
     "test:kv": "node scripts/test-kv-mysql.mjs",

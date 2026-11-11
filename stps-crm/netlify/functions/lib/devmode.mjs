@@ -12,7 +12,7 @@
 //  - das Team «SwissTech Precision Solutions» mit den vier Beispielkonten wird angelegt, falls es noch keine Konten gibt.
 // Ausserhalb des Entwicklungsmodus existiert /api/dev/* nicht (404).
 import { randomBytes } from "node:crypto";
-import { readFile } from "node:fs/promises";
+import { readSampleFile } from "./sample.mjs";
 import { mutateDoc } from "./kv.mjs";
 import * as U from "./users.mjs";
 import * as T from "./teams.mjs";
@@ -128,9 +128,6 @@ export async function devSession(req, deps, method, parseBody) {
 
 /** GET /api/dev/sample – der Beispielsatz sample/beispieldaten.json (nur Entwicklungsmodus; die Datei ist als /sample/* öffentlich gesperrt). */
 export async function devSample() {
-  try {
-    return json(200, JSON.parse(await readFile(new URL("../../../sample/beispieldaten.json", import.meta.url), "utf8")));
-  } catch {
-    return json(404, { error: "not_found", message: "Beispieldaten nicht gefunden" });
-  }
+  const raw = await readSampleFile();
+  return raw ? json(200, raw) : json(404, { error: "not_found", message: "Beispieldaten nicht gefunden" });
 }

@@ -77,6 +77,9 @@ export const login = (username, password) => request("POST", "/login", { usernam
 export const devSession = (as) => request("POST", "/dev/session", { as }, { auth: false, timeout: 15000 });
 /** Entwicklungsmodus: der vollständige Beispielsatz (sample/beispieldaten.json) */
 export const devSample = () => request("GET", "/dev/sample", undefined, { timeout: 15000 });
+/** Beispieldaten im laufenden Betrieb (nur Team-Admins): hinzufügen (nichts wird überschrieben) bzw. nur die markierten Beispiel-Datensätze entfernen */
+export const sampleAdd = () => request("POST", "/sample/add", {}, { timeout: 40000 });
+export const sampleRemove = () => request("POST", "/sample/remove", {}, { timeout: 40000 });
 export const logout = () => request("POST", "/logout", {}, { timeout: 5000 });
 export const me = () => request("GET", "/me");
 export const changePassword = (current, next) => request("POST", "/me/password", { current, new: next });

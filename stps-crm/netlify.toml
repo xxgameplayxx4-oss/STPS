@@ -7,7 +7,7 @@
 
 [functions]
   node_bundler = "esbuild"
-  # Beispieldaten (nur Entwicklungsmodus, /api/dev/sample) liegen neben der Function
+  # Beispieldaten (sample/beispieldaten.json): «Beispieldaten hinzufügen» (/api/sample/add) und Entwicklungsmodus (/api/dev/sample) lesen sie zur Laufzeit; öffentlich per /sample/* gesperrt (404, siehe Weiterleitungen unten)
   included_files = ["sample/**"]
   # exceljs (Excel-Import/-Export) ist CommonJS und lässt sich nicht in das ESM-Bundle einbetten ("Dynamic require of …"):
   # Es wird deshalb als eigenes Paket mit der Function ausgeliefert.
